@@ -1,34 +1,27 @@
-package model;
-
-import java.time.LocalDate;
+package it.uniroma3.siw_ristorante.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class Recensione {
+public class Tavolo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank(message = "Il titolo della recensione non può essere vuoto")
-    @Column(nullable = false, length = 30)
-    private String titolo;
-
-    @NotNull(message = "Il voto della recensione non può essere nullo")
+    @NotNull(message = "Il numero di posti del tavolo non può essere nullo")
     @Column(nullable = false)
-    private Integer voto;
+    private Integer numeroPosti;
 
-    @Column(length = 200)
-    private String testo;
-
-    @Column(nullable = false)
-    private LocalDate data;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private StatoTavolo status = StatoTavolo.FREE;
 
     public Long getId() {
         return id;
@@ -38,36 +31,20 @@ public class Recensione {
         this.id = id;
     }
 
-    public String getTitolo() {
-        return titolo;
+    public Integer getNumeroPosti() {
+        return numeroPosti;
     }
 
-    public void setTitolo(String titolo) {
-        this.titolo = titolo;
+    public void setNumeroPosti(Integer numeroPosti) {
+        this.numeroPosti = numeroPosti;
     }
 
-    public Integer getVoto() {
-        return voto;
+    public StatoTavolo getStatus() {
+        return status;
     }
 
-    public void setVoto(Integer voto) {
-        this.voto = voto;
-    }
-
-    public String getTesto() {
-        return testo;
-    }
-
-    public void setTesto(String testo) {
-        this.testo = testo;
-    }
-
-    public LocalDate getData() {
-        return data;
-    }
-
-    public void setData(LocalDate data) {
-        this.data = data;
+    public void setStatus(StatoTavolo status) {
+        this.status = status;
     }
 
     @Override
@@ -86,7 +63,7 @@ public class Recensione {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Recensione other = (Recensione) obj;
+        Tavolo other = (Tavolo) obj;
         if (id == null) {
             if (other.id != null)
                 return false;

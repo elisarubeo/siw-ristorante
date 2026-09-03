@@ -1,19 +1,25 @@
-package model;
+package it.uniroma3.siw_ristorante.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-public class Ordinazione {
+public class Ristorante {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull(message = "Il totale dell'ordinazione non può essere nullo")
-    private Double totale;
+    @NotBlank(message = "Il nome del ristorante non può essere vuoto")
+    @Column(nullable = false)
+    private String nome;
+
+    @NotBlank(message = "L'indirizzo del ristorante non può essere vuoto")
+    @Column(nullable = false)
+    private String indirizzo;
 
     public Long getId() {
         return id;
@@ -23,12 +29,20 @@ public class Ordinazione {
         this.id = id;
     }
 
-    public Double getTotale() {
-        return totale;
+    public String getNome() {
+        return nome;
     }
 
-    public void setTotale(Double totale) {
-        this.totale = totale;
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getIndirizzo() {
+        return indirizzo;
+    }
+
+    public void setIndirizzo(String indirizzo) {
+        this.indirizzo = indirizzo;
     }
 
     @Override
@@ -47,7 +61,7 @@ public class Ordinazione {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Ordinazione other = (Ordinazione) obj;
+        Ristorante other = (Ristorante) obj;
         if (id == null) {
             if (other.id != null)
                 return false;

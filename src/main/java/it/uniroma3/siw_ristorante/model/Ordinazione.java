@@ -1,30 +1,19 @@
-package model;
+package it.uniroma3.siw_ristorante.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class Piatto {
+public class Ordinazione {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank(message = "Il nome del piatto non può essere vuoto")
-    @Column(nullable = false, length = 30)
-    private String nome;
-
-    @NotBlank(message = "Gli ingredienti del piatto non possono essere vuoti")
-    @Column(nullable = false, length = 100)
-    private String ingredienti;
-
-    @NotNull(message = "Il prezzo del piatto non può essere nullo")
-    @Column(nullable = false)
-    private Double prezzo;
+    @NotNull(message = "Il totale dell'ordinazione non può essere nullo")
+    private Double totale;
 
     public Long getId() {
         return id;
@@ -34,28 +23,12 @@ public class Piatto {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public Double getTotale() {
+        return totale;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getIngredienti() {
-        return ingredienti;
-    }
-
-    public void setIngredienti(String ingredienti) {
-        this.ingredienti = ingredienti;
-    }
-
-    public Double getPrezzo() {
-        return prezzo;
-    }
-
-    public void setPrezzo(Double prezzo) {
-        this.prezzo = prezzo;
+    public void setTotale(Double totale) {
+        this.totale = totale;
     }
 
     @Override
@@ -74,7 +47,7 @@ public class Piatto {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Piatto other = (Piatto) obj;
+        Ordinazione other = (Ordinazione) obj;
         if (id == null) {
             if (other.id != null)
                 return false;

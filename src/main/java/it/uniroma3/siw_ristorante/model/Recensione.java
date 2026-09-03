@@ -1,4 +1,6 @@
-package model;
+package it.uniroma3.siw_ristorante.model;
+
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -6,20 +8,27 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class Ristorante {
+public class Recensione {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank(message = "Il nome del ristorante non può essere vuoto")
-    @Column(nullable = false)
-    private String nome;
+    @NotBlank(message = "Il titolo della recensione non può essere vuoto")
+    @Column(nullable = false, length = 30)
+    private String titolo;
 
-    @NotBlank(message = "L'indirizzo del ristorante non può essere vuoto")
+    @NotNull(message = "Il voto della recensione non può essere nullo")
     @Column(nullable = false)
-    private String indirizzo;
+    private Integer voto;
+
+    @Column(length = 200)
+    private String testo;
+
+    @Column(nullable = false)
+    private LocalDate data;
 
     public Long getId() {
         return id;
@@ -29,20 +38,36 @@ public class Ristorante {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getTitolo() {
+        return titolo;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setTitolo(String titolo) {
+        this.titolo = titolo;
     }
 
-    public String getIndirizzo() {
-        return indirizzo;
+    public Integer getVoto() {
+        return voto;
     }
 
-    public void setIndirizzo(String indirizzo) {
-        this.indirizzo = indirizzo;
+    public void setVoto(Integer voto) {
+        this.voto = voto;
+    }
+
+    public String getTesto() {
+        return testo;
+    }
+
+    public void setTesto(String testo) {
+        this.testo = testo;
+    }
+
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
     }
 
     @Override
@@ -61,7 +86,7 @@ public class Ristorante {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Ristorante other = (Ristorante) obj;
+        Recensione other = (Recensione) obj;
         if (id == null) {
             if (other.id != null)
                 return false;

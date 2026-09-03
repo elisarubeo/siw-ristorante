@@ -1,4 +1,4 @@
-package model;
+package it.uniroma3.siw_ristorante.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

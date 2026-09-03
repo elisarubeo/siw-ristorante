@@ -1,4 +1,4 @@
-package model;
+package it.uniroma3.siw_ristorante.model;
 
 public enum StatoPrenotazione {
     SCHEDULED,
