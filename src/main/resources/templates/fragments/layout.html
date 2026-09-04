@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- Questo file non e' una pagina: raccoglie i pezzi comuni che le altre
+     pagine richiamano con th:replace. -->
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="testa(titolo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titolo} + ' · Ristorante'">Ristorante</title>
+    <!-- @{...} antepone il context path: se un giorno l'applicazione viene
+         pubblicata sotto un sottopercorso, i link continuano a funzionare -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<header th:fragment="intestazione" class="intestazione">
+    <div class="barra">
+        <a class="marchio" th:href="@{/}">Ristorante</a>
+        <!-- #authentication e' l'utente corrente. Si controlla anche il nome
+             perche' chi non ha fatto il login non ha un Authentication nullo:
+             ha quello anonimo, che risulta comunque "autenticato".
+             Non si usa sec:authorize perche' richiede un
+             SecurityExpressionHandler basato su FilterInvocation, che Spring
+             Security 7 non espone piu'. -->
+        <nav class="navigazione"
+             th:with="autenticato=${#authentication != null and #authentication.name != 'anonymousUser'}">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/ristoranti}">Ristoranti</a>
+
+            <a th:unless="${autenticato}" th:href="@{/login}">Accedi</a>
+
+            <span th:if="${autenticato}" class="utente">
+                <span th:text="${#authentication.name}">utente</span>
+                <!-- il logout e' una POST: Spring Security rifiuta il logout
+                     via GET, e il token CSRF lo aggiunge Thymeleaf da solo
+                     perche' il form usa th:action -->
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <button type="submit" class="bottone bottone-tenue">Esci</button>
+                </form>
+            </span>
+        </nav>
+    </div>
+</header>
+
+<footer th:fragment="chiusura" class="chiusura">
+    <div>Progetto SIW · Universita degli Studi Roma Tre</div>
+</footer>
+
+</body>
+</html>

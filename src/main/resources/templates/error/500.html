@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Errore')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <div class="errore">
+        <p class="codice">500</p>
+        <h1 th:text="${errorMessage} ?: 'Si e verificato un errore'">Si e verificato un errore</h1>
+        <p>Riprova fra qualche istante.</p>
+        <p><a class="bottone" th:href="@{/}">Torna alla home</a></p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

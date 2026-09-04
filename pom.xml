@@ -50,6 +50,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- dialetto sec:* nei template: mostra o nasconde parti di pagina
+		     in base a ruolo e autenticazione -->
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>

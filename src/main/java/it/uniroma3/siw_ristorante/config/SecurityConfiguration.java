@@ -46,8 +46,9 @@ public class SecurityConfiguration {
 
         /* ATTENZIONE ALL'ORDINE: vince la prima regola che corrisponde alla
            richiesta, quindi le regole piu' specifiche vanno prima di quelle
-           generiche. Le rotte di amministrazione stanno sopra le pubbliche,
-           altrimenti "/festivals/**" lascerebbe passare anche "/festivals/new". */
+           generiche. Le poche rotte pubbliche vanno elencate una per una PRIMA
+           delle regole generiche di amministrazione, altrimenti
+           "/ristoranti/**" si prende anche "/ristoranti" e il menu. */
         httpSecurity.authorizeHttpRequests(authorize -> {
 
             // risorse statiche: sempre accessibili
@@ -58,39 +59,29 @@ public class SecurityConfiguration {
                protetta, ogni errore diventerebbe un redirect al login. */
             authorize.requestMatchers("/error").permitAll();
 
+            // pagine pubbliche di servizio
+            authorize.requestMatchers(HttpMethod.GET, "/", "/index", "/register", "/login").permitAll();
+            authorize.requestMatchers(HttpMethod.POST, "/register").permitAll();
+
+            /* Consultazione pubblica: l'elenco dei ristoranti e il menu di un
+               ristorante li vedono tutti, anche senza autenticazione. Solo
+               queste due GET sono pubbliche sotto /ristoranti: tutto il resto
+               ricade nella regola di amministrazione piu' sotto. */
+            authorize.requestMatchers(HttpMethod.GET,
+                    "/ristoranti",
+                    "/ristoranti/*/menu").permitAll();
+
             // funzionalita' riservate all'amministratore
             authorize.requestMatchers("/admin/**").hasAuthority(Credentials.ADMIN_ROLE);
 
-            /* Registi e sale sono interamente riservati all'amministratore:
-               non essendoci pagine pubbliche su questi percorsi, basta una
-               regola sola per ciascuno, valida per qualunque metodo HTTP. */
-            authorize.requestMatchers("/ristoranti/**").hasAuthority(Credentials.ADMIN_ROLE);
+            /* Tavoli e piatti non hanno pagine pubbliche, quindi basta una
+               regola per ciascuno valida per qualunque metodo HTTP. Su
+               /ristoranti/** questa regola raccoglie tutto cio' che non e'
+               stato dichiarato pubblico sopra: /ristoranti/new,
+               /ristoranti/{id}/edit e tutte le POST. */
             authorize.requestMatchers("/tavoli/**").hasAuthority(Credentials.ADMIN_ROLE);
             authorize.requestMatchers("/piatti/**").hasAuthority(Credentials.ADMIN_ROLE);
-
-            /* Qui si elencano
-               solo i percorsi di amministrazione. Le POST sono tutte
-               amministrative: creazione, modifica ed eliminazione. */
-            authorize.requestMatchers(HttpMethod.GET,
-                    "/ristoranti/new", "/ristoranti/*/edit",
-                    "/tavoli/new", "/tavoli/*/edit",
-                    "/piatti/new", "/piatti/*/edit").hasAuthority(Credentials.ADMIN_ROLE);
-
-            /* Tutte le POST su queste risorse sono amministrative: creazione,
-               modifica, eliminazione, annullamento. Sulle proiezioni la GET
-               resta invece pubblica, perche' il programma lo consultano tutti. */
-            authorize.requestMatchers(HttpMethod.POST,
-                    "/ristoranti/**", "/tavoli/**", "/piatti/**")
-                    .hasAuthority(Credentials.ADMIN_ROLE);
-
-            /* Nota: "/api/**" non compare piu' in questo elenco. Le richieste
-               a /api non arrivano mai qui, se le prende la catena 1. */
-            authorize.requestMatchers(HttpMethod.GET,
-                    "/", "/index", "/register", "/login",
-                    "/ristoranti", "/ristoranti/**",
-                    "/tavoli", "/tavoli/**",
-                    "/piatti", "/piatti/**").permitAll();
-            authorize.requestMatchers(HttpMethod.POST, "/register").permitAll();
+            authorize.requestMatchers("/ristoranti/**").hasAuthority(Credentials.ADMIN_ROLE);
 
             // tutto il resto richiede un utente autenticato
             authorize.anyRequest().authenticated();

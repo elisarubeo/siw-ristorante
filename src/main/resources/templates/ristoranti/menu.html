@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Menu')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti}">&larr; Tutti i ristoranti</a>
+
+    <h1 th:text="${ristorante.nome}">Nome del ristorante</h1>
+    <p class="sottotitolo" th:text="${ristorante.indirizzo}">Indirizzo</p>
+
+    <ul class="piatti" th:if="${!#lists.isEmpty(menu)}">
+        <li th:each="piatto : ${menu}">
+            <div class="piatto-riga">
+                <span class="piatto-nome" th:text="${piatto.nome}">Nome del piatto</span>
+                <span class="puntini"></span>
+                <!-- formatDecimal(numero, cifre intere minime, separatore
+                     migliaia, decimali, separatore decimale): due decimali e
+                     la virgola come si usa in italiano -->
+                <span class="prezzo"
+                      th:text="${#numbers.formatDecimal(piatto.prezzo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</span>
+            </div>
+            <p class="ingredienti" th:text="${piatto.ingredienti}">Ingredienti</p>
+        </li>
+    </ul>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(menu)}">
+        Il menu di questo ristorante non e ancora disponibile.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

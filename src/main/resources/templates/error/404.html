@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Pagina non trovata')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <div class="errore">
+        <p class="codice">404</p>
+        <!-- errorMessage lo mette GlobalExceptionHandler; quando invece la
+             pagina viene mostrata da Spring per un indirizzo inesistente
+             l'attributo non c'e', da qui il testo di riserva dopo ?: -->
+        <h1 th:text="${errorMessage} ?: 'Pagina non trovata'">Pagina non trovata</h1>
+        <p>L'indirizzo che hai aperto non corrisponde a nessuna pagina.</p>
+        <p><a class="bottone" th:href="@{/}">Torna alla home</a></p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

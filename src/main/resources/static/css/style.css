@@ -1,0 +1,310 @@
+/* ============================================================
+   Ristorante - foglio di stile unico
+   Le variabili raccolgono colori e misure in un posto solo:
+   per cambiare l'aspetto del sito si toccano solo queste.
+   ============================================================ */
+:root {
+    --terracotta: #b4532a;
+    --terracotta-scuro: #8d3f1f;
+    --crema: #fbf7f1;
+    --carta: #ffffff;
+    --inchiostro: #2b2521;
+    --inchiostro-tenue: #6d635c;
+    --bordo: #e7ded2;
+
+    --raggio: 10px;
+    --ombra: 0 1px 2px rgba(43, 37, 33, .06), 0 6px 18px rgba(43, 37, 33, .06);
+    --larghezza-max: 1000px;
+    --serif: Georgia, "Times New Roman", serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--inchiostro);
+    background: var(--crema);
+    /* il footer resta in fondo anche sulle pagine corte */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+a { color: var(--terracotta); }
+a:hover { color: var(--terracotta-scuro); }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
+h1 { font-size: 2rem; margin: 0 0 .3em; }
+h2 { font-size: 1.4rem; }
+
+/* ---------- struttura ---------- */
+.contenuto {
+    flex: 1;
+    width: 100%;
+    max-width: var(--larghezza-max);
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 3.5rem;
+}
+
+.sottotitolo {
+    color: var(--inchiostro-tenue);
+    margin: 0 0 2rem;
+    max-width: 60ch;
+}
+
+/* ---------- intestazione ---------- */
+.intestazione {
+    background: var(--carta);
+    border-bottom: 1px solid var(--bordo);
+}
+
+.intestazione .barra {
+    max-width: var(--larghezza-max);
+    margin: 0 auto;
+    padding: .9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.marchio {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--inchiostro);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navigazione {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.navigazione a {
+    text-decoration: none;
+    color: var(--inchiostro-tenue);
+    padding: .25rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.navigazione a:hover {
+    color: var(--terracotta);
+    border-bottom-color: var(--terracotta);
+}
+
+.utente {
+    color: var(--inchiostro-tenue);
+    font-size: .9rem;
+    border-left: 1px solid var(--bordo);
+    padding-left: 1.25rem;
+}
+
+/* ---------- pulsanti ---------- */
+.bottone {
+    display: inline-block;
+    background: var(--terracotta);
+    color: #fff;
+    border: none;
+    border-radius: var(--raggio);
+    padding: .6rem 1.2rem;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.bottone:hover { background: var(--terracotta-scuro); color: #fff; }
+
+.bottone-tenue {
+    background: none;
+    color: var(--inchiostro-tenue);
+    border: 1px solid var(--bordo);
+    padding: .35rem .8rem;
+    font-size: .9rem;
+}
+
+.bottone-tenue:hover { background: var(--crema); color: var(--inchiostro); }
+
+/* ---------- copertina della home ---------- */
+.copertina {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.copertina h1 { font-size: 2.6rem; }
+
+.copertina p {
+    color: var(--inchiostro-tenue);
+    max-width: 52ch;
+    margin: 0 auto 1.8rem;
+}
+
+/* ---------- elenco dei ristoranti ---------- */
+.griglia {
+    display: grid;
+    /* auto-fill + minmax: le colonne si adattano da sole alla larghezza,
+       senza bisogno di media query */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.scheda {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.scheda h2 { margin: 0; font-size: 1.25rem; }
+
+.scheda .indirizzo {
+    color: var(--inchiostro-tenue);
+    font-size: .95rem;
+    margin: 0;
+}
+
+.scheda .azione { margin-top: auto; padding-top: .8rem; }
+
+/* ---------- menu ---------- */
+.piatti {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    overflow: hidden;
+}
+
+.piatti li {
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--bordo);
+}
+
+.piatti li:last-child { border-bottom: none; }
+
+.piatto-riga {
+    display: flex;
+    align-items: baseline;
+    gap: .75rem;
+}
+
+.piatto-nome { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; }
+
+/* la linea punteggiata tipica dei menu: riempie lo spazio fra nome e prezzo */
+.puntini {
+    flex: 1;
+    border-bottom: 1px dotted var(--bordo);
+    transform: translateY(-.25rem);
+}
+
+.prezzo { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.ingredienti {
+    color: var(--inchiostro-tenue);
+    font-size: .92rem;
+    margin: .3rem 0 0;
+}
+
+/* ---------- moduli ---------- */
+.riquadro {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 2rem;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.campo { margin-bottom: 1.1rem; }
+
+.campo label {
+    display: block;
+    margin-bottom: .35rem;
+    font-size: .9rem;
+    color: var(--inchiostro-tenue);
+}
+
+.campo input {
+    width: 100%;
+    padding: .6rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--crema);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+}
+
+.campo input:focus {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 1px;
+    background: var(--carta);
+}
+
+/* ---------- messaggi ---------- */
+.avviso {
+    border-radius: var(--raggio);
+    padding: .8rem 1rem;
+    margin-bottom: 1.2rem;
+    font-size: .95rem;
+}
+
+.avviso-errore { background: #fdeceb; border: 1px solid #f3c9c4; color: #8f2018; }
+.avviso-esito  { background: #eaf4ec; border: 1px solid #c6e0cd; color: #26623a; }
+
+.vuoto {
+    background: var(--carta);
+    border: 1px dashed var(--bordo);
+    border-radius: var(--raggio);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--inchiostro-tenue);
+}
+
+/* ---------- pagine di errore ---------- */
+.errore { text-align: center; padding: 3rem 1rem; }
+
+.errore .codice {
+    font-family: var(--serif);
+    font-size: 4rem;
+    color: var(--terracotta);
+    margin: 0;
+    line-height: 1;
+}
+
+/* ---------- chiusura ---------- */
+.chiusura {
+    border-top: 1px solid var(--bordo);
+    background: var(--carta);
+    color: var(--inchiostro-tenue);
+    font-size: .88rem;
+}
+
+.chiusura div {
+    max-width: var(--larghezza-max);
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+
+/* utilita' */
+.ritorno { display: inline-block; margin-bottom: 1.2rem; font-size: .92rem; }

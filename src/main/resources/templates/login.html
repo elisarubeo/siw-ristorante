@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Accedi')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <div class="riquadro">
+        <h1>Accedi</h1>
+
+        <!-- i due parametri li aggiunge Spring Security nel redirect:
+             failureUrl("/login?error=true") e il logout andato a buon fine -->
+        <p th:if="${param.error}" class="avviso avviso-errore">
+            Nome utente o password non corretti.
+        </p>
+        <p th:if="${param.logout}" class="avviso avviso-esito">
+            Sei uscito dal tuo account.
+        </p>
+
+        <!-- i campi devono chiamarsi username e password: sono i nomi che
+             il filtro di autenticazione si aspetta -->
+        <form th:action="@{/login}" method="post">
+            <div class="campo">
+                <label for="username">Nome utente</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div class="campo">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="bottone">Entra</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

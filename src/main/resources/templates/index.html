@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Home')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <section class="copertina">
+        <h1>Il piacere di mangiare fuori</h1>
+        <p>
+            Sfoglia i ristoranti, leggi i menu e prenota il tuo tavolo.
+            Ogni piatto con i suoi ingredienti e il suo prezzo, senza sorprese.
+        </p>
+        <a class="bottone" th:href="@{/ristoranti}">Vedi i ristoranti</a>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

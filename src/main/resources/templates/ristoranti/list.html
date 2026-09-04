@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Ristoranti')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <h1>Ristoranti</h1>
+    <p class="sottotitolo">Scegli un ristorante per consultarne il menu.</p>
+
+    <!-- th:if sulla lista: se e' vuota si mostra il riquadro piu' sotto
+         invece di una griglia vuota che sembrerebbe un errore -->
+    <ul class="griglia" th:if="${!#lists.isEmpty(ristoranti)}">
+        <li class="scheda" th:each="ristorante : ${ristoranti}">
+            <h2 th:text="${ristorante.nome}">Nome del ristorante</h2>
+            <p class="indirizzo" th:text="${ristorante.indirizzo}">Indirizzo</p>
+            <p class="azione">
+                <!-- il segnaposto {id} viene sostituito dal valore indicato
+                     dopo la virgola: cosi' l'indirizzo resta leggibile -->
+                <a th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">Vedi il menu</a>
+            </p>
+        </li>
+    </ul>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(ristoranti)}">
+        Non c'e ancora nessun ristorante da mostrare.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>
