@@ -1,5 +1,6 @@
 package it.uniroma3.siw_ristorante.controller;
 
+import it.uniroma3.siw_ristorante.service.TavoloService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,18 +11,19 @@ import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 
+
 @Controller
 public class RistoranteController {
+    private final TavoloService tavoloService;
     private final RistoranteService ristoranteService;
     private final PiattoService piattoService;
 
-    public RistoranteController(RistoranteService ristoranteService, PiattoService piattoService) {
+    public RistoranteController(RistoranteService ristoranteService, PiattoService piattoService, TavoloService tavoloService) {
         this.ristoranteService = ristoranteService;
         this.piattoService = piattoService;
+        this.tavoloService = tavoloService;
     }
 
-    /* La stessa pagina fa da home: l'elenco dei ristoranti e' la prima cosa
-       che serve a chi arriva, senza un passaggio intermedio. */
     @GetMapping({ "/", "/index", "/ristoranti" })
     public String list(Model model) {
         model.addAttribute("ristoranti", this.ristoranteService.findAll());
@@ -36,5 +38,15 @@ public class RistoranteController {
         model.addAttribute("ristorante", ristorante);
         return "ristoranti/menu";
     }
+
+    @GetMapping("/ristoranti/{id}/tavoli")
+    public String getTavoli(@PathVariable("id") Long id, Model model) {
+        Ristorante ristorante = this.ristoranteService.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + id));
+        model.addAttribute("tavoli", tavoloService.findByRistoranteIdOrderByNumeroTavolo(id));
+        model.addAttribute("ristorante", ristorante);
+        return "ristoranti/tavoli";
+    }
+    
 
 }

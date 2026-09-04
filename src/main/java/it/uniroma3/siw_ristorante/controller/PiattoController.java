@@ -60,8 +60,6 @@ public class PiattoController {
         }
 
         this.piattoService.save(ristoranteId, piatto);
-        /* Redirect e non vista diretta: cosi' un aggiornamento della pagina non
-           reinvia il modulo e non crea il piatto due volte. */
         return "redirect:/ristoranti/{ristoranteId}/menu";
     }
 }

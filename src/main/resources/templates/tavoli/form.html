@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Nuovo tavolo')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">&larr; Torna ai tavoli</a>
+
+    <div class="riquadro">
+        <h1>Nuovo tavolo</h1>
+        <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
+
+        <!-- Questa pagina si aspetta nel model "ristorante" e "tavolo":
+             il secondo e' l'oggetto a cui il modulo si lega. -->
+        <form th:action="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}"
+              th:object="${tavolo}" method="post">
+            <div class="campo">
+                <label for="numeroTavolo">Numero del tavolo</label>
+                <input type="number" id="numeroTavolo" th:field="*{numeroTavolo}"
+                       min="1" step="1" required autofocus>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('numeroTavolo')}"
+                   th:errors="*{numeroTavolo}">errore</p>
+            </div>
+            <div class="campo">
+                <label for="numeroPosti">Numero di posti</label>
+                <input type="number" id="numeroPosti" th:field="*{numeroPosti}"
+                       min="1" max="20" step="1" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('numeroPosti')}"
+                   th:errors="*{numeroPosti}">errore</p>
+            </div>
+            <button type="submit" class="bottone">Salva il tavolo</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

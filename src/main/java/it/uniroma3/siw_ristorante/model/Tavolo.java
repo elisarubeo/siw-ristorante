@@ -12,15 +12,32 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+/* Il numero di tavolo e' unico dentro il singolo ristorante, non nel database:
+   ogni locale ha il suo tavolo 1. */
 @Entity
+@Table(name = "tavolo",
+        uniqueConstraints = @UniqueConstraint(columnNames = { "ristorante_id", "numero_tavolo" }))
 public class Tavolo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    /* Il numero con cui il personale chiama il tavolo, da non confondere con
+       l'id, che e' un dettaglio tecnico del database. */
+    @NotNull(message = "Il numero del tavolo non può essere nullo")
+    @Min(value = 1, message = "Il numero del tavolo deve essere almeno 1")
+    @Column(name = "numero_tavolo", nullable = false)
+    private Integer numeroTavolo;
+
     @NotNull(message = "Il numero di posti del tavolo non può essere nullo")
+    @Min(value = 1, message = "Il tavolo deve avere almeno un posto")
+    @Max(value = 20, message = "Il tavolo non può avere più di 20 posti")
     @Column(nullable = false)
     private Integer numeroPosti;
 
@@ -40,6 +57,14 @@ public class Tavolo {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getNumeroTavolo() {
+        return numeroTavolo;
+    }
+
+    public void setNumeroTavolo(Integer numeroTavolo) {
+        this.numeroTavolo = numeroTavolo;
     }
 
     public Integer getNumeroPosti() {

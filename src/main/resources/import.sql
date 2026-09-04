@@ -23,13 +23,13 @@ INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (9, 'Ri
 INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (10, 'Tortino al cioccolato', 'cioccolato fondente, uova, burro', 6.50, 3);
 
 -- ---------- tavoli ----------
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (1, 2, 1);
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (2, 4, 1);
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (3, 6, 1);
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (4, 4, 2);
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (5, 4, 2);
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (6, 2, 3);
-INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (7, 8, 3);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (1, 1, 2, 1);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (2, 2, 4, 1);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (3, 3, 6, 1);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (4, 1, 4, 2);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (5, 2, 4, 2);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (6, 1, 2, 3);
+INSERT INTO tavolo (id, numero_tavolo, numero_posti, ristorante_id) VALUES (7, 2, 8, 3);
 
 -- ---------- utenti e credenziali ----------
 INSERT INTO users (id) VALUES (1);

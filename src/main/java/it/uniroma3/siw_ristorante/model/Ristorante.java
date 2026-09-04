@@ -78,9 +78,6 @@ public class Ristorante {
         this.piatti = piatti;
     }
 
-    /* Metodi helper: l'associazione ha due lati e vanno aggiornati insieme,
-       altrimenti l'oggetto in memoria e il database non concordano finche' non
-       si ricarica. Usare questi invece di getTavoli().add(...). */
     public void aggiungiTavolo(Tavolo tavolo) {
         tavoli.add(tavolo);
         tavolo.setRistorante(this);

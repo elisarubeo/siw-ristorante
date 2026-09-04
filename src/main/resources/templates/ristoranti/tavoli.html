@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Tavoli')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
+
+    <h1>Tavoli</h1>
+    <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
+
+    <p>
+        <a class="bottone" th:href="@{/ristoranti/{id}/tavoli/new(id=${ristorante.id})}">Aggiungi un tavolo</a>
+    </p>
+
+    <!-- I tavoli arrivano gia' ordinati per numero di tavolo dal repository -->
+    <ul class="griglia" th:if="${!#lists.isEmpty(tavoli)}">
+        <li class="scheda" th:each="tavolo : ${tavoli}">
+            <h2 th:text="'Tavolo ' + ${tavolo.numeroTavolo}">Tavolo 1</h2>
+            <p class="indirizzo" th:text="${tavolo.numeroPosti} + ' posti'">4 posti</p>
+        </li>
+    </ul>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(tavoli)}">
+        Questo ristorante non ha ancora nessun tavolo.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>
