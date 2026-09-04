@@ -34,7 +34,7 @@ public class User {
         return recensioni;
     }
 
-    public void setReviews(List<Recensione> recensioni) {
+    public void setRecensioni(List<Recensione> recensioni) {
         this.recensioni = recensioni;
     }
 

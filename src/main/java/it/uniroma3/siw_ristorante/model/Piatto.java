@@ -2,9 +2,12 @@ package it.uniroma3.siw_ristorante.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -25,6 +28,10 @@ public class Piatto {
     @NotNull(message = "Il prezzo del piatto non può essere nullo")
     @Column(nullable = false)
     private Double prezzo;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ristorante_id", nullable = false)
+    private Ristorante ristorante;
 
     public Long getId() {
         return id;
@@ -58,29 +65,32 @@ public class Piatto {
         this.prezzo = prezzo;
     }
 
+    public Ristorante getRistorante() {
+        return ristorante;
+    }
+
+    public void setRistorante(Ristorante ristorante) {
+        this.ristorante = ristorante;
+    }
+
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
+        return 31 + ((id == null) ? 0 : id.hashCode());
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        /* instanceof e non getClass(): con le associazioni LAZY Hibernate
+           consegna dei proxy, la cui classe e' una sottoclasse generata a
+           runtime. getClass() != obj.getClass() farebbe risultare diversi un
+           proxy e l'entita' che rappresenta. */
+        if (!(obj instanceof Piatto other))
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Piatto other = (Piatto) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
+        /* getId() e non other.id: su un proxy l'accesso diretto al campo
+           restituisce null, il getter invece lo inizializza. */
+        return id != null && id.equals(other.getId());
     }
 
     

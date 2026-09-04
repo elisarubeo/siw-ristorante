@@ -33,9 +33,12 @@ public class Recensione {
     @Column(nullable = false)
     private LocalDate data;
 
-    /* Lato proprietario dell'associazione mappata da User.recensioni */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ristorante_id", nullable = false)
+    private Ristorante ristorante;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public Long getId() {
@@ -86,29 +89,32 @@ public class Recensione {
         this.user = user;
     }
 
+    public Ristorante getRistorante() {
+        return ristorante;
+    }
+
+    public void setRistorante(Ristorante ristorante) {
+        this.ristorante = ristorante;
+    }
+
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
+        return 31 + ((id == null) ? 0 : id.hashCode());
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        /* instanceof e non getClass(): con le associazioni LAZY Hibernate
+           consegna dei proxy, la cui classe e' una sottoclasse generata a
+           runtime. getClass() != obj.getClass() farebbe risultare diversi un
+           proxy e l'entita' che rappresenta. */
+        if (!(obj instanceof Recensione other))
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Recensione other = (Recensione) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
+        /* getId() e non other.id: su un proxy l'accesso diretto al campo
+           restituisce null, il getter invece lo inizializza. */
+        return id != null && id.equals(other.getId());
     }
 
     
