@@ -1,0 +1,78 @@
+-- Dati di prova.
+-- Hibernate esegue questo file da solo dopo aver creato lo schema, ma solo
+-- finche' ddl-auto resta "create": e' lui a ricrearlo a ogni avvio.
+-- ATTENZIONE: il lettore di Hibernate tratta UNA RIGA = UNA ISTRUZIONE.
+-- Spezzare un INSERT su piu' righe lo fa fallire.
+-- Password in chiaro, per provare il login: admin/admin, elisa/elisa, marco/marco
+
+-- ---------- ristoranti ----------
+INSERT INTO ristorante (id, nome, indirizzo) VALUES (1, 'Osteria del Borgo', 'Via dei Coronari 12, Roma');
+INSERT INTO ristorante (id, nome, indirizzo) VALUES (2, 'Trattoria da Nino', 'Piazza Trilussa 4, Roma');
+INSERT INTO ristorante (id, nome, indirizzo) VALUES (3, 'Locanda Verde', 'Via Ostiense 108, Roma');
+
+-- ---------- piatti ----------
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (1, 'Carbonara', 'uova, guanciale, pecorino, pepe nero', 13.50, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (2, 'Cacio e pepe', 'pecorino romano, pepe nero, tonnarelli', 12.00, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (3, 'Amatriciana', 'guanciale, pomodoro, pecorino', 12.50, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (4, 'Tiramisu', 'savoiardi, mascarpone, caffe, cacao', 6.00, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (5, 'Fritto misto', 'calamari, gamberi, zucchine', 14.00, 2);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (6, 'Spaghetti alle vongole', 'vongole veraci, aglio, prezzemolo', 16.00, 2);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (7, 'Tagliata di manzo', 'controfiletto, rucola, grana', 18.50, 2);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (8, 'Vellutata di zucca', 'zucca, patate, rosmarino', 9.00, 3);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (9, 'Risotto ai funghi', 'riso carnaroli, porcini, burro', 14.00, 3);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (10, 'Tortino al cioccolato', 'cioccolato fondente, uova, burro', 6.50, 3);
+
+-- ---------- tavoli ----------
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (1, 2, 1);
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (2, 4, 1);
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (3, 6, 1);
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (4, 4, 2);
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (5, 4, 2);
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (6, 2, 3);
+INSERT INTO tavolo (id, numero_posti, ristorante_id) VALUES (7, 8, 3);
+
+-- ---------- utenti e credenziali ----------
+INSERT INTO users (id) VALUES (1);
+INSERT INTO users (id) VALUES (2);
+INSERT INTO users (id) VALUES (3);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (1, 'admin', '$2a$10$j6KMFXrv0bUrvwUwuzgunu.gGb9AhjH3DsDKHPkKnviIFT10mDlam', 'ADMIN', 1);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (2, 'elisa', '$2a$10$B6o2Po0WQCuNIkoYSXP7JeLGPxkkoGU26fdNjk6BVdZyAYgujOM7W', 'DEFAULT', 2);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (3, 'marco', '$2a$10$UEZfF1aPhXw/qJ16qW0OGeM9sB.Ya3tPM/46InXVlKQDeDyTX714.', 'DEFAULT', 3);
+
+-- ---------- recensioni ----------
+INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (1, 'Carbonara memorabile', 5, 'Guanciale croccante e pasta al punto giusto. Ci torno.', CURRENT_DATE - 7, 1, 2);
+INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (2, 'Buono ma affollato', 4, 'Si mangia bene, peccato per l attesa al tavolo.', CURRENT_DATE - 3, 1, 3);
+INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (3, 'Pesce fresco', 4, 'Vongole ottime, servizio cordiale.', CURRENT_DATE - 1, 2, 2);
+
+-- ---------- prenotazioni ----------
+-- turno normale di domani sera
+INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id) VALUES (1, 4, CURRENT_DATE + 1, TIME '20:00', 120, 'CONFIRMED', 1, 2);
+INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id) VALUES (2, 2, CURRENT_DATE + 1, TIME '21:00', 120, 'SCHEDULED', 1, 1);
+-- annullata all ultimo momento: il tavolo deve risultare di nuovo LIBERO
+INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id) VALUES (3, 2, CURRENT_DATE, TIME '13:00', 120, 'CANCELLED', 3, 6);
+-- turno che scavalca la mezzanotte, per provare Prenotazione.copre()
+INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id) VALUES (4, 6, CURRENT_DATE, TIME '23:00', 180, 'SCHEDULED', 1, 3);
+
+-- ---------- ordinazioni ----------
+-- aperta adesso: il tavolo 4 deve risultare OCCUPATO
+INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (1, 30.00, now() - interval '30 minutes', NULL, 4);
+-- gia' chiusa: il tavolo 5 non e' piu' occupato
+INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (2, 46.00, CURRENT_DATE + TIME '12:00', CURRENT_DATE + TIME '13:30', 5);
+INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (1, 1, 1, 5);
+INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (2, 1, 1, 6);
+INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (3, 2, 2, 6);
+INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (4, 1, 2, 5);
+
+-- ---------- sequenze ----------
+-- Gli id qui sopra sono scritti a mano, ma le sequenze partirebbero comunque
+-- da 1: senza questo blocco il primo inserimento dall'applicazione andrebbe in
+-- collisione con i dati di prova. Si spostano oltre.
+ALTER SEQUENCE ristorante_seq RESTART WITH 1000;
+ALTER SEQUENCE piatto_seq RESTART WITH 1000;
+ALTER SEQUENCE tavolo_seq RESTART WITH 1000;
+ALTER SEQUENCE users_seq RESTART WITH 1000;
+ALTER SEQUENCE credentials_seq RESTART WITH 1000;
+ALTER SEQUENCE recensione_seq RESTART WITH 1000;
+ALTER SEQUENCE prenotazione_seq RESTART WITH 1000;
+ALTER SEQUENCE ordinazione_seq RESTART WITH 1000;
+ALTER SEQUENCE riga_ordinazione_seq RESTART WITH 1000;

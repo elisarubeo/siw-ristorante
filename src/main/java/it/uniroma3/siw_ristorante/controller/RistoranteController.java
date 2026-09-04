@@ -22,7 +22,9 @@ public class RistoranteController {
         this.ristoranteService = ristoranteService;
     }
 
-    @GetMapping("/ristoranti")
+    /* La stessa pagina fa da home: l'elenco dei ristoranti e' la prima cosa
+       che serve a chi arriva, senza un passaggio intermedio. */
+    @GetMapping({ "/", "/index", "/ristoranti" })
     public String list(Model model) {
         model.addAttribute("ristoranti", this.ristoranteService.findAll());
         return "ristoranti/list";

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Registrati')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <div class="riquadro">
+        <h1>Crea un account</h1>
+
+        <!-- th:object lega il modulo all'attributo "credentials" del model:
+             dentro, *{campo} si riferisce a quell'oggetto. Il nome deve essere
+             lo stesso usato nel @ModelAttribute del controller, altrimenti
+             Spring non ritrova gli errori di validazione. -->
+        <form th:action="@{/register}" th:object="${credentials}" method="post">
+            <div class="campo">
+                <label for="username">Nome utente</label>
+                <input type="text" id="username" th:field="*{username}" required autofocus>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('username')}"
+                   th:errors="*{username}">errore</p>
+            </div>
+            <div class="campo">
+                <label for="password">Password</label>
+                <input type="password" id="password" th:field="*{password}" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('password')}"
+                   th:errors="*{password}">errore</p>
+            </div>
+            <button type="submit" class="bottone">Registrati</button>
+        </form>
+
+        <p class="sottotitolo" style="margin-top:1.5rem">
+            Hai gia un account? <a th:href="@{/login}">Accedi</a>
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

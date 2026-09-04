@@ -25,9 +25,6 @@
              Security 7 non espone piu'. -->
         <nav class="navigazione"
              th:with="autenticato=${#authentication != null and #authentication.name != 'anonymousUser'}">
-            <a th:href="@{/}">Home</a>
-            <a th:href="@{/ristoranti}">Ristoranti</a>
-
             <a th:unless="${autenticato}" th:href="@{/login}">Accedi</a>
 
             <span th:if="${autenticato}" class="utente">
