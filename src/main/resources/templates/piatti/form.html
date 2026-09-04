@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Nuovo piatto')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
+
+    <div class="riquadro">
+        <h1>Nuovo piatto</h1>
+        <!-- il ristorante lo mette in model il @ModelAttribute della classe:
+             c'e' sia all'apertura del modulo sia quando si torna qui per un
+             errore di validazione -->
+        <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
+
+        <!-- l'indirizzo di destinazione porta l'id del ristorante: e' li' che
+             il controller lo legge, non da un campo nascosto del modulo -->
+        <form th:action="@{/ristoranti/{id}/piatti(id=${ristorante.id})}"
+              th:object="${piatto}" method="post">
+            <div class="campo">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" th:field="*{nome}" maxlength="30" required autofocus>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('nome')}"
+                   th:errors="*{nome}">errore</p>
+            </div>
+            <div class="campo">
+                <label for="ingredienti">Ingredienti</label>
+                <input type="text" id="ingredienti" th:field="*{ingredienti}" maxlength="100" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('ingredienti')}"
+                   th:errors="*{ingredienti}">errore</p>
+            </div>
+            <div class="campo">
+                <label for="prezzo">Prezzo in euro</label>
+                <!-- type="number" con step: il browser invia sempre il punto
+                     decimale, evitando che "12,50" faccia fallire il binding -->
+                <input type="number" id="prezzo" th:field="*{prezzo}" step="0.01" min="0.01" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('prezzo')}"
+                   th:errors="*{prezzo}">errore</p>
+            </div>
+            <button type="submit" class="bottone">Salva il piatto</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Piatto {
@@ -18,14 +20,17 @@ public class Piatto {
     private Long id;
 
     @NotBlank(message = "Il nome del piatto non può essere vuoto")
+    @Size(max = 30, message = "Il nome non può superare i 30 caratteri")
     @Column(nullable = false, length = 30)
     private String nome;
 
     @NotBlank(message = "Gli ingredienti del piatto non possono essere vuoti")
+    @Size(max = 100, message = "Gli ingredienti non possono superare i 100 caratteri")
     @Column(nullable = false, length = 100)
     private String ingredienti;
 
     @NotNull(message = "Il prezzo del piatto non può essere nullo")
+    @Positive(message = "Il prezzo deve essere maggiore di zero")
     @Column(nullable = false)
     private Double prezzo;
 

@@ -9,4 +9,6 @@ import it.uniroma3.siw_ristorante.model.Piatto;
 public interface PiattoRepository extends JpaRepository<Piatto, Long> {
 
     List<Piatto> findByRistoranteId(Long ristoranteId);
+
+    boolean existsByNomeAndRistoranteId(String nome, Long ristoranteId);
 }

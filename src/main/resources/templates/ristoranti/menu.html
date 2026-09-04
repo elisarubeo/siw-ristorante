@@ -10,6 +10,14 @@
     <h1 th:text="${ristorante.nome}">Nome del ristorante</h1>
     <p class="sottotitolo" th:text="${ristorante.indirizzo}">Indirizzo</p>
 
+    <!-- Nascondere il pulsante e' cortesia verso l'utente, non sicurezza: a
+         proteggere l'indirizzo e' la regola /ristoranti/** nella
+         SecurityConfiguration. La selezione ?[...] filtra le authorities. -->
+    <p th:if="${#authentication != null
+               and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()}">
+        <a class="bottone" th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
+    </p>
+
     <ul class="piatti" th:if="${!#lists.isEmpty(menu)}">
         <li th:each="piatto : ${menu}">
             <div class="piatto-riga">
