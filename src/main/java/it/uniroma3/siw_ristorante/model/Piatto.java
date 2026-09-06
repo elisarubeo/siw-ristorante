@@ -1,5 +1,7 @@
 package it.uniroma3.siw_ristorante.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,8 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -29,10 +31,12 @@ public class Piatto {
     @Column(nullable = false, length = 100)
     private String ingredienti;
 
+    /* BigDecimal e non Double: i soldi non si rappresentano in virgola mobile,
+       dove 0.1 + 0.2 non fa 0.3 e gli errori si sommano riga dopo riga. */
     @NotNull(message = "Il prezzo del piatto non può essere nullo")
-    @Positive(message = "Il prezzo deve essere maggiore di zero")
-    @Column(nullable = false)
-    private Double prezzo;
+    @DecimalMin(value = "0.01", message = "Il prezzo deve essere maggiore di zero")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal prezzo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ristorante_id", nullable = false)
@@ -62,11 +66,11 @@ public class Piatto {
         this.ingredienti = ingredienti;
     }
 
-    public Double getPrezzo() {
+    public BigDecimal getPrezzo() {
         return prezzo;
     }
 
-    public void setPrezzo(Double prezzo) {
+    public void setPrezzo(BigDecimal prezzo) {
         this.prezzo = prezzo;
     }
 

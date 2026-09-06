@@ -1,5 +1,6 @@
 package it.uniroma3.siw_ristorante.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -24,7 +26,9 @@ public class Ordinazione {
     private Long id;
 
     @NotNull(message = "Il totale dell'ordinazione non può essere nullo")
-    private Double totale;
+    @DecimalMin(value = "0.00", message = "Il totale non può essere negativo")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totale;
 
     /* Un'ordinazione ancora aperta e' il fatto che dice "a questo tavolo c'e'
        gente seduta". La chiusura nulla significa aperta: non serve un enum di
@@ -41,8 +45,6 @@ public class Ordinazione {
     @JoinColumn(name = "tavolo_id", nullable = false)
     private Tavolo tavolo;
 
-    /* Le righe non hanno senso fuori dalla loro ordinazione: cascade completo
-       e rimozione degli orfani. */
     @OneToMany(mappedBy = "ordinazione", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RigaOrdinazione> righe = new ArrayList<>();
 
@@ -54,11 +56,11 @@ public class Ordinazione {
         this.id = id;
     }
 
-    public Double getTotale() {
+    public BigDecimal getTotale() {
         return totale;
     }
 
-    public void setTotale(Double totale) {
+    public void setTotale(BigDecimal totale) {
         this.totale = totale;
     }
 

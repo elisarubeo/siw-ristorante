@@ -3,8 +3,11 @@ package it.uniroma3.siw_ristorante.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,8 +31,6 @@ public class Tavolo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /* Il numero con cui il personale chiama il tavolo, da non confondere con
-       l'id, che e' un dettaglio tecnico del database. */
     @NotNull(message = "Il numero del tavolo non può essere nullo")
     @Min(value = 1, message = "Il numero del tavolo deve essere almeno 1")
     @Column(name = "numero_tavolo", nullable = false)
@@ -41,6 +42,18 @@ public class Tavolo {
     @Column(nullable = false)
     private Integer numeroPosti;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private StatoTavolo status = StatoTavolo.LIBERO;
+
+    public StatoTavolo getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatoTavolo status) {
+        this.status = status;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ristorante_id", nullable = false)
     private Ristorante ristorante;
@@ -48,7 +61,7 @@ public class Tavolo {
     @OneToMany(mappedBy = "tavolo")
     private List<Ordinazione> ordinazioni = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tavolo")
+    @OneToMany(mappedBy = "tavolo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Prenotazione> prenotazioni = new ArrayList<>();
 
     public Long getId() {

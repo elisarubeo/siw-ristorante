@@ -8,12 +8,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import it.uniroma3.siw_ristorante.exception.EntityInUseException;
 import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.model.Tavolo;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 import it.uniroma3.siw_ristorante.service.TavoloService;
 import jakarta.validation.Valid;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 /* Il @RequestMapping di classe non e' solo estetica: senza, i percorsi dei
    metodi sono assoluti e finiscono fuori da /ristoranti/**, cioe' fuori dalle
@@ -29,9 +32,6 @@ public class TavoloController {
         this.ristoranteService = ristoranteService;
     }
 
-    /* Caricato una volta per richiesta: risponde 404 se il ristorante non
-       esiste e resta nel model anche quando si torna al modulo per un errore
-       di validazione. */
     @ModelAttribute("ristorante")
     public Ristorante ristorante(@PathVariable Long ristoranteId) {
         return this.ristoranteService.findById(ristoranteId)
@@ -61,4 +61,18 @@ public class TavoloController {
         this.tavoloService.save(ristoranteId, tavolo);
         return "redirect:/ristoranti/{ristoranteId}/tavoli";
     }
+
+    @PostMapping("/{tavoloId}/delete")
+    public String delete(@PathVariable Long ristoranteId,
+            @PathVariable Long tavoloId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            this.tavoloService.delete(ristoranteId, tavoloId);
+            redirectAttributes.addFlashAttribute("successMessage", "Tavolo eliminato.");
+        } catch (EntityInUseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/ristoranti/{ristoranteId}/tavoli";
+    }
+    
 }

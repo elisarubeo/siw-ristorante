@@ -7,6 +7,11 @@
 <main class="contenuto">
     <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
 
+    <!-- I flash attribute sopravvivono a un solo redirect: dopo
+         l'eliminazione arrivano qui e poi spariscono. -->
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
     <h1>Tavoli</h1>
     <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
@@ -19,6 +24,16 @@
         <li class="scheda" th:each="tavolo : ${tavoli}">
             <h2 th:text="'Tavolo ' + ${tavolo.numeroTavolo}">Tavolo 1</h2>
             <p class="indirizzo" th:text="${tavolo.numeroPosti} + ' posti'">4 posti</p>
+            <p class="azione">
+                <!-- L'eliminazione e' una POST, non un collegamento: le GET non
+                     devono modificare niente, e il token CSRF lo aggiunge
+                     Thymeleaf perche' il form usa th:action. -->
+                <form th:action="@{/ristoranti/{r}/tavoli/{t}/delete(r=${ristorante.id},t=${tavolo.id})}"
+                      method="post"
+                      th:onsubmit="'return confirm(\'Eliminare il tavolo ' + ${tavolo.numeroTavolo} + '?\')'">
+                    <button type="submit" class="bottone bottone-tenue">Elimina</button>
+                </form>
+            </p>
         </li>
     </ul>
 
