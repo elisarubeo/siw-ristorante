@@ -11,16 +11,16 @@ INSERT INTO ristorante (id, nome, indirizzo) VALUES (2, 'Trattoria da Nino', 'Pi
 INSERT INTO ristorante (id, nome, indirizzo) VALUES (3, 'Locanda Verde', 'Via Ostiense 108, Roma');
 
 -- ---------- piatti ----------
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (1, 'Carbonara', 'uova, guanciale, pecorino, pepe nero', 13.50, 1);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (2, 'Cacio e pepe', 'pecorino romano, pepe nero, tonnarelli', 12.00, 1);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (3, 'Amatriciana', 'guanciale, pomodoro, pecorino', 12.50, 1);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (4, 'Tiramisu', 'savoiardi, mascarpone, caffe, cacao', 6.00, 1);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (5, 'Fritto misto', 'calamari, gamberi, zucchine', 14.00, 2);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (6, 'Spaghetti alle vongole', 'vongole veraci, aglio, prezzemolo', 16.00, 2);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (7, 'Tagliata di manzo', 'controfiletto, rucola, grana', 18.50, 2);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (8, 'Vellutata di zucca', 'zucca, patate, rosmarino', 9.00, 3);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (9, 'Risotto ai funghi', 'riso carnaroli, porcini, burro', 14.00, 3);
-INSERT INTO piatto (id, nome, ingredienti, prezzo, ristorante_id) VALUES (10, 'Tortino al cioccolato', 'cioccolato fondente, uova, burro', 6.50, 3);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (1, 'Carbonara', 'uova, guanciale, pecorino, pepe nero', 13.50, true, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (2, 'Cacio e pepe', 'pecorino romano, pepe nero, tonnarelli', 12.00, true, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (3, 'Amatriciana', 'guanciale, pomodoro, pecorino', 12.50, true, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (4, 'Tiramisu', 'savoiardi, mascarpone, caffe, cacao', 6.00, true, 1);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (5, 'Fritto misto', 'calamari, gamberi, zucchine', 14.00, true, 2);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (6, 'Spaghetti alle vongole', 'vongole veraci, aglio, prezzemolo', 16.00, true, 2);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (7, 'Tagliata di manzo', 'controfiletto, rucola, grana', 18.50, true, 2);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (8, 'Vellutata di zucca', 'zucca, patate, rosmarino', 9.00, true, 3);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (9, 'Risotto ai funghi', 'riso carnaroli, porcini, burro', 14.00, true, 3);
+INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (10, 'Tortino al cioccolato', 'cioccolato fondente, uova, burro', 6.50, true, 3);
 
 -- ---------- tavoli ----------
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (1, 1, 2, 'LIBERO', 1);
@@ -58,10 +58,10 @@ INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotaz
 INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (1, 30.00, now() - interval '30 minutes', NULL, 4);
 -- gia' chiusa: il tavolo 5 non e' piu' occupato
 INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (2, 46.00, CURRENT_DATE + TIME '12:00', CURRENT_DATE + TIME '13:30', 5);
-INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (1, 1, 1, 5);
-INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (2, 1, 1, 6);
-INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (3, 2, 2, 6);
-INSERT INTO riga_ordinazione (id, quantita, ordinazione_id, piatto_id) VALUES (4, 1, 2, 5);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (1, 1, 14.00, 1, 5);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (2, 1, 16.00, 1, 6);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (3, 2, 16.00, 2, 6);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (4, 1, 14.00, 2, 5);
 
 -- ---------- sequenze ----------
 -- Gli id qui sopra sono scritti a mano, ma le sequenze partirebbero comunque

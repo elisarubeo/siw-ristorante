@@ -2,6 +2,7 @@ package it.uniroma3.siw_ristorante.service;
 
 import it.uniroma3.siw_ristorante.repository.RigaOrdinazioneRepository;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,27 @@ public class PiattoService {
     }
 
     @Transactional(readOnly = true)
+    /* Escludendo il piatto stesso: senza, riaprire un piatto e salvarlo senza
+       toccare il nome verrebbe respinto come duplicato di sé. */
+    public boolean existsByNomeAndRistoranteIdExcluding(String nome, Long ristoranteId, Long piattoId){
+        return piattoRepository.existsByNomeAndRistoranteIdAndIdNot(nome, ristoranteId, piattoId);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Piatto> findByIdAndRistoranteId(Long piattoId, Long ristoranteId){
+        return piattoRepository.findByIdAndRistoranteId(piattoId, ristoranteId);
+    }
+
+    /* Tutto il menu, disponibili e non: e' la vista di chi amministra. */
+    @Transactional(readOnly = true)
     public List<Piatto> getMenu(Long ristoranteId) {
         return piattoRepository.findByRistoranteId(ristoranteId);
+    }
+
+    /* Quello che vede un cliente: i piatti spenti non compaiono. */
+    @Transactional(readOnly = true)
+    public List<Piatto> getMenuDisponibile(Long ristoranteId) {
+        return piattoRepository.findByRistoranteIdAndDisponibileTrue(ristoranteId);
     }
 
     @Transactional(readOnly = true)
@@ -68,16 +88,37 @@ public class PiattoService {
         }
         try {
             piattoRepository.delete(piatto);
-            /* Il flush forza subito la scrittura: senza, un'eventuale violazione
-               di vincolo emergerebbe al commit, fuori da questo try, e
-               diventerebbe una pagina di errore invece di un messaggio. */
             piattoRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            /* Oggi non scatta, perche' RigaOrdinazione e' l'unica cosa che
-               punta al piatto ed e' gia' controllata sopra. Resta come rete se
-               un domani qualcos'altro lo referenziasse. */
             throw new EntityInUseException("Il piatto " + piatto.getNome()
                     + " e' collegato ad altri dati e non puo' essere eliminato", e);
         }
+    }
+
+    @Transactional
+    public void disattiva(Long ristoranteId, Long piattoId){
+        Piatto piatto = piattoRepository.findByIdAndRistoranteId(piattoId, ristoranteId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Nessun piatto con id " + piattoId + " nel ristorante " + ristoranteId));
+        piatto.setDisponibile(false);
+    }
+
+    @Transactional
+    public void riattiva(Long ristoranteId, Long piattoId){
+        Piatto piatto = piattoRepository.findByIdAndRistoranteId(piattoId, ristoranteId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Nessun piatto con id " + piattoId + " nel ristorante " + ristoranteId));
+        piatto.setDisponibile(true);
+    }
+
+    @Transactional
+    public Piatto update(Long ristoranteId, Long piattoId, Piatto data) {
+        Piatto piatto = piattoRepository.findByIdAndRistoranteId(piattoId, ristoranteId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Nessun piatto con id " + piattoId + " nel ristorante " + ristoranteId));
+        piatto.setNome(data.getNome());
+        piatto.setIngredienti(data.getIngredienti());
+        piatto.setPrezzo(data.getPrezzo());
+        return piatto;
     }
 }

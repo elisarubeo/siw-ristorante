@@ -308,3 +308,29 @@ h2 { font-size: 1.4rem; }
 
 /* utilita' */
 .ritorno { display: inline-block; margin-bottom: 1.2rem; font-size: .92rem; }
+
+/* ---------- piatti non disponibili e azioni ---------- */
+.piatti li.non-disponibile .piatto-nome,
+.piatti li.non-disponibile .prezzo,
+.piatti li.non-disponibile .ingredienti {
+    /* attenuato ma ancora leggibile: resta in pagina per chi amministra */
+    opacity: .55;
+}
+
+.etichetta {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--inchiostro-tenue);
+    border: 1px solid var(--bordo);
+    border-radius: 999px;
+    padding: .1rem .5rem;
+    white-space: nowrap;
+}
+
+.azioni-piatto {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .8rem;
+}

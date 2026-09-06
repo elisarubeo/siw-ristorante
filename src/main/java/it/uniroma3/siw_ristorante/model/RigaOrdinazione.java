@@ -1,5 +1,7 @@
 package it.uniroma3.siw_ristorante.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -35,6 +38,11 @@ public class RigaOrdinazione {
     @Min(value = 1, message = "La quantita' deve essere almeno 1")
     @Column(nullable = false)
     private Integer quantita;
+
+    @NotNull(message = "Il prezzo unitario non può essere nullo")
+    @DecimalMin(value = "0.00", message = "Il prezzo unitario non può essere negativo")
+    @Column(name = "prezzo_unitario", nullable = false, precision = 10, scale = 2)
+    private BigDecimal prezzoUnitario;
 
     public Long getId() {
         return id;
@@ -80,5 +88,13 @@ public class RigaOrdinazione {
         if (!(obj instanceof RigaOrdinazione other))
             return false;
         return id != null && id.equals(other.getId());
+    }
+
+    public BigDecimal getPrezzoUnitario() {
+        return prezzoUnitario;
+    }
+
+    public void setPrezzoUnitario(BigDecimal prezzoUnitario) {
+        this.prezzoUnitario = prezzoUnitario;
     }
 }

@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: testa('Nuovo piatto')}"></head>
+<!-- Un solo modulo per creazione e modifica: cambia solo dove viene inviato.
+     A distinguere i due casi e' l'id del piatto, che c'e' solo in modifica. -->
+<head th:replace="~{fragments/layout :: testa(${piatto.id} == null ? 'Nuovo piatto' : 'Modifica piatto')}"></head>
 <body>
 <header th:replace="~{fragments/layout :: intestazione}"></header>
 
-<main class="contenuto">
+<main class="contenuto" th:with="modifica=${piatto.id != null}">
     <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
 
     <div class="riquadro">
-        <h1>Nuovo piatto</h1>
-        <!-- il ristorante lo mette in model il @ModelAttribute della classe:
-             c'e' sia all'apertura del modulo sia quando si torna qui per un
-             errore di validazione -->
+        <h1 th:text="${modifica} ? 'Modifica piatto' : 'Nuovo piatto'">Nuovo piatto</h1>
         <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
-        <!-- l'indirizzo di destinazione porta l'id del ristorante: e' li' che
-             il controller lo legge, non da un campo nascosto del modulo -->
-        <form th:action="@{/ristoranti/{id}/piatti(id=${ristorante.id})}"
+        <!-- In creazione si invia alla collezione, in modifica alla singola
+             risorsa: /ristoranti/1/piatti contro /ristoranti/1/piatti/7 -->
+        <form th:action="${modifica}
+                          ? @{/ristoranti/{r}/piatti/{p}(r=${ristorante.id},p=${piatto.id})}
+                          : @{/ristoranti/{r}/piatti(r=${ristorante.id})}"
               th:object="${piatto}" method="post">
             <div class="campo">
                 <label for="nome">Nome</label>
@@ -38,7 +39,8 @@
                 <p class="avviso avviso-errore" th:if="${#fields.hasErrors('prezzo')}"
                    th:errors="*{prezzo}">errore</p>
             </div>
-            <button type="submit" class="bottone">Salva il piatto</button>
+            <button type="submit" class="bottone"
+                    th:text="${modifica} ? 'Salva le modifiche' : 'Salva il piatto'">Salva il piatto</button>
         </form>
     </div>
 </main>

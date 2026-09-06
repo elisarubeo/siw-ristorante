@@ -29,9 +29,10 @@
     <ul class="piatti" th:if="${!#lists.isEmpty(menu)}"
         th:with="admin=${#authentication != null
                          and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()}">
-        <li th:each="piatto : ${menu}">
+        <li th:each="piatto : ${menu}" th:classappend="${piatto.disponibile} ? '' : 'non-disponibile'">
             <div class="piatto-riga">
                 <span class="piatto-nome" th:text="${piatto.nome}">Nome del piatto</span>
+                <span class="etichetta" th:unless="${piatto.disponibile}">non disponibile</span>
                 <span class="puntini"></span>
                 <!-- formatDecimal(numero, cifre intere minime, separatore
                      migliaia, decimali, separatore decimale): due decimali e
@@ -40,9 +41,26 @@
                       th:text="${#numbers.formatDecimal(piatto.prezzo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</span>
             </div>
             <p class="ingredienti" th:text="${piatto.ingredienti}">Ingredienti</p>
-            <!-- POST e non collegamento: una GET non deve modificare niente, e
-                 con th:action Thymeleaf aggiunge da se' il token CSRF. -->
-            <p th:if="${admin}">
+
+            <!-- Le azioni sono POST e non collegamenti: una GET non deve
+                 modificare niente, e con th:action Thymeleaf aggiunge da se' il
+                 token CSRF. Fa eccezione "Modifica", che apre solo un modulo. -->
+            <div class="azioni-piatto" th:if="${admin}">
+                <a class="bottone bottone-tenue"
+                   th:href="@{/ristoranti/{r}/piatti/{p}/edit(r=${ristorante.id},p=${piatto.id})}">Modifica</a>
+
+                <form th:if="${piatto.disponibile}"
+                      th:action="@{/ristoranti/{r}/piatti/{p}/deactivate(r=${ristorante.id},p=${piatto.id})}"
+                      method="post">
+                    <button type="submit" class="bottone bottone-tenue">Disattiva</button>
+                </form>
+
+                <form th:unless="${piatto.disponibile}"
+                      th:action="@{/ristoranti/{r}/piatti/{p}/activate(r=${ristorante.id},p=${piatto.id})}"
+                      method="post">
+                    <button type="submit" class="bottone bottone-tenue">Riattiva</button>
+                </form>
+
                 <!-- Il nome passa da un attributo data- e non dentro th:onsubmit:
                      negli attributi th:on* Thymeleaf accetta solo numeri e
                      booleani, per non far finire testo arbitrario dentro il
@@ -53,7 +71,7 @@
                       onsubmit="return confirm('Eliminare ' + this.dataset.nome + ' dal menu?')">
                     <button type="submit" class="bottone bottone-tenue">Elimina</button>
                 </form>
-            </p>
+            </div>
         </li>
     </ul>
 
