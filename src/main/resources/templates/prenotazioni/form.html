@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: testa('Prenota un tavolo')}"></head>
+<head th:replace="~{fragments/layout :: testa(${prenotazione.id} == null ? 'Prenota un tavolo' : 'Modifica prenotazione')}"></head>
 <body>
 <header th:replace="~{fragments/layout :: intestazione}"></header>
 
-<main class="contenuto">
-    <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
+<main class="contenuto" th:with="modifica=${prenotazione.id != null}">
+    <a class="ritorno" th:if="${modifica}" th:href="@{/prenotazioni}">&larr; Le mie prenotazioni</a>
+    <a class="ritorno" th:unless="${modifica}"
+       th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
 
     <div class="riquadro">
-        <h1>Prenota un tavolo</h1>
+        <h1 th:text="${modifica} ? 'Modifica prenotazione' : 'Prenota un tavolo'">Prenota un tavolo</h1>
         <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
-        <form th:action="@{/ristoranti/{r}/prenotazioni(r=${ristorante.id})}"
+        <!-- In creazione si invia alla collezione annidata sotto il ristorante,
+             in modifica alla singola prenotazione, che il ristorante ce l'ha
+             gia' dentro e non e' cambiabile. -->
+        <form th:action="${modifica}
+                          ? @{/prenotazioni/{p}(p=${prenotazione.id})}
+                          : @{/ristoranti/{r}/prenotazioni(r=${ristorante.id})}"
               th:object="${prenotazione}" method="post">
 
             <!-- Errore non legato a un singolo campo: dipende dalla
@@ -52,7 +59,8 @@
                 Il tavolo viene assegnato dal ristorante. Ogni prenotazione dura due ore.
             </p>
 
-            <button type="submit" class="bottone">Prenota</button>
+            <button type="submit" class="bottone"
+                    th:text="${modifica} ? 'Salva le modifiche' : 'Prenota'">Prenota</button>
         </form>
     </div>
 </main>

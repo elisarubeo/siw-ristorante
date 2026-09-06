@@ -4,9 +4,7 @@ import it.uniroma3.siw_ristorante.repository.OrdinazioneRepository;
 import it.uniroma3.siw_ristorante.repository.PrenotazioneRepository;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,9 +21,6 @@ import it.uniroma3.siw_ristorante.repository.TavoloRepository;
 
 @Service
 public class TavoloService {
-
-    private static final Set<StatoPrenotazione> STATI_IMPEGNATIVI =
-            EnumSet.of(StatoPrenotazione.SCHEDULED, StatoPrenotazione.CONFIRMED);
 
     private final OrdinazioneRepository ordinazioneRepository;
     private final TavoloRepository tavoloRepository;
@@ -71,9 +66,10 @@ public class TavoloService {
     @Transactional(readOnly = true)
     public boolean esistePrenotazioneFutura(Long tavoloId) {
         LocalDateTime adesso = LocalDateTime.now();
+        /* Una prenotazione annullata non impegna piu' il tavolo. */
         List<Prenotazione> candidate = prenotazioneRepository
-                .findByTavoloIdAndStatusInAndDataPrenotazioneGreaterThanEqual(
-                        tavoloId, STATI_IMPEGNATIVI, adesso.toLocalDate().minusDays(1));
+                .findByTavoloIdAndStatusNotAndDataPrenotazioneGreaterThanEqual(
+                        tavoloId, StatoPrenotazione.CANCELLED, adesso.toLocalDate().minusDays(1));
         return candidate.stream().anyMatch(p -> p.getFine().isAfter(adesso));
     }
 

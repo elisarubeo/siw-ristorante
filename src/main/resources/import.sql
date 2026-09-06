@@ -46,7 +46,7 @@ INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) V
 
 -- ---------- prenotazioni ----------
 -- turno normale di domani sera
-INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (1, 4, CURRENT_DATE + 1, TIME '20:00', 120, 'CONFIRMED', 1, 2, 2);
+INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (1, 4, CURRENT_DATE + 1, TIME '20:00', 120, 'SCHEDULED', 1, 2, 2);
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (2, 2, CURRENT_DATE + 1, TIME '21:00', 120, 'SCHEDULED', 1, 1, 3);
 -- annullata all ultimo momento: il tavolo deve risultare di nuovo LIBERO
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (3, 2, CURRENT_DATE, TIME '13:00', 120, 'CANCELLED', 3, 6, 2);

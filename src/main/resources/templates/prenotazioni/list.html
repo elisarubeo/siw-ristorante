@@ -8,9 +8,14 @@
     <h1>Le mie prenotazioni</h1>
     <p class="sottotitolo">Le più recenti per prime.</p>
 
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
     <ul class="griglia" th:if="${!#lists.isEmpty(prenotazioni)}">
         <li class="scheda" th:each="p : ${prenotazioni}"
-            th:classappend="${p.status.name() == 'CANCELLED'} ? 'non-disponibile' : ''">
+            th:with="annullata=${p.status.name() == 'CANCELLED'},
+                     modificabile=${p.inizio.isAfter(T(java.time.LocalDateTime).now())}"
+            th:classappend="${annullata} ? 'non-disponibile' : ''">
 
             <h2 th:text="${p.ristorante.nome}">Nome del ristorante</h2>
 
@@ -28,14 +33,21 @@
                 <span th:text="${p.durataMinuti} + ' minuti'">120 minuti</span>
             </p>
 
-            <p class="azione">
-                <span class="etichetta"
-                      th:switch="${p.status.name()}">
-                    <span th:case="'CONFIRMED'">confermata</span>
-                    <span th:case="'CANCELLED'">annullata</span>
-                    <span th:case="*">in attesa di conferma</span>
-                </span>
+            <!-- Nessuna etichetta per le prenotazioni valide: l'etichetta
+                 segnala un'eccezione, non lo stato normale delle cose. -->
+            <p class="azione" th:if="${annullata}">
+                <span class="etichetta">annullata</span>
             </p>
+
+            <!-- Si modifica e si annulla solo cio' che e' ancora futuro. -->
+            <div class="azioni-piatto" th:if="${!annullata and modificabile}">
+                <a class="bottone bottone-tenue"
+                   th:href="@{/prenotazioni/{p}/edit(p=${p.id})}">Modifica</a>
+                <form th:action="@{/prenotazioni/{p}/cancel(p=${p.id})}" method="post"
+                      onsubmit="return confirm('Annullare questa prenotazione?')">
+                    <button type="submit" class="bottone bottone-tenue">Annulla</button>
+                </form>
+            </div>
         </li>
     </ul>
 
