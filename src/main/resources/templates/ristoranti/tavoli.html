@@ -30,7 +30,8 @@
                      Thymeleaf perche' il form usa th:action. -->
                 <form th:action="@{/ristoranti/{r}/tavoli/{t}/delete(r=${ristorante.id},t=${tavolo.id})}"
                       method="post"
-                      th:onsubmit="'return confirm(\'Eliminare il tavolo ' + ${tavolo.numeroTavolo} + '?\')'">
+                      th:data-numero="${tavolo.numeroTavolo}"
+                      onsubmit="return confirm('Eliminare il tavolo ' + this.dataset.numero + '?')">
                     <button type="submit" class="bottone bottone-tenue">Elimina</button>
                 </form>
             </p>

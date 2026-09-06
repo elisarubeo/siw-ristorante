@@ -3,7 +3,6 @@ package it.uniroma3.siw_ristorante.service;
 import it.uniroma3.siw_ristorante.repository.OrdinazioneRepository;
 import it.uniroma3.siw_ristorante.repository.PrenotazioneRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,7 +24,6 @@ import it.uniroma3.siw_ristorante.repository.TavoloRepository;
 @Service
 public class TavoloService {
 
-    /* Una prenotazione annullata non impegna piu' il tavolo. */
     private static final Set<StatoPrenotazione> STATI_IMPEGNATIVI =
             EnumSet.of(StatoPrenotazione.SCHEDULED, StatoPrenotazione.CONFIRMED);
 
@@ -65,16 +63,11 @@ public class TavoloService {
         return tavoloRepository.save(tavolo);
     }
 
-    /* Aperta = gia' iniziata e non ancora chiusa. Il campo apertura non serve
-       a distinguerle: e' obbligatorio e valorizzato sempre. */
     @Transactional(readOnly = true)
     public boolean esisteOrdinazioneAperta(Long tavoloId) {
         return ordinazioneRepository.existsByTavoloIdAndChiusuraIsNull(tavoloId);
     }
 
-    /* Futura = il turno non e' ancora finito. Si guarda la fine e non solo la
-       data, cosi' una prenotazione di stamattina gia' conclusa non blocca
-       niente, mentre una di stasera si'. */
     @Transactional(readOnly = true)
     public boolean esistePrenotazioneFutura(Long tavoloId) {
         LocalDateTime adesso = LocalDateTime.now();
@@ -86,8 +79,6 @@ public class TavoloService {
 
     @Transactional
     public void delete(Long ristoranteId, Long tavoloId) {
-        /* Un solo accesso, con entrambe le condizioni: se il tavolo esiste ma
-           appartiene a un altro ristorante, per questo indirizzo non esiste. */
         Tavolo tavolo = tavoloRepository.findByIdAndRistoranteId(tavoloId, ristoranteId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Nessun tavolo con id " + tavoloId + " nel ristorante " + ristoranteId));
@@ -103,15 +94,8 @@ public class TavoloService {
 
         try {
             tavoloRepository.delete(tavolo);
-            /* Il flush forza subito le scritture: senza, un'eventuale
-               violazione di vincolo emergerebbe al commit, fuori da questo
-               try, e diventerebbe una pagina di errore. */
             tavoloRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            /* Restano le righe storiche: ordinazioni gia' chiuse e prenotazioni
-               passate, che puntano ancora al tavolo con una chiave esterna non
-               annullabile. Il database rifiuta, e qui il rifiuto diventa un
-               messaggio leggibile invece di una pagina di errore. */
             throw new EntityInUseException("Il tavolo " + tavolo.getNumeroTavolo()
                     + " ha ordinazioni o prenotazioni registrate in passato e non puo' essere eliminato", e);
         }

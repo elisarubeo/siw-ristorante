@@ -10,6 +10,11 @@
     <h1 th:text="${ristorante.nome}">Nome del ristorante</h1>
     <p class="sottotitolo" th:text="${ristorante.indirizzo}">Indirizzo</p>
 
+    <!-- I flash attribute sopravvivono a un solo redirect: dopo
+         l'eliminazione arrivano qui e poi spariscono. -->
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
     <!-- Nascondere il pulsante e' cortesia verso l'utente, non sicurezza: a
          proteggere l'indirizzo e' la regola /ristoranti/** nella
          SecurityConfiguration. La selezione ?[...] filtra le authorities. -->
@@ -19,7 +24,11 @@
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
     </p>
 
-    <ul class="piatti" th:if="${!#lists.isEmpty(menu)}">
+    <!-- L'espressione sulle authorities si valuta una volta sola qui, non a
+         ogni piatto. -->
+    <ul class="piatti" th:if="${!#lists.isEmpty(menu)}"
+        th:with="admin=${#authentication != null
+                         and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()}">
         <li th:each="piatto : ${menu}">
             <div class="piatto-riga">
                 <span class="piatto-nome" th:text="${piatto.nome}">Nome del piatto</span>
@@ -31,6 +40,20 @@
                       th:text="${#numbers.formatDecimal(piatto.prezzo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</span>
             </div>
             <p class="ingredienti" th:text="${piatto.ingredienti}">Ingredienti</p>
+            <!-- POST e non collegamento: una GET non deve modificare niente, e
+                 con th:action Thymeleaf aggiunge da se' il token CSRF. -->
+            <p th:if="${admin}">
+                <!-- Il nome passa da un attributo data- e non dentro th:onsubmit:
+                     negli attributi th:on* Thymeleaf accetta solo numeri e
+                     booleani, per non far finire testo arbitrario dentro il
+                     JavaScript della pagina. -->
+                <form th:action="@{/ristoranti/{r}/piatti/{p}/delete(r=${ristorante.id},p=${piatto.id})}"
+                      method="post"
+                      th:data-nome="${piatto.nome}"
+                      onsubmit="return confirm('Eliminare ' + this.dataset.nome + ' dal menu?')">
+                    <button type="submit" class="bottone bottone-tenue">Elimina</button>
+                </form>
+            </p>
         </li>
     </ul>
 

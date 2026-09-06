@@ -1,6 +1,7 @@
 package it.uniroma3.siw_ristorante.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface PiattoRepository extends JpaRepository<Piatto, Long> {
     List<Piatto> findByRistoranteId(Long ristoranteId);
 
     boolean existsByNomeAndRistoranteId(String nome, Long ristoranteId);
+
+    Optional<Piatto> findByIdAndRistoranteId(Long piattoId, Long ristoranteId);
 }

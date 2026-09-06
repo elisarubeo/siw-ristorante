@@ -7,13 +7,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import it.uniroma3.siw_ristorante.exception.EntityInUseException;
 import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Piatto;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 import jakarta.validation.Valid;
+
 
 /* Gli indirizzi sono annidati sotto il ristorante perche' un piatto esiste solo
    nel suo menu, ma la classe resta dedicata ai piatti: il controller si sceglie
@@ -62,4 +65,17 @@ public class PiattoController {
         this.piattoService.save(ristoranteId, piatto);
         return "redirect:/ristoranti/{ristoranteId}/menu";
     }
+
+    @PostMapping("/{piattoId}/delete")
+    public String delete(@PathVariable Long ristoranteId, 
+                        @PathVariable Long piattoId, RedirectAttributes redirectAttributes) {
+        try {
+            this.piattoService.delete(ristoranteId, piattoId);
+            redirectAttributes.addFlashAttribute("successMessage", "Piatto eliminato.");
+        } catch (EntityInUseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/ristoranti/{ristoranteId}/menu";
+    }
+    
 }
