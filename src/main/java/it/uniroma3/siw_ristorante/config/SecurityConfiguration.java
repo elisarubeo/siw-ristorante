@@ -71,6 +71,16 @@ public class SecurityConfiguration {
                     "/ristoranti",
                     "/ristoranti/*/menu").permitAll();
 
+            /* "Le mie prenotazioni" e' una pagina da clienti: riservata al
+               ruolo DEFAULT, quindi nemmeno l'amministratore la vede. */
+            authorize.requestMatchers("/prenotazioni/**").hasAuthority(Credentials.DEFAULT_ROLE);
+
+            /* Prenotare e' cosa da clienti, non da amministratori: serve il
+               ruolo DEFAULT, e la regola va elencata qui sopra perche' piu'
+               sotto "/ristoranti/**" si prenderebbe anche questo percorso. */
+            authorize.requestMatchers("/ristoranti/*/prenotazioni/**")
+                    .hasAuthority(Credentials.DEFAULT_ROLE);
+
             // funzionalita' riservate all'amministratore
             authorize.requestMatchers("/admin/**").hasAuthority(Credentials.ADMIN_ROLE);
 

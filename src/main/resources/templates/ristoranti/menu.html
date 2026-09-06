@@ -15,6 +15,11 @@
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
+    <p th:if="${#authentication != null
+               and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}">
+        <a class="bottone" th:href="@{/ristoranti/{id}/prenotazioni/new(id=${ristorante.id})}">Prenota un tavolo</a>
+    </p>
+
     <!-- Nascondere il pulsante e' cortesia verso l'utente, non sicurezza: a
          proteggere l'indirizzo e' la regola /ristoranti/** nella
          SecurityConfiguration. La selezione ?[...] filtra le authorities. -->

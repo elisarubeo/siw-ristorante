@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Le mie prenotazioni')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <h1>Le mie prenotazioni</h1>
+    <p class="sottotitolo">Le più recenti per prime.</p>
+
+    <ul class="griglia" th:if="${!#lists.isEmpty(prenotazioni)}">
+        <li class="scheda" th:each="p : ${prenotazioni}"
+            th:classappend="${p.status.name() == 'CANCELLED'} ? 'non-disponibile' : ''">
+
+            <h2 th:text="${p.ristorante.nome}">Nome del ristorante</h2>
+
+            <p class="indirizzo">
+                <!-- Le date si formattano qui e non nel model: la pagina decide
+                     come mostrarle, il dominio si limita a conservarle. -->
+                <span th:text="${#temporals.format(p.dataPrenotazione, 'dd/MM/yyyy')}">01/01/2026</span>
+                alle
+                <span th:text="${#temporals.format(p.orarioPrenotazione, 'HH:mm')}">20:00</span>
+            </p>
+
+            <p class="indirizzo">
+                Tavolo <span th:text="${p.tavolo.numeroTavolo}">1</span> ·
+                <span th:text="${p.numeroPersone}">2</span> persone ·
+                <span th:text="${p.durataMinuti} + ' minuti'">120 minuti</span>
+            </p>
+
+            <p class="azione">
+                <span class="etichetta"
+                      th:switch="${p.status.name()}">
+                    <span th:case="'CONFIRMED'">confermata</span>
+                    <span th:case="'CANCELLED'">annullata</span>
+                    <span th:case="*">in attesa di conferma</span>
+                </span>
+            </p>
+        </li>
+    </ul>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(prenotazioni)}">
+        Non hai ancora prenotato nessun tavolo.
+        <p style="margin-bottom:0"><a th:href="@{/ristoranti}">Scegli un ristorante</a></p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

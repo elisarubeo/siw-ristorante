@@ -24,8 +24,15 @@
              SecurityExpressionHandler basato su FilterInvocation, che Spring
              Security 7 non espone piu'. -->
         <nav class="navigazione"
-             th:with="autenticato=${#authentication != null and #authentication.name != 'anonymousUser'}">
+             th:with="autenticato=${#authentication != null and #authentication.name != 'anonymousUser'},
+                      cliente=${#authentication != null
+                                and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}">
             <a th:unless="${autenticato}" th:href="@{/login}">Accedi</a>
+
+            <!-- Prenotare e' cosa da clienti: l'amministratore non ha questa
+                 voce, e la regola nella SecurityConfiguration glielo impedisce
+                 comunque anche digitando l'indirizzo a mano. -->
+            <a th:if="${cliente}" th:href="@{/prenotazioni}">Le mie prenotazioni</a>
 
             <span th:if="${autenticato}" class="utente">
                 <span th:text="${#authentication.name}">utente</span>

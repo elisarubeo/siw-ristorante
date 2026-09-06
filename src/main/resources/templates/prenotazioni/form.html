@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Prenota un tavolo')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
+
+    <div class="riquadro">
+        <h1>Prenota un tavolo</h1>
+        <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
+
+        <form th:action="@{/ristoranti/{r}/prenotazioni(r=${ristorante.id})}"
+              th:object="${prenotazione}" method="post">
+
+            <!-- Errore non legato a un singolo campo: dipende dalla
+                 combinazione di persone, data e ora. -->
+            <p class="avviso avviso-errore" th:if="${#fields.hasGlobalErrors()}"
+               th:each="errore : ${#fields.globalErrors()}" th:text="${errore}">errore</p>
+
+            <div class="campo">
+                <label for="numeroPersone">Quante persone</label>
+                <input type="number" id="numeroPersone" th:field="*{numeroPersone}"
+                       min="1" step="1" required autofocus>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('numeroPersone')}"
+                   th:errors="*{numeroPersone}">errore</p>
+            </div>
+
+            <div class="campo">
+                <label for="dataPrenotazione">Giorno</label>
+                <!-- min impedisce di scegliere un giorno gia' passato -->
+                <input type="date" id="dataPrenotazione" th:field="*{dataPrenotazione}"
+                       th:min="${dataMinima}" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('dataPrenotazione')}"
+                   th:errors="*{dataPrenotazione}">errore</p>
+            </div>
+
+            <div class="campo">
+                <label for="orarioPrenotazione">Orario</label>
+                <!-- Il limite sull'ora vale solo se il giorno scelto e' oggi:
+                     per domani qualunque orario va bene. Lo aggiorna lo script
+                     in fondo alla pagina. -->
+                <input type="time" id="orarioPrenotazione" th:field="*{orarioPrenotazione}"
+                       th:data-ora-minima-oggi="${oraMinimaOggi}"
+                       th:data-data-minima="${dataMinima}" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('orarioPrenotazione')}"
+                   th:errors="*{orarioPrenotazione}">errore</p>
+            </div>
+
+            <p class="sottotitolo">
+                Il tavolo viene assegnato dal ristorante. Ogni prenotazione dura due ore.
+            </p>
+
+            <button type="submit" class="bottone">Prenota</button>
+        </form>
+    </div>
+</main>
+
+<script>
+    /* Il vincolo sull'orario dipende dal giorno scelto, e questo l'HTML da solo
+       non sa esprimerlo. E' comunque solo un aiuto: chi disattiva JavaScript o
+       invia la richiesta a mano viene fermato dal controllo nel service. */
+    (function () {
+        var giorno = document.getElementById('dataPrenotazione');
+        var ora = document.getElementById('orarioPrenotazione');
+        function aggiorna() {
+            if (giorno.value === ora.dataset.dataMinima) {
+                ora.min = ora.dataset.oraMinimaOggi;
+            } else {
+                ora.removeAttribute('min');
+            }
+        }
+        giorno.addEventListener('change', aggiorna);
+        aggiorna();
+    })();
+</script>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

@@ -28,16 +28,17 @@ public class Prenotazione {
     private Long id;
 
     @NotNull(message = "Il numero di persone non può essere nullo")
+    @Min(value = 1, message = "Serve almeno una persona")
     private Integer numeroPersone;
 
+    @NotNull(message = "La data non può essere vuota")
     @Column(name = "data_prenotazione", nullable = false)
     private LocalDate dataPrenotazione;
 
+    @NotNull(message = "L'orario non può essere vuoto")
     @Column(name = "orario_prenotazione", nullable = false)
     private LocalTime orarioPrenotazione;
 
-    /* Senza una durata non si puo' dire fino a quando il tavolo e' occupato
-       dalla prenotazione, e quindi nemmeno se e' libero a una certa ora. */
     @NotNull(message = "La durata della prenotazione non puo' essere nulla")
     @Min(value = 1, message = "La durata deve essere di almeno un minuto")
     @Column(name = "durata_minuti", nullable = false)
@@ -54,6 +55,10 @@ public class Prenotazione {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tavolo_id", nullable = false)
     private Tavolo tavolo;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Long getId() {
         return id;
@@ -95,9 +100,6 @@ public class Prenotazione {
         this.durataMinuti = durataMinuti;
     }
 
-    /* Data e orario sono due colonne separate, ma per i confronti conviene
-       ragionare su istanti: cosi' un turno che scavalca la mezzanotte non e'
-       un caso particolare da trattare a parte. */
     public LocalDateTime getInizio() {
         return LocalDateTime.of(dataPrenotazione, orarioPrenotazione);
     }
@@ -106,9 +108,13 @@ public class Prenotazione {
         return getInizio().plusMinutes(durataMinuti);
     }
 
-    /* Vero se la prenotazione tiene impegnato il tavolo nell'istante dato.
-       Estremo iniziale incluso, finale escluso: alle 22:00 in punto il tavolo
-       di un turno 20:00-22:00 e' gia' di nuovo prenotabile. */
+    /* Due intervalli si sovrappongono se ciascuno comincia prima che l'altro
+       finisca. Estremi esclusi da entrambi i lati: un turno che finisce alle
+       22:00 e uno che comincia alle 22:00 non si pestano i piedi. */
+    public boolean sovrappone(LocalDateTime altroInizio, LocalDateTime altraFine) {
+        return getInizio().isBefore(altraFine) && altroInizio.isBefore(getFine());
+    }
+
     public boolean copre(LocalDateTime istante) {
         return !istante.isBefore(getInizio()) && istante.isBefore(getFine());
     }
@@ -135,6 +141,14 @@ public class Prenotazione {
 
     public void setTavolo(Tavolo tavolo) {
         this.tavolo = tavolo;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

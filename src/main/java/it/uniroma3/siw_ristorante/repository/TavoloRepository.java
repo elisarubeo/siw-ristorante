@@ -11,9 +11,13 @@ public interface TavoloRepository extends JpaRepository<Tavolo, Long> {
 
     List<Tavolo> findByRistoranteIdOrderByNumeroTavolo(Long ristoranteId);
 
-    /* Cercare il tavolo per id e ristorante insieme: cosi' l'indirizzo
-       /ristoranti/1/tavoli/5 non puo' agire su un tavolo del ristorante 2. */
     Optional<Tavolo> findByIdAndRistoranteId(Long id, Long ristoranteId);
 
+    /* Ordinati per posti crescenti: il primo che basta e' il piu' piccolo che
+       basta, cosi' non si occupa il tavolo da otto per due persone. */
+    List<Tavolo> findByRistoranteIdAndNumeroPostiGreaterThanEqualOrderByNumeroPostiAsc(
+            Long ristoranteId, Integer numeroPersone);
+
     boolean existsByNumeroTavoloAndRistoranteId(Integer numeroTavolo, Long ristoranteId);
+
 }
