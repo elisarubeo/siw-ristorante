@@ -13,8 +13,7 @@ public interface TavoloRepository extends JpaRepository<Tavolo, Long> {
 
     Optional<Tavolo> findByIdAndRistoranteId(Long id, Long ristoranteId);
 
-    /* Ordinati per posti crescenti: il primo che basta e' il piu' piccolo che
-       basta, cosi' non si occupa il tavolo da otto per due persone. */
+    // Ordinati per posti crescenti: il primo che basta e' il piu' piccolo che basta
     List<Tavolo> findByRistoranteIdAndNumeroPostiGreaterThanEqualOrderByNumeroPostiAsc(
             Long ristoranteId, Integer numeroPersone);
 

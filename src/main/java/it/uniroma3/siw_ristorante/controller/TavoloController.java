@@ -18,9 +18,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
-/* Il @RequestMapping di classe non e' solo estetica: senza, i percorsi dei
-   metodi sono assoluti e finiscono fuori da /ristoranti/**, cioe' fuori dalle
-   regole di amministrazione della SecurityConfiguration. */
 @Controller
 @RequestMapping("/ristoranti/{ristoranteId}/tavoli")
 public class TavoloController {

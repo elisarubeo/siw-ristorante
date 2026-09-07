@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Credentials;
 import it.uniroma3.siw_ristorante.model.Ristorante;
+import it.uniroma3.siw_ristorante.service.OrdinazioneService;
 import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 
@@ -19,11 +20,14 @@ public class RistoranteController {
     private final TavoloService tavoloService;
     private final RistoranteService ristoranteService;
     private final PiattoService piattoService;
+    private final OrdinazioneService ordinazioneService;
 
-    public RistoranteController(RistoranteService ristoranteService, PiattoService piattoService, TavoloService tavoloService) {
+    public RistoranteController(RistoranteService ristoranteService, PiattoService piattoService,
+            TavoloService tavoloService, OrdinazioneService ordinazioneService) {
         this.ristoranteService = ristoranteService;
         this.piattoService = piattoService;
         this.tavoloService = tavoloService;
+        this.ordinazioneService = ordinazioneService;
     }
 
     @GetMapping({ "/", "/index", "/ristoranti" })
@@ -59,6 +63,10 @@ public class RistoranteController {
         Ristorante ristorante = this.ristoranteService.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + id));
         model.addAttribute("tavoli", tavoloService.findByRistoranteIdOrderByNumeroTavolo(id));
+        /* Quali tavoli hanno un conto aperto: una sola query per tutta la
+           pagina, invece di una per tavolo. Lo stato "occupato" si ricava da
+           qui e non da Tavolo.status, che nessuno aggiorna. */
+        model.addAttribute("contiAperti", ordinazioneService.contiApertiPerTavolo(id));
         model.addAttribute("ristorante", ristorante);
         return "ristoranti/tavoli";
     }

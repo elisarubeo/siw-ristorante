@@ -97,4 +97,11 @@ public class RigaOrdinazione {
     public void setPrezzoUnitario(BigDecimal prezzoUnitario) {
         this.prezzoUnitario = prezzoUnitario;
     }
+
+    public BigDecimal getImporto() {
+        if (prezzoUnitario == null || quantita == null) {
+            return BigDecimal.ZERO;
+        }
+        return prezzoUnitario.multiply(BigDecimal.valueOf(quantita));
+    }
 }

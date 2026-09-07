@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Conto')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<!-- Un conto e' aperto finche' la chiusura e' nulla: lo stato non e' un campo
+     a parte, si legge da li'. -->
+<main class="contenuto" th:with="aperto=${ordinazione.chiusura == null}">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">&larr; Torna ai tavoli</a>
+
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <h1 class="titolo-con-etichetta">
+        <span th:text="'Tavolo ' + ${ordinazione.tavolo.numeroTavolo}">Tavolo 1</span>
+        <span class="etichetta etichetta-occupato" th:if="${aperto}">aperto</span>
+        <span class="etichetta" th:unless="${aperto}">chiuso</span>
+    </h1>
+
+    <p class="sottotitolo">
+        <span th:text="${ristorante.nome}">Nome del ristorante</span> &middot;
+        aperto il
+        <span th:text="${#temporals.format(ordinazione.apertura, 'dd/MM/yyyy')}">01/01/2026</span>
+        alle
+        <span th:text="${#temporals.format(ordinazione.apertura, 'HH:mm')}">20:00</span>
+        <span th:unless="${aperto}">
+            &middot; chiuso alle
+            <span th:text="${#temporals.format(ordinazione.chiusura, 'HH:mm')}">22:00</span>
+        </span>
+    </p>
+
+    <!-- La tabella scorre da sola sugli schermi stretti invece di allargare
+         tutta la pagina. -->
+    <div class="tabella-scorrevole" th:if="${!#lists.isEmpty(ordinazione.righe)}">
+        <table class="conto">
+            <thead>
+                <tr>
+                    <th scope="col">Piatto</th>
+                    <th scope="col" class="numerica">Qta</th>
+                    <th scope="col" class="numerica">Prezzo</th>
+                    <th scope="col" class="numerica">Importo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="riga : ${ordinazione.righe}">
+                    <td th:text="${riga.piatto.nome}">Nome del piatto</td>
+                    <td class="numerica" th:text="${riga.quantita}">1</td>
+                    <!-- formatDecimal(numero, cifre intere minime, separatore
+                         migliaia, decimali, separatore decimale) -->
+                    <td class="numerica"
+                        th:text="${#numbers.formatDecimal(riga.prezzoUnitario, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
+                    <td class="numerica"
+                        th:text="${#numbers.formatDecimal(riga.importo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="3">Totale</th>
+                    <td class="numerica"
+                        th:text="${#numbers.formatDecimal(ordinazione.totale, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(ordinazione.righe)}">
+        Il conto e aperto ma non c e ancora niente sopra.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

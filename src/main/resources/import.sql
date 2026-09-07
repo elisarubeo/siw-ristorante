@@ -53,15 +53,30 @@ INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotaz
 -- turno che scavalca la mezzanotte, per provare Prenotazione.copre()
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (4, 6, CURRENT_DATE, TIME '23:00', 180, 'SCHEDULED', 1, 3, 3);
 
+-- ---------- un conto aperto per tavolo ----------
+-- Il controllo in OrdinazioneService non basta da solo: due richieste
+-- simultanee lo superano entrambe e aprono due conti sullo stesso tavolo.
+-- Questo indice lo impedisce nel database. E' parziale (la clausola WHERE)
+-- perche' il vincolo vale solo fra i conti ancora aperti: dello stesso tavolo
+-- ci possono essere quanti conti chiusi si vuole. Sta qui e non in
+-- @UniqueConstraint perche' JPA non sa esprimere un indice parziale.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_ordinazione_aperta ON ordinazione (tavolo_id) WHERE chiusura IS NULL;
+
 -- ---------- ordinazioni ----------
 -- aperta adesso: il tavolo 4 deve risultare OCCUPATO
 INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (1, 30.00, now() - interval '30 minutes', NULL, 4);
 -- gia' chiusa: il tavolo 5 non e' piu' occupato
 INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (2, 46.00, CURRENT_DATE + TIME '12:00', CURRENT_DATE + TIME '13:30', 5);
+-- aperta nel ristorante 1: cosi' la pagina dei conti aperti ha qualcosa da
+-- mostrare anche entrando dal primo ristorante, che e' quello che si apre per primo
+INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (3, 33.00, now() - interval '20 minutes', NULL, 2);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (1, 1, 14.00, 1, 5);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (2, 1, 16.00, 1, 6);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (3, 2, 16.00, 2, 6);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (4, 1, 14.00, 2, 5);
+-- 2 x 13.50 + 1 x 6.00 = 33.00, quanto scritto nel totale dell'ordinazione 3
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (5, 2, 13.50, 3, 1);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (6, 1, 6.00, 3, 4);
 
 -- ---------- sequenze ----------
 -- Gli id qui sopra sono scritti a mano, ma le sequenze partirebbero comunque

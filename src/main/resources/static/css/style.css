@@ -334,3 +334,71 @@ h2 { font-size: 1.4rem; }
     gap: .5rem;
     margin-top: .8rem;
 }
+
+/* ---------- conti e ordinazioni ---------- */
+/* Il titolo e la sua etichetta di stato sulla stessa riga, con l'etichetta
+   allineata alla base del testo e non al centro del blocco. */
+.titolo-con-etichetta {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .6rem;
+}
+
+/* L'etichetta dello stato occupato si distingue da quelle neutre: e' un
+   avvertimento leggero, non un colore d'allarme. */
+.etichetta-occupato {
+    color: var(--terracotta);
+    border-color: var(--terracotta);
+}
+
+/* La tabella scorre dentro il suo riquadro sugli schermi stretti: e' il
+   contenitore a scorrere, cosi' la pagina non si allarga in orizzontale. */
+.tabella-scorrevole {
+    overflow-x: auto;
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+}
+
+.conto {
+    width: 100%;
+    /* collapse: un solo filo fra una riga e l'altra, non due accostati */
+    border-collapse: collapse;
+    min-width: 32rem;
+}
+
+.conto th,
+.conto td {
+    padding: .8rem 1.4rem;
+    text-align: left;
+    border-bottom: 1px solid var(--bordo);
+}
+
+.conto thead th {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-weight: 600;
+    color: var(--inchiostro-tenue);
+}
+
+.conto tbody td:first-child { font-family: var(--serif); font-size: 1.05rem; }
+
+/* tabular-nums: le cifre hanno tutte la stessa larghezza, cosi' gli importi
+   incolonnati restano allineati anche cambiando numero. */
+.conto .numerica {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.conto tfoot th,
+.conto tfoot td {
+    border-bottom: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.conto tfoot th { text-align: right; font-family: var(--serif); }

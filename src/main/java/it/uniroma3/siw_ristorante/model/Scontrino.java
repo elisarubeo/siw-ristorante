@@ -129,9 +129,6 @@ public class Scontrino {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        /* instanceof e non getClass(): con le associazioni LAZY Hibernate
-           consegna dei proxy, la cui classe e' una sottoclasse generata a
-           runtime. */
         if (!(obj instanceof Scontrino other))
             return false;
         return id != null && id.equals(other.getId());

@@ -15,26 +15,61 @@
     <h1>Tavoli</h1>
     <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
-    <p>
+    <p class="azioni-piatto">
         <a class="bottone" th:href="@{/ristoranti/{id}/tavoli/new(id=${ristorante.id})}">Aggiungi un tavolo</a>
+        <a class="bottone bottone-tenue"
+           th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
     </p>
 
     <!-- I tavoli arrivano gia' ordinati per numero di tavolo dal repository -->
     <ul class="griglia" th:if="${!#lists.isEmpty(tavoli)}">
-        <li class="scheda" th:each="tavolo : ${tavoli}">
-            <h2 th:text="'Tavolo ' + ${tavolo.numeroTavolo}">Tavolo 1</h2>
+        <!-- Il conto aperto del tavolo, o null se il tavolo e' libero: e' lui a
+             dire se il tavolo e' occupato, non Tavolo.status. -->
+        <li class="scheda" th:each="tavolo : ${tavoli}"
+            th:with="conto=${contiAperti.get(tavolo.id)}">
+
+            <h2 class="titolo-con-etichetta">
+                <span th:text="'Tavolo ' + ${tavolo.numeroTavolo}">Tavolo 1</span>
+                <span class="etichetta etichetta-occupato" th:if="${conto != null}">occupato</span>
+            </h2>
+
             <p class="indirizzo" th:text="${tavolo.numeroPosti} + ' posti'">4 posti</p>
-            <p class="azione">
+
+            <!-- Riepilogo del conto in corso: quanto dura e a quanto sta. -->
+            <p class="indirizzo" th:if="${conto != null}">
+                Aperto alle
+                <span th:text="${#temporals.format(conto.apertura, 'HH:mm')}">20:00</span>
+                &middot;
+                <span class="prezzo"
+                      th:text="${#numbers.formatDecimal(conto.totale, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</span>
+            </p>
+
+            <div class="azioni-piatto azione">
+                <!-- Tavolo libero: aprire il conto e' una POST, non un
+                     collegamento, perche' crea qualcosa. Nessun campo da
+                     compilare: apertura, totale e tavolo li decide il server.
+                     Il token CSRF lo aggiunge Thymeleaf perche' c'e' th:action. -->
+                <form th:if="${conto == null}"
+                      th:action="@{/ristoranti/{r}/tavoli/{t}/ordinazione(r=${ristorante.id},t=${tavolo.id})}"
+                      method="post">
+                    <button type="submit" class="bottone bottone-tenue">Apri conto</button>
+                </form>
+
+                <!-- Tavolo occupato: il conto esiste gia', si va a leggerlo.
+                     Questa e' una GET perche' non modifica niente. -->
+                <a th:if="${conto != null}" class="bottone bottone-tenue"
+                   th:href="@{/ristoranti/{r}/ordinazioni/{o}(r=${ristorante.id},o=${conto.id})}">Vai al conto</a>
+
                 <!-- L'eliminazione e' una POST, non un collegamento: le GET non
-                     devono modificare niente, e il token CSRF lo aggiunge
-                     Thymeleaf perche' il form usa th:action. -->
+                     devono modificare niente. Il pulsante resta anche sui tavoli
+                     occupati: e' il servizio a rifiutare, spiegando perche'. -->
                 <form th:action="@{/ristoranti/{r}/tavoli/{t}/delete(r=${ristorante.id},t=${tavolo.id})}"
                       method="post"
                       th:data-numero="${tavolo.numeroTavolo}"
                       onsubmit="return confirm('Eliminare il tavolo ' + this.dataset.numero + '?')">
                     <button type="submit" class="bottone bottone-tenue">Elimina</button>
                 </form>
-            </p>
+            </div>
         </li>
     </ul>
 
