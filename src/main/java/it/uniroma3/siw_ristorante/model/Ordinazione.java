@@ -16,10 +16,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
+/* Un'ordinazione esiste solo finche' il conto e' aperto: alla chiusura diventa
+   uno Scontrino e viene cancellata. Percio' "esiste un'ordinazione per questo
+   tavolo" e "a questo tavolo c'e' gente seduta" sono la stessa cosa, e un
+   tavolo non puo' averne piu' di una: il vincolo unico lo dice al database,
+   che e' l'unico posto in cui regge anche fra due richieste simultanee. */
 @Entity
+@Table(name = "ordinazione",
+        uniqueConstraints = @UniqueConstraint(columnNames = "tavolo_id"))
 public class Ordinazione {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,16 +39,11 @@ public class Ordinazione {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totale;
 
-    /* Un'ordinazione ancora aperta e' il fatto che dice "a questo tavolo c'e'
-       gente seduta". La chiusura nulla significa aperta: non serve un enum di
-       stato, e cosi' si puo' sapere se il tavolo era occupato anche a un
-       istante passato. */
+    /* Quando la gente si e' seduta. Alla chiusura viene copiato nello
+       scontrino, altrimenti si perderebbe insieme all'ordinazione. */
     @NotNull(message = "L'orario di apertura non puo' essere nullo")
     @Column(nullable = false)
     private LocalDateTime apertura = LocalDateTime.now();
-
-    @Column
-    private LocalDateTime chiusura;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tavolo_id", nullable = false)
@@ -70,18 +74,6 @@ public class Ordinazione {
 
     public void setApertura(LocalDateTime apertura) {
         this.apertura = apertura;
-    }
-
-    public LocalDateTime getChiusura() {
-        return chiusura;
-    }
-
-    public void setChiusura(LocalDateTime chiusura) {
-        this.chiusura = chiusura;
-    }
-
-    public boolean isAperta(LocalDateTime istante) {
-        return !istante.isBefore(apertura) && (chiusura == null || istante.isBefore(chiusura));
     }
 
     public Tavolo getTavolo() {

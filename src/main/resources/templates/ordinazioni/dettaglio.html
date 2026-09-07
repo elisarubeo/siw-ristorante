@@ -4,9 +4,10 @@
 <body>
 <header th:replace="~{fragments/layout :: intestazione}"></header>
 
-<!-- Un conto e' aperto finche' la chiusura e' nulla: lo stato non e' un campo
-     a parte, si legge da li'. -->
-<main class="contenuto" th:with="aperto=${ordinazione.chiusura == null}">
+<!-- Un'ordinazione esiste solo finche' il conto e' aperto: alla chiusura
+     diventa uno scontrino e sparisce. Non c'e' nessuno stato da mostrare,
+     perche' un conto chiuso non arriva mai fino a questa pagina. -->
+<main class="contenuto">
     <a class="ritorno" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">&larr; Torna ai tavoli</a>
 
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
@@ -14,8 +15,7 @@
 
     <h1 class="titolo-con-etichetta">
         <span th:text="'Tavolo ' + ${ordinazione.tavolo.numeroTavolo}">Tavolo 1</span>
-        <span class="etichetta etichetta-occupato" th:if="${aperto}">aperto</span>
-        <span class="etichetta" th:unless="${aperto}">chiuso</span>
+        <span class="etichetta etichetta-occupato">aperto</span>
     </h1>
 
     <p class="sottotitolo">
@@ -24,10 +24,6 @@
         <span th:text="${#temporals.format(ordinazione.apertura, 'dd/MM/yyyy')}">01/01/2026</span>
         alle
         <span th:text="${#temporals.format(ordinazione.apertura, 'HH:mm')}">20:00</span>
-        <span th:unless="${aperto}">
-            &middot; chiuso alle
-            <span th:text="${#temporals.format(ordinazione.chiusura, 'HH:mm')}">22:00</span>
-        </span>
     </p>
 
     <!-- La tabella scorre da sola sugli schermi stretti invece di allargare
@@ -64,8 +60,17 @@
         </table>
     </div>
 
+    <!-- Il conto e' vuoto: si annulla, non si chiude. Appena ha una voce il
+         pulsante sparisce, perche' da li' in poi e' una vendita e va incassata.
+         POST, non collegamento: cancella qualcosa. -->
     <div class="vuoto" th:if="${#lists.isEmpty(ordinazione.righe)}">
         Il conto e aperto ma non c e ancora niente sopra.
+        <form style="margin-top:1rem"
+              th:action="@{/ristoranti/{r}/ordinazioni/{o}/annulla(r=${ristorante.id},o=${ordinazione.id})}"
+              method="post"
+              onsubmit="return confirm('Annullare l apertura di questo conto?')">
+            <button type="submit" class="bottone bottone-tenue">Annulla apertura</button>
+        </form>
     </div>
 </main>
 

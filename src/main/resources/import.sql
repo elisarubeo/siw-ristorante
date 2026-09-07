@@ -53,30 +53,27 @@ INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotaz
 -- turno che scavalca la mezzanotte, per provare Prenotazione.copre()
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (4, 6, CURRENT_DATE, TIME '23:00', 180, 'SCHEDULED', 1, 3, 3);
 
--- ---------- un conto aperto per tavolo ----------
--- Il controllo in OrdinazioneService non basta da solo: due richieste
--- simultanee lo superano entrambe e aprono due conti sullo stesso tavolo.
--- Questo indice lo impedisce nel database. E' parziale (la clausola WHERE)
--- perche' il vincolo vale solo fra i conti ancora aperti: dello stesso tavolo
--- ci possono essere quanti conti chiusi si vuole. Sta qui e non in
--- @UniqueConstraint perche' JPA non sa esprimere un indice parziale.
-CREATE UNIQUE INDEX IF NOT EXISTS ux_ordinazione_aperta ON ordinazione (tavolo_id) WHERE chiusura IS NULL;
-
 -- ---------- ordinazioni ----------
--- aperta adesso: il tavolo 4 deve risultare OCCUPATO
-INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (1, 30.00, now() - interval '30 minutes', NULL, 4);
--- gia' chiusa: il tavolo 5 non e' piu' occupato
-INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (2, 46.00, CURRENT_DATE + TIME '12:00', CURRENT_DATE + TIME '13:30', 5);
--- aperta nel ristorante 1: cosi' la pagina dei conti aperti ha qualcosa da
--- mostrare anche entrando dal primo ristorante, che e' quello che si apre per primo
-INSERT INTO ordinazione (id, totale, apertura, chiusura, tavolo_id) VALUES (3, 33.00, now() - interval '20 minutes', NULL, 2);
+-- Qui stanno solo i conti APERTI: alla chiusura l'ordinazione diventa uno
+-- scontrino e viene cancellata. Un tavolo non puo' avere piu' di una riga
+-- (vincolo unico su tavolo_id, dichiarato in Ordinazione).
+-- il tavolo 4 (ristorante 2) e' occupato: 1 x 14.00 + 1 x 16.00 = 30.00
+INSERT INTO ordinazione (id, totale, apertura, tavolo_id) VALUES (1, 30.00, now() - interval '30 minutes', 4);
+-- il tavolo 2 (ristorante 1) e' occupato: 2 x 13.50 + 1 x 6.00 = 33.00
+INSERT INTO ordinazione (id, totale, apertura, tavolo_id) VALUES (2, 33.00, now() - interval '20 minutes', 2);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (1, 1, 14.00, 1, 5);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (2, 1, 16.00, 1, 6);
-INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (3, 2, 16.00, 2, 6);
-INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (4, 1, 14.00, 2, 5);
--- 2 x 13.50 + 1 x 6.00 = 33.00, quanto scritto nel totale dell'ordinazione 3
-INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (5, 2, 13.50, 3, 1);
-INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (6, 1, 6.00, 3, 4);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (3, 2, 13.50, 2, 1);
+INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (4, 1, 6.00, 2, 4);
+
+-- ---------- scontrini ----------
+-- Il conto del tavolo 2 del ristorante 2, pagato all'una e mezza: era
+-- un'ordinazione, alla chiusura e' diventato questo e il tavolo e' tornato
+-- libero (e di nuovo eliminabile). Numero del tavolo, nome e prezzo dei piatti
+-- sono copie: restano veri anche se il tavolo sparisce o il listino cambia.
+INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (1, CURRENT_DATE + TIME '13:30', CURRENT_DATE + TIME '12:00', 2, 46.00, 2);
+INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1, 2, 'Spaghetti alle vongole', 16.00, 6, 1);
+INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (2, 1, 'Fritto misto', 14.00, 5, 1);
 
 -- ---------- sequenze ----------
 -- Gli id qui sopra sono scritti a mano, ma le sequenze partirebbero comunque
@@ -91,3 +88,5 @@ ALTER SEQUENCE recensione_seq RESTART WITH 1000;
 ALTER SEQUENCE prenotazione_seq RESTART WITH 1000;
 ALTER SEQUENCE ordinazione_seq RESTART WITH 1000;
 ALTER SEQUENCE riga_ordinazione_seq RESTART WITH 1000;
+ALTER SEQUENCE scontrino_seq RESTART WITH 1000;
+ALTER SEQUENCE riga_scontrino_seq RESTART WITH 1000;

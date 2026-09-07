@@ -62,6 +62,22 @@ public class OrdinazioneController {
         }
     }
 
+    /* L'annullamento di un'apertura sbagliata: cancella il conto senza emettere
+       niente, e il servizio lo consente solo se il conto e' ancora vuoto. */
+    @PostMapping("/ordinazioni/{ordinazioneId}/annulla")
+    public String annulla(@PathVariable Long ristoranteId, @PathVariable Long ordinazioneId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            this.ordinazioneService.annullaApertura(ristoranteId, ordinazioneId);
+            redirectAttributes.addFlashAttribute("successMessage", "Apertura annullata.");
+            return "redirect:/ristoranti/{ristoranteId}/tavoli";
+        } catch (OrdinazioneNonValidaException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addAttribute("ordinazioneId", ordinazioneId);
+            return "redirect:/ristoranti/{ristoranteId}/ordinazioni/{ordinazioneId}";
+        }
+    }
+
     @GetMapping("/ordinazioni")
     public String contiAperti(@PathVariable Long ristoranteId, Model model) {
         model.addAttribute("ordinazioni", this.ordinazioneService.contiAperti(ristoranteId));

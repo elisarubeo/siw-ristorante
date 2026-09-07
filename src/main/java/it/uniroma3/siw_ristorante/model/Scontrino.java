@@ -34,6 +34,13 @@ public class Scontrino {
     @Column(name = "data_ora", nullable = false)
     private LocalDateTime dataOra;
 
+    /* Copiata dall'ordinazione al momento della chiusura: senza, del turno
+       resterebbe solo l'istante del pagamento e non si saprebbe piu' quanto e'
+       durato ne' da che ora quel tavolo era occupato. Ammessa nulla perche' gli
+       scontrini piu' vecchi della funzionalita' non ce l'hanno. */
+    @Column(name = "apertura")
+    private LocalDateTime apertura;
+
     /* Numero copiato, non associazione: conserva l'informazione senza creare un
        vincolo che impedirebbe di eliminare il tavolo. */
     @Column(name = "numero_tavolo")
@@ -67,6 +74,14 @@ public class Scontrino {
 
     public void setDataOra(LocalDateTime dataOra) {
         this.dataOra = dataOra;
+    }
+
+    public LocalDateTime getApertura() {
+        return apertura;
+    }
+
+    public void setApertura(LocalDateTime apertura) {
+        this.apertura = apertura;
     }
 
     public Integer getNumeroTavolo() {

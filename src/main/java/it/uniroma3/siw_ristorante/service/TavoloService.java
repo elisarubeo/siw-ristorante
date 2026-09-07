@@ -58,9 +58,11 @@ public class TavoloService {
         return tavoloRepository.save(tavolo);
     }
 
+    /* Le ordinazioni chiuse non esistono piu': sono diventate scontrini. Se una
+       riga di ordinazione c'e' ancora, quel conto e' aperto. */
     @Transactional(readOnly = true)
     public boolean esisteOrdinazioneAperta(Long tavoloId) {
-        return ordinazioneRepository.existsByTavoloIdAndChiusuraIsNull(tavoloId);
+        return ordinazioneRepository.existsByTavoloId(tavoloId);
     }
 
     @Transactional(readOnly = true)

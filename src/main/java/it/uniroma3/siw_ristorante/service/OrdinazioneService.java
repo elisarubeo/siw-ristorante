@@ -34,7 +34,7 @@ public class OrdinazioneService {
         Tavolo tavolo = tavoloRepository.findByIdAndRistoranteId(tavoloId, ristoranteId)
             .orElseThrow(() -> new ResourceNotFoundException("Il tavolo selezionato non esiste"));
         // 2. Posso aprire un'ordinazione solo se non ce ne sono altre aperte per il tavolo
-        if(ordinazioneRepository.findByTavoloIdAndChiusuraIsNull(tavoloId).isPresent()){
+        if(ordinazioneRepository.existsByTavoloId(tavoloId)){
             throw new OrdinazioneNonValidaException("Questo tavolo ha già un'ordinazione aperta");
         }
         Ordinazione ordinazione = new Ordinazione();
@@ -55,7 +55,17 @@ public class OrdinazioneService {
     @Transactional(readOnly = true)
     public List<Ordinazione> contiAperti(Long ristoranteId) {
         return ordinazioneRepository
-                .findByTavolo_Ristorante_IdAndChiusuraIsNullOrderByApertura(ristoranteId);
+                .findByTavolo_Ristorante_IdOrderByApertura(ristoranteId);
+    }
+
+    @Transactional
+    public void annullaApertura(Long ristoranteId, Long ordinazioneId) {
+        Ordinazione ordinazione = conto(ristoranteId, ordinazioneId);
+        if (!ordinazione.getRighe().isEmpty()) {
+            throw new OrdinazioneNonValidaException(
+                    "Questo conto ha gia' delle voci: va chiuso, non annullato");
+        }
+        ordinazioneRepository.delete(ordinazione);
     }
 
     @Transactional(readOnly = true)
