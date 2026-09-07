@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Prenotazioni del tavolo')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">&larr; Torna ai tavoli</a>
+
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <h1 th:text="'Prenotazioni del tavolo ' + ${tavolo.numeroTavolo}">Prenotazioni del tavolo 1</h1>
+    <p class="sottotitolo">
+        <span th:text="${ristorante.nome}">Nome del ristorante</span> &middot;
+        <span th:text="${tavolo.numeroPosti}">4</span> posti &middot;
+        solo i turni non ancora finiti.
+    </p>
+
+    <p class="riepilogo">
+        <a th:href="@{/ristoranti/{id}/agenda(id=${ristorante.id})}">Vedi l agenda di tutto il ristorante</a>
+    </p>
+
+    <div class="tabella-scorrevole" th:if="${!#lists.isEmpty(prenotazioni)}">
+        <table class="conto">
+            <thead>
+                <tr>
+                    <th scope="col">Giorno</th>
+                    <th scope="col">Orario</th>
+                    <th scope="col" class="numerica">Persone</th>
+                    <th scope="col">Cliente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${prenotazioni}"
+                    th:with="inCorso=${p.copre(T(java.time.LocalDateTime).now())}"
+                    th:classappend="${inCorso} ? 'riga-in-corso' : ''">
+                    <td th:text="${#temporals.format(p.dataPrenotazione, 'dd/MM/yyyy')}">01/01/2026</td>
+                    <td>
+                        <span th:text="${#temporals.format(p.orarioPrenotazione, 'HH:mm')}">20:00</span>
+                        &ndash;
+                        <span th:text="${#temporals.format(p.fine, 'HH:mm')}">22:00</span>
+                        <span class="etichetta etichetta-occupato" th:if="${inCorso}">in corso</span>
+                    </td>
+                    <td class="numerica" th:text="${p.numeroPersone}">2</td>
+                    <td th:text="${clienti.get(p.user.id)} ?: 'sconosciuto'">cliente</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(prenotazioni)}">
+        Questo tavolo non ha prenotazioni in arrivo.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

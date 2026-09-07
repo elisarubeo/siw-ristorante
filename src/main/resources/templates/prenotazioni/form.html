@@ -36,9 +36,12 @@
 
             <div class="campo">
                 <label for="dataPrenotazione">Giorno</label>
-                <!-- min impedisce di scegliere un giorno gia' passato -->
+                <!-- min e max restringono il calendario del browser al periodo
+                     prenotabile: da oggi a due mesi. Restano un aiuto, non una
+                     protezione: chi invia la richiesta a mano viene fermato dal
+                     controllo nel service. -->
                 <input type="date" id="dataPrenotazione" th:field="*{dataPrenotazione}"
-                       th:min="${dataMinima}" required>
+                       th:min="${dataMinima}" th:max="${dataMassima}" required>
                 <p class="avviso avviso-errore" th:if="${#fields.hasErrors('dataPrenotazione')}"
                    th:errors="*{dataPrenotazione}">errore</p>
             </div>
@@ -57,6 +60,7 @@
 
             <p class="sottotitolo">
                 Il tavolo viene assegnato dal ristorante. Ogni prenotazione dura due ore.
+                Si puo prenotare fino a due mesi in anticipo.
             </p>
 
             <button type="submit" class="bottone"

@@ -3,6 +3,7 @@ package it.uniroma3.siw_ristorante.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ public class PrenotazioneService {
         LocalDateTime fine = inizio.plusMinutes(Prenotazione.DURATA_PREDEFINITA_MINUTI);
 
         verificaNonPassata(inizio);
+        verificaNonTroppoLontana(data);
 
         Tavolo tavolo = assegnaTavolo(ristoranteId, numeroPersone, inizio, fine, null);
 
@@ -102,6 +104,19 @@ public class PrenotazioneService {
         }
     }
 
+    /* Il confronto e' sulla data e non sull'istante: "al massimo a due mesi"
+       si intende sul giorno, altrimenti prenotare alle 20 di un giorno limite
+       sarebbe ammesso e alle 21 no, per pochi minuti di differenza. */
+    private void verificaNonTroppoLontana(LocalDate data) {
+        LocalDate ultimoGiorno = LocalDate.now().plusMonths(Prenotazione.ANTICIPO_MASSIMO_MESI);
+        if (data.isAfter(ultimoGiorno)) {
+            throw new PrenotazioneNonValidaException(
+                    "Si puo' prenotare al massimo con " + Prenotazione.ANTICIPO_MASSIMO_MESI
+                            + " mesi di anticipo: l'ultimo giorno disponibile e' il "
+                            + ultimoGiorno.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        }
+    }
+
     /* Una prenotazione propria, per mostrarla nel modulo. */
     @Transactional(readOnly = true)
     public Prenotazione miaPrenotazione(Long prenotazioneId, User user) {
@@ -137,6 +152,7 @@ public class PrenotazioneService {
         LocalDateTime inizio = LocalDateTime.of(data, orario);
         LocalDateTime fine = inizio.plusMinutes(prenotazione.getDurataMinuti());
         verificaNonPassata(inizio);
+        verificaNonTroppoLontana(data);
 
         prenotazione.setTavolo(assegnaTavolo(prenotazione.getRistorante().getId(),
                 numeroPersone, inizio, fine, prenotazione.getId()));
@@ -151,6 +167,39 @@ public class PrenotazioneService {
         Prenotazione prenotazione = miaPrenotazioneModificabile(prenotazioneId, user);
         prenotazione.setStatus(StatoPrenotazione.CANCELLED);
         return prenotazione;
+    }
+
+    /* L'agenda di un ristorante: tutte le prenotazioni non ancora finite, di
+       qualunque cliente e di qualunque tavolo. Le annullate non ci sono, e una
+       prenotazione in corso adesso resta in elenco finche' il turno non
+       termina, perche' e' proprio quella che serve sapere in sala. */
+    @Transactional(readOnly = true)
+    public List<Prenotazione> prenotazioniFutureDelRistorante(Long ristoranteId) {
+        LocalDateTime adesso = LocalDateTime.now();
+        return prenotazioneRepository
+                .findByRistoranteIdAndStatusNotAndDataPrenotazioneGreaterThanEqualOrderByDataPrenotazioneAscOrarioPrenotazioneAsc(
+                        ristoranteId, StatoPrenotazione.CANCELLED, adesso.toLocalDate().minusDays(1))
+                .stream()
+                .filter(p -> p.getFine().isAfter(adesso))
+                .toList();
+    }
+
+    /* Le stesse, ma di un tavolo solo. Il tavolo si cerca filtrato dal
+       ristorante: senza, cambiando il numero nell'indirizzo si leggerebbe
+       l'agenda di un tavolo di un altro locale. */
+    @Transactional(readOnly = true)
+    public List<Prenotazione> prenotazioniFutureDelTavolo(Long ristoranteId, Long tavoloId) {
+        tavoloRepository.findByIdAndRistoranteId(tavoloId, ristoranteId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Nessun tavolo con id " + tavoloId + " nel ristorante " + ristoranteId));
+
+        LocalDateTime adesso = LocalDateTime.now();
+        return prenotazioneRepository
+                .findByTavoloIdAndStatusNotAndDataPrenotazioneGreaterThanEqualOrderByDataPrenotazioneAscOrarioPrenotazioneAsc(
+                        tavoloId, StatoPrenotazione.CANCELLED, adesso.toLocalDate().minusDays(1))
+                .stream()
+                .filter(p -> p.getFine().isAfter(adesso))
+                .toList();
     }
 
     @Transactional(readOnly = true)

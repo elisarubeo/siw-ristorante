@@ -18,6 +18,16 @@ public interface PrenotazioneRepository extends JpaRepository<Prenotazione, Long
     List<Prenotazione> findByTavoloIdAndStatusNotAndDataPrenotazioneBetween(
             Long tavoloId, StatoPrenotazione status, LocalDate da, LocalDate a);
 
+    /* Per l'agenda dell'amministratore: tutte quelle di un ristorante, o di un
+       singolo tavolo, in ordine di calendario. Il filtro sulla data e' grezzo
+       (da ieri in poi) perche' una prenotazione di ieri sera puo' finire dopo
+       la mezzanotte: a scartare quelle finite ci pensa il service. */
+    List<Prenotazione> findByRistoranteIdAndStatusNotAndDataPrenotazioneGreaterThanEqualOrderByDataPrenotazioneAscOrarioPrenotazioneAsc(
+            Long ristoranteId, StatoPrenotazione status, LocalDate da);
+
+    List<Prenotazione> findByTavoloIdAndStatusNotAndDataPrenotazioneGreaterThanEqualOrderByDataPrenotazioneAscOrarioPrenotazioneAsc(
+            Long tavoloId, StatoPrenotazione status, LocalDate da);
+
     Optional<Prenotazione> findByIdAndUserId(Long id, Long userId);
 
     List<Prenotazione> findByUserIdOrderByDataPrenotazioneDescOrarioPrenotazioneDesc(Long userId);

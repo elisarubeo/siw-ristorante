@@ -105,6 +105,8 @@ public class MiePrenotazioniController {
 
     private void aggiungiLimitiTemporali(Model model) {
         model.addAttribute("dataMinima", LocalDate.now().toString());
+        model.addAttribute("dataMassima",
+                LocalDate.now().plusMonths(Prenotazione.ANTICIPO_MASSIMO_MESI).toString());
         model.addAttribute("oraMinimaOggi",
                 LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
     }

@@ -1,5 +1,6 @@
 package it.uniroma3.siw_ristorante.controller;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.uniroma3.siw_ristorante.exception.OrdinazioneNonValidaException;
@@ -16,6 +18,7 @@ import it.uniroma3.siw_ristorante.model.Ordinazione;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.model.Scontrino;
 import it.uniroma3.siw_ristorante.service.OrdinazioneService;
+import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 
 
@@ -24,10 +27,13 @@ import it.uniroma3.siw_ristorante.service.RistoranteService;
 public class OrdinazioneController {
     private final OrdinazioneService ordinazioneService;
     private final RistoranteService ristoranteService;
+    private final PiattoService piattoService;
 
-    public OrdinazioneController(OrdinazioneService ordinazioneService, RistoranteService ristoranteService){
+    public OrdinazioneController(OrdinazioneService ordinazioneService, RistoranteService ristoranteService,
+            PiattoService piattoService){
         this.ordinazioneService = ordinazioneService;
         this.ristoranteService = ristoranteService;
+        this.piattoService = piattoService;
     }
 
     @ModelAttribute("ristorante")
@@ -76,7 +82,51 @@ public class OrdinazioneController {
     @GetMapping("/ordinazioni/{ordinazioneId}")
     public String conto(@PathVariable Long ristoranteId, @PathVariable Long ordinazioneId, Model model) {
         model.addAttribute("ordinazione", this.ordinazioneService.conto(ristoranteId, ordinazioneId));
+        /* Solo i piatti disponibili: quelli disattivati non sono ordinabili, e
+           il service rifiuterebbe comunque. Il filtro sta qui e non nella
+           pagina, altrimenti finirebbero lo stesso nel browser. */
+        model.addAttribute("menu", this.piattoService.getMenuDisponibile(ristoranteId));
         return "ordinazioni/dettaglio";
+    }
+
+    /* piattoId e quantita' come parametri sciolti e non un @ModelAttribute
+       RigaOrdinazione: quell'entita' contiene ordinazione, piatto e prezzo, cioe'
+       proprio i campi che deve decidere il server. */
+    @PostMapping("/ordinazioni/{ordinazioneId}/righe")
+    public String aggiungiPiatto(@PathVariable Long ristoranteId, @PathVariable Long ordinazioneId,
+            @RequestParam Long piattoId,
+            @RequestParam(defaultValue = "1") Integer quantita,
+            RedirectAttributes redirectAttributes) {
+        return modificaRighe(ristoranteId, ordinazioneId, redirectAttributes,
+                () -> this.ordinazioneService.aggiungiPiatto(ristoranteId, ordinazioneId, piattoId, quantita));
+    }
+
+    @PostMapping("/ordinazioni/{ordinazioneId}/righe/diminuisci")
+    public String diminuisciPiatto(@PathVariable Long ristoranteId, @PathVariable Long ordinazioneId,
+            @RequestParam Long piattoId,
+            @RequestParam(defaultValue = "1") Integer quantita,
+            RedirectAttributes redirectAttributes) {
+        return modificaRighe(ristoranteId, ordinazioneId, redirectAttributes,
+                () -> this.ordinazioneService.diminuisciPiatto(ristoranteId, ordinazioneId, piattoId, quantita));
+    }
+
+    /* Le due azioni finiscono nello stesso posto e sbagliano allo stesso modo:
+       la parte comune sta qui una volta sola. */
+    private String modificaRighe(Long ristoranteId, Long ordinazioneId,
+            RedirectAttributes redirectAttributes, Runnable azione) {
+        try {
+            azione.run();
+        } catch (OrdinazioneNonValidaException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            /* Due aggiunte dello stesso piatto partite insieme: nessuna delle
+               due trova la riga, entrambe la creano, il vincolo unico ne
+               respinge una. I dati restano sani, serve solo dirlo. */
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Qualcun altro stava modificando questo conto: riprova.");
+        }
+        redirectAttributes.addAttribute("ordinazioneId", ordinazioneId);
+        return "redirect:/ristoranti/{ristoranteId}/ordinazioni/{ordinazioneId}";
     }
 
     @PostMapping("/ordinazioni/{ordinazioneId}/chiudi")

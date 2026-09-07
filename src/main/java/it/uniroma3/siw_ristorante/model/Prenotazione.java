@@ -23,6 +23,11 @@ public class Prenotazione {
     /* Durata del turno a tavola, se non specificata altrimenti. */
     public static final int DURATA_PREDEFINITA_MINUTI = 120;
 
+    /* Quanto in anticipo si puo' prenotare. A differenza della durata questa
+       non si memorizza nella riga: e' una regola che vale al momento in cui si
+       prenota, non una caratteristica del turno prenotato. */
+    public static final int ANTICIPO_MASSIMO_MESI = 2;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

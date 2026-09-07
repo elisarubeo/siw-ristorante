@@ -40,6 +40,13 @@ public class TavoloService {
     }
 
     @Transactional(readOnly = true)
+    public Tavolo tavolo(Long ristoranteId, Long tavoloId) {
+        return tavoloRepository.findByIdAndRistoranteId(tavoloId, ristoranteId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Nessun tavolo con id " + tavoloId + " nel ristorante " + ristoranteId));
+    }
+
+    @Transactional(readOnly = true)
     public boolean esisteNelRistorante(Long ristoranteId, Integer numeroTavolo) {
         return tavoloRepository.existsByNumeroTavoloAndRistoranteId(numeroTavolo, ristoranteId);
     }

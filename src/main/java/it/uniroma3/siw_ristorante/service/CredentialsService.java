@@ -1,6 +1,9 @@
 package it.uniroma3.siw_ristorante.service;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,19 @@ public class CredentialsService {
     @Transactional(readOnly = true)
     public Credentials getCredentials(Long id) {
         return credentialsRepository.findById(id).orElse(null);
+    }
+
+    /* Da identificativo utente a nome da mostrare. User non ha un nome: il solo
+       nome che una persona ha in questo progetto e' lo username delle sue
+       credenziali, ed e' li' che bisogna andarlo a prendere. */
+    @Transactional(readOnly = true)
+    public Map<Long, String> usernamePerUtente(Collection<Long> userIds) {
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+        return credentialsRepository.findByUserIdIn(userIds).stream()
+                .collect(Collectors.toMap(c -> c.getUser().getId(), Credentials::getUsername,
+                        (primo, secondo) -> primo));
     }
 
     @Transactional(readOnly = true)

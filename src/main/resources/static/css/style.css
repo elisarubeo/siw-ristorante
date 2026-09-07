@@ -421,3 +421,82 @@ h2 { font-size: 1.4rem; }
     font-size: .92rem;
     margin-top: 1.2rem;
 }
+
+/* ---------- righe del conto ---------- */
+.aggiungi-riga {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 1.25rem;
+}
+
+.etichetta-campo {
+    display: block;
+    margin-bottom: .35rem;
+    font-size: .9rem;
+    color: var(--inchiostro-tenue);
+}
+
+/* I campi su una riga sola, ma vanno a capo da soli sugli schermi stretti. */
+.riga-campi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    align-items: center;
+}
+
+.riga-campi select {
+    flex: 1;
+    min-width: 12rem;
+    padding: .6rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--crema);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+}
+
+.riga-campi input[type="number"] {
+    width: 5rem;
+    padding: .6rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--crema);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+}
+
+.conto td.azione-riga { text-align: right; width: 1%; }
+
+/* Un pulsante piccolo e rotondo: sta dentro la riga senza dominarla. */
+.bottone-meno {
+    background: none;
+    border: 1px solid var(--bordo);
+    border-radius: 999px;
+    width: 1.9rem;
+    height: 1.9rem;
+    line-height: 1;
+    font-size: 1.1rem;
+    color: var(--inchiostro-tenue);
+    cursor: pointer;
+}
+
+.bottone-meno:hover { background: var(--crema); color: var(--terracotta); border-color: var(--terracotta); }
+
+/* Visibile ai lettori di schermo, non sullo schermo: l'intestazione della
+   colonna delle azioni serve a chi naviga la tabella senza vederla. */
+.solo-lettori {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ---------- agenda delle prenotazioni ---------- */
+/* Il turno gia' cominciato: sfondo appena caldo, per distinguerlo dagli altri
+   senza gridare. */
+.conto tr.riga-in-corso { background: #fdf4ef; }
