@@ -10,6 +10,11 @@
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
+    <p>
+        <a class="bottone bottone-tenue"
+           th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>
+    </p>
+
     <h1>Conti aperti</h1>
     <p class="sottotitolo">
         <span th:text="${ristorante.nome}">Nome del ristorante</span> &middot;

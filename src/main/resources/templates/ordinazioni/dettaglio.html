@@ -60,6 +60,17 @@
         </table>
     </div>
 
+    <!-- Il conto ha voci: si chiude, e la chiusura emette lo scontrino. POST,
+         perche' e' l'operazione che incassa, e con conferma perche' non si
+         torna indietro: l'ordinazione dopo non esiste piu'. -->
+    <form th:if="${!#lists.isEmpty(ordinazione.righe)}" class="azioni-conto"
+          th:action="@{/ristoranti/{r}/ordinazioni/{o}/chiudi(r=${ristorante.id},o=${ordinazione.id})}"
+          method="post"
+          th:data-totale="${#numbers.formatDecimal(ordinazione.totale, 1, 'POINT', 2, 'COMMA')}"
+          onsubmit="return confirm('Chiudere il conto e emettere lo scontrino da ' + this.dataset.totale + ' euro?')">
+        <button type="submit" class="bottone">Chiudi il conto</button>
+    </form>
+
     <!-- Il conto e' vuoto: si annulla, non si chiude. Appena ha una voce il
          pulsante sparisce, perche' da li' in poi e' una vendita e va incassata.
          POST, non collegamento: cancella qualcosa. -->

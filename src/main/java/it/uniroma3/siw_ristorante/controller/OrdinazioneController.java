@@ -1,5 +1,6 @@
 package it.uniroma3.siw_ristorante.controller;
 
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,14 +14,11 @@ import it.uniroma3.siw_ristorante.exception.OrdinazioneNonValidaException;
 import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Ordinazione;
 import it.uniroma3.siw_ristorante.model.Ristorante;
+import it.uniroma3.siw_ristorante.model.Scontrino;
 import it.uniroma3.siw_ristorante.service.OrdinazioneService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 
-/* Il prefisso di classe si ferma al ristorante perche' i due indirizzi che
-   servono stanno su rami diversi: aprire e' un'azione sul tavolo, leggere e'
-   un'azione sull'ordinazione. Restando sotto /ristoranti/** la classe ricade
-   nelle regole di amministrazione della SecurityConfiguration senza aggiungere
-   nulla. */
+
 @Controller
 @RequestMapping("/ristoranti/{ristoranteId}")
 public class OrdinazioneController {
@@ -38,9 +36,6 @@ public class OrdinazioneController {
                 .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
     }
 
-    /* Nessun modulo e nessun @Valid: l'apertura non ha campi da compilare, e'
-       un solo pulsante. Se ci fosse un @ModelAttribute Ordinazione, il browser
-       potrebbe proporre il proprio totale o la propria ora di apertura. */
     @PostMapping("/tavoli/{tavoloId}/ordinazione")
     public String apri(@PathVariable Long ristoranteId, @PathVariable Long tavoloId,
             RedirectAttributes redirectAttributes) {
@@ -48,15 +43,9 @@ public class OrdinazioneController {
             Ordinazione ordinazione = this.ordinazioneService.apriOrdinazione(ristoranteId, tavoloId);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Conto aperto per il tavolo " + ordinazione.getTavolo().getNumeroTavolo() + ".");
-            /* addAttribute (non addFlashAttribute) riempie il segnaposto
-               nell'indirizzo di destinazione: {ristoranteId} arriva dalla
-               richiesta corrente, {ordinazioneId} da qui. */
             redirectAttributes.addAttribute("ordinazioneId", ordinazione.getId());
             return "redirect:/ristoranti/{ristoranteId}/ordinazioni/{ordinazioneId}";
         } catch (OrdinazioneNonValidaException e) {
-            /* Intercettata qui e non lasciata al GlobalExceptionHandler: non e'
-               un errore di sistema da pagina 500, e' un rifiuto con una ragione
-               da mostrare sulla pagina da cui si e' arrivati. */
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/ristoranti/{ristoranteId}/tavoli";
         }
@@ -89,4 +78,25 @@ public class OrdinazioneController {
         model.addAttribute("ordinazione", this.ordinazioneService.conto(ristoranteId, ordinazioneId));
         return "ordinazioni/dettaglio";
     }
+
+    @PostMapping("/ordinazioni/{ordinazioneId}/chiudi")
+    public String chiudi(@PathVariable Long ristoranteId, @PathVariable Long ordinazioneId,
+                RedirectAttributes redirectAttributes) {
+        try {
+            Scontrino scontrino = this.ordinazioneService.chiudi(ristoranteId, ordinazioneId);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Conto del tavolo " + scontrino.getNumeroTavolo() + " chiuso.");
+            redirectAttributes.addAttribute("scontrinoId", scontrino.getId());
+            return "redirect:/ristoranti/{ristoranteId}/scontrini/{scontrinoId}";
+        } catch (OrdinazioneNonValidaException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addAttribute("ordinazioneId", ordinazioneId);
+            return "redirect:/ristoranti/{ristoranteId}/ordinazioni/{ordinazioneId}";
+        } catch (ObjectOptimisticLockingFailureException e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Questo conto e' appena stato chiuso da qualcun altro.");
+            return "redirect:/ristoranti/{ristoranteId}/tavoli";
+        }
+    }
+    
 }

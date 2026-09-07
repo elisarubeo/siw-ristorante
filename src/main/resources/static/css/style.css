@@ -402,3 +402,22 @@ h2 { font-size: 1.4rem; }
 }
 
 .conto tfoot th { text-align: right; font-family: var(--serif); }
+
+/* ---------- scontrini ---------- */
+/* Le azioni sotto la tabella del conto: staccate dal totale, cosi' chiudere non
+   e' un gesto che si fa per sbaglio scorrendo. */
+.azioni-conto { margin-top: 1.5rem; }
+
+/* La riga di riepilogo sopra l'elenco degli scontrini. */
+.riepilogo {
+    color: var(--inchiostro-tenue);
+    margin: 0 0 1.5rem;
+}
+
+/* Uno scontrino e' un documento chiuso: la nota lo dice senza pulsanti che
+   suggeriscano il contrario. */
+.nota-chiusa {
+    color: var(--inchiostro-tenue);
+    font-size: .92rem;
+    margin-top: 1.2rem;
+}

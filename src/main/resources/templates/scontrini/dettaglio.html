@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Scontrino')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">&larr; Tutti gli scontrini</a>
+
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <!-- Il numero del tavolo e' una copia, non un collegamento: quel tavolo
+         puo' anche non esistere piu', lo scontrino resta vero lo stesso. -->
+    <h1 th:text="'Tavolo ' + ${scontrino.numeroTavolo}">Tavolo 1</h1>
+
+    <p class="sottotitolo">
+        <span th:text="${ristorante.nome}">Nome del ristorante</span> &middot;
+        <span th:text="${#temporals.format(scontrino.dataOra, 'dd/MM/yyyy')}">01/01/2026</span>
+        alle
+        <span th:text="${#temporals.format(scontrino.dataOra, 'HH:mm')}">13:30</span>
+
+        <!-- L'apertura e' ammessa nulla: gli scontrini emessi prima che il
+             campo esistesse non ce l'hanno, e la pagina non deve rompersi. -->
+        <span th:if="${scontrino.apertura != null}"
+              th:with="minuti=${T(java.time.Duration).between(scontrino.apertura, scontrino.dataOra).toMinutes()}">
+            &middot; a tavola dalle
+            <span th:text="${#temporals.format(scontrino.apertura, 'HH:mm')}">12:00</span>
+            (<span th:text="${minuti}">90</span> minuti)
+        </span>
+    </p>
+
+    <div class="tabella-scorrevole">
+        <table class="conto">
+            <thead>
+                <tr>
+                    <th scope="col">Piatto</th>
+                    <th scope="col" class="numerica">Qta</th>
+                    <th scope="col" class="numerica">Prezzo</th>
+                    <th scope="col" class="numerica">Importo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Nome e prezzo sono quelli del momento della vendita, copiati
+                     nella riga: non si va a rileggere il piatto, che nel
+                     frattempo puo' essere cambiato o sparito. -->
+                <tr th:each="riga : ${scontrino.righe}">
+                    <td th:text="${riga.nomePiatto}">Nome del piatto</td>
+                    <td class="numerica" th:text="${riga.quantita}">1</td>
+                    <td class="numerica"
+                        th:text="${#numbers.formatDecimal(riga.prezzoUnitario, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
+                    <td class="numerica"
+                        th:text="${#numbers.formatDecimal(riga.importo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="3">Totale</th>
+                    <td class="numerica"
+                        th:text="${#numbers.formatDecimal(scontrino.totale, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <p class="nota-chiusa">Conto chiuso e pagato. Uno scontrino non si modifica.</p>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

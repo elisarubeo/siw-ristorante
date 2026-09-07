@@ -14,18 +14,25 @@ import org.springframework.transaction.annotation.Transactional;
 import it.uniroma3.siw_ristorante.exception.OrdinazioneNonValidaException;
 import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Ordinazione;
+import it.uniroma3.siw_ristorante.model.RigaOrdinazione;
+import it.uniroma3.siw_ristorante.model.RigaScontrino;
+import it.uniroma3.siw_ristorante.model.Scontrino;
 import it.uniroma3.siw_ristorante.model.Tavolo;
 import it.uniroma3.siw_ristorante.repository.OrdinazioneRepository;
+import it.uniroma3.siw_ristorante.repository.ScontrinoRepository;
 import it.uniroma3.siw_ristorante.repository.TavoloRepository;
 
 @Service
 public class OrdinazioneService {
     private final OrdinazioneRepository ordinazioneRepository;
     private final TavoloRepository tavoloRepository;
+    private final ScontrinoRepository scontrinoRepository;
 
-    public OrdinazioneService(OrdinazioneRepository ordinazioneRepository, TavoloRepository tavoloRepository){
+    public OrdinazioneService(OrdinazioneRepository ordinazioneRepository, TavoloRepository tavoloRepository,
+            ScontrinoRepository scontrinoRepository){
         this.ordinazioneRepository = ordinazioneRepository;
         this.tavoloRepository = tavoloRepository;
+        this.scontrinoRepository = scontrinoRepository;
     }
 
     @Transactional
@@ -73,5 +80,40 @@ public class OrdinazioneService {
         return contiAperti(ristoranteId).stream()
                 .collect(Collectors.toMap(o -> o.getTavolo().getId(), Function.identity(),
                         (primo, secondo) -> primo, LinkedHashMap::new));
+    }
+
+    @Transactional
+    public Scontrino chiudi(Long ristoranteId, Long ordinazioneId){
+        Ordinazione ordinazione = conto(ristoranteId, ordinazioneId);
+
+        if (ordinazione.getRighe().isEmpty()) {
+            throw new OrdinazioneNonValidaException(
+                    "Questo conto non ha voci: va annullato, non chiuso");
+        }
+
+        Tavolo tavolo = ordinazione.getTavolo();
+
+        Scontrino scontrino = new Scontrino();
+        scontrino.setDataOra(LocalDateTime.now());
+        scontrino.setApertura(ordinazione.getApertura());
+        scontrino.setNumeroTavolo(tavolo.getNumeroTavolo());
+        scontrino.setRistorante(tavolo.getRistorante());
+
+        for (RigaOrdinazione riga : ordinazione.getRighe()) {
+            RigaScontrino copia = new RigaScontrino();
+            copia.setNomePiatto(riga.getPiatto().getNome());
+            copia.setPrezzoUnitario(riga.getPrezzoUnitario());
+            copia.setQuantita(riga.getQuantita());
+            copia.setPiattoId(riga.getPiatto().getId());
+            scontrino.aggiungiRiga(copia);
+        }
+
+        scontrino.setTotale(scontrino.calcolaTotaleRighe());
+
+        Scontrino emesso = scontrinoRepository.save(scontrino);
+        ordinazioneRepository.delete(ordinazione);
+        ordinazioneRepository.flush();
+
+        return emesso;
     }
 }

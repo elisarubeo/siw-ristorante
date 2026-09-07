@@ -28,6 +28,7 @@
         <a class="bottone" th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
+        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>
     </p>
 
     <!-- L'espressione sulle authorities si valuta una volta sola qui, non a

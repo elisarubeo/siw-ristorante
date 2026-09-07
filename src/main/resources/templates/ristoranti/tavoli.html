@@ -19,6 +19,8 @@
         <a class="bottone" th:href="@{/ristoranti/{id}/tavoli/new(id=${ristorante.id})}">Aggiungi un tavolo</a>
         <a class="bottone bottone-tenue"
            th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
+        <a class="bottone bottone-tenue"
+           th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>
     </p>
 
     <!-- I tavoli arrivano gia' ordinati per numero di tavolo dal repository -->

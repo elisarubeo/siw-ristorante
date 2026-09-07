@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Scontrini')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">&larr; Torna ai tavoli</a>
+
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <h1>Scontrini</h1>
+    <p class="sottotitolo">
+        <span th:text="${ristorante.nome}">Nome del ristorante</span> &middot;
+        i conti gia chiusi, dal piu recente.
+    </p>
+
+    <!-- Il totale incassato: la somma degli scontrini in elenco. -->
+    <p class="riepilogo" th:if="${!#lists.isEmpty(scontrini)}">
+        <span th:text="${#lists.size(scontrini)}">0</span>
+        <span th:text="${#lists.size(scontrini) == 1} ? 'scontrino' : 'scontrini'">scontrini</span>
+        &middot; incassato
+        <strong class="prezzo"
+                th:text="${#numbers.formatDecimal(incasso, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</strong>
+    </p>
+
+    <ul class="griglia" th:if="${!#lists.isEmpty(scontrini)}">
+        <li class="scheda" th:each="s : ${scontrini}">
+            <h2 th:text="'Tavolo ' + ${s.numeroTavolo}">Tavolo 1</h2>
+
+            <p class="indirizzo">
+                <span th:text="${#temporals.format(s.dataOra, 'dd/MM/yyyy')}">01/01/2026</span>
+                alle
+                <span th:text="${#temporals.format(s.dataOra, 'HH:mm')}">13:30</span>
+                &middot;
+                <span th:text="${#lists.size(s.righe)}">0</span>
+                <span th:text="${#lists.size(s.righe) == 1} ? 'voce' : 'voci'">voci</span>
+            </p>
+
+            <p class="indirizzo prezzo"
+               th:text="${#numbers.formatDecimal(s.totale, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</p>
+
+            <p class="azione">
+                <a class="bottone bottone-tenue"
+                   th:href="@{/ristoranti/{r}/scontrini/{s}(r=${ristorante.id},s=${s.id})}">Vedi lo scontrino</a>
+            </p>
+        </li>
+    </ul>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(scontrini)}">
+        Questo ristorante non ha ancora chiuso nessun conto.
+        <p style="margin-bottom:0">
+            <a th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Guarda i conti aperti</a>
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>
