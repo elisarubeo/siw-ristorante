@@ -610,3 +610,39 @@ h2 { font-size: 1.4rem; }
     gap: .5rem;
     margin-top: 1rem;
 }
+
+/* ---------- area dell'amministratore ---------- */
+/* Le credenziali appena create: un riquadro che si nota, perche' e' l'unico
+   momento in cui la password si puo' leggere. */
+.credenziali {
+    background: var(--carta);
+    border: 2px dashed var(--terracotta);
+    border-radius: var(--raggio);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.credenziali h2 { margin: 0 0 .4rem; font-size: 1.15rem; }
+.credenziali p { margin: 0 0 .8rem; color: var(--inchiostro-tenue); font-size: .92rem; }
+
+.credenziali dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .3rem 1.2rem;
+    margin: 0;
+    align-items: baseline;
+}
+
+.credenziali dt { color: var(--inchiostro-tenue); font-size: .85rem; }
+
+/* A spaziatura fissa: una password si ricopia carattere per carattere, e le
+   lettere tutte della stessa larghezza si distinguono meglio. */
+.credenziali dd {
+    margin: 0;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    letter-spacing: .03em;
+}
+
+/* Il locale chiuso resta in elenco ma attenuato: c'e', e si puo' riaprire. */
+.conto tr.riga-spenta td { color: var(--inchiostro-tenue); background: #faf7f4; }

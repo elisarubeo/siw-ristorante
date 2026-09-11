@@ -28,8 +28,16 @@ public class SecurityConfiguration {
     @Bean
     public UserDetailsService userDetailsService() {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+        /* La colonna "enabled" non e' memorizzata: si calcola. Un account vale
+           finche' il ristorante che gestisce e' attivo, e per tutti gli altri
+           (amministratore e clienti, che non gestiscono niente) il LEFT JOIN
+           non trova righe e COALESCE lascia true. Cosi' il gestore di un
+           locale disattivato non riesce nemmeno a entrare, e non serve
+           ricordarsi di controllarlo in ogni pagina. */
         manager.setUsersByUsernameQuery(
-                "SELECT username, password, true AS enabled FROM credentials WHERE username = ?");
+                "SELECT c.username, c.password, COALESCE(r.attivo, true) AS enabled"
+                        + " FROM credentials c LEFT JOIN ristorante r ON r.gestore_id = c.user_id"
+                        + " WHERE c.username = ?");
         manager.setAuthoritiesByUsernameQuery(
                 "SELECT username, role FROM credentials WHERE username = ?");
         return manager;
@@ -59,47 +67,44 @@ public class SecurityConfiguration {
                protetta, ogni errore diventerebbe un redirect al login. */
             authorize.requestMatchers("/error").permitAll();
 
-            // pagine pubbliche di servizio
+            /* La registrazione pubblica crea solo clienti: l'account di un
+               ristoratore lo crea l'amministratore insieme al locale. */
             authorize.requestMatchers(HttpMethod.GET, "/", "/index", "/register", "/login").permitAll();
             authorize.requestMatchers(HttpMethod.POST, "/register").permitAll();
 
-            /* Consultazione pubblica: l'elenco dei ristoranti e il menu di un
+            /* Consultazione pubblica: l'elenco dei ristoranti, il menu di un
                ristorante e le sue recensioni li vedono tutti, anche senza
-               autenticazione. Solo queste GET sono pubbliche sotto
-               /ristoranti: tutto il resto ricade nelle regole piu' sotto. */
+               autenticazione. Un ristorante disattivato non compare in elenco
+               e le sue pagine rispondono 404, ma il filtro sta nel service:
+               qui non si puo' esprimere. */
             authorize.requestMatchers(HttpMethod.GET,
                     "/ristoranti",
                     "/ristoranti/*/menu",
                     "/ristoranti/*/recensioni").permitAll();
 
-            /* Le recensioni le legge chiunque (regola qui sopra), ma le scrive
-               solo un cliente: l'amministratore non recensisce il proprio
-               locale. La regola sta prima di "/ristoranti/**", che altrimenti
-               si prenderebbe anche questo percorso e risponderebbe 403. */
+            /* Cose da clienti. Prenotare e recensire e' loro mestiere: ne'
+               l'amministratore ne' il ristoratore hanno queste voci. */
+            authorize.requestMatchers("/prenotazioni/**").hasAuthority(Credentials.DEFAULT_ROLE);
+            authorize.requestMatchers("/ristoranti/*/prenotazioni/**").hasAuthority(Credentials.DEFAULT_ROLE);
             authorize.requestMatchers("/ristoranti/*/recensioni", "/ristoranti/*/recensioni/**")
                     .hasAuthority(Credentials.DEFAULT_ROLE);
 
-            /* "Le mie prenotazioni" e' una pagina da clienti: riservata al
-               ruolo DEFAULT, quindi nemmeno l'amministratore la vede. */
-            authorize.requestMatchers("/prenotazioni/**").hasAuthority(Credentials.DEFAULT_ROLE);
-
-            /* Prenotare e' cosa da clienti, non da amministratori: serve il
-               ruolo DEFAULT, e la regola va elencata qui sopra perche' piu'
-               sotto "/ristoranti/**" si prenderebbe anche questo percorso. */
-            authorize.requestMatchers("/ristoranti/*/prenotazioni/**")
-                    .hasAuthority(Credentials.DEFAULT_ROLE);
-
-            // funzionalita' riservate all'amministratore
+            /* L'amministratore della piattaforma fa due cose sole, e stanno
+               tutte e due qui sotto: crea un ristorante con le sue credenziali
+               e lo disattiva. Non entra nella gestione dei locali. */
             authorize.requestMatchers("/admin/**").hasAuthority(Credentials.ADMIN_ROLE);
 
-            /* Tavoli e piatti non hanno pagine pubbliche, quindi basta una
-               regola per ciascuno valida per qualunque metodo HTTP. Su
-               /ristoranti/** questa regola raccoglie tutto cio' che non e'
-               stato dichiarato pubblico sopra: /ristoranti/new,
-               /ristoranti/{id}/edit e tutte le POST. */
-            authorize.requestMatchers("/tavoli/**").hasAuthority(Credentials.ADMIN_ROLE);
-            authorize.requestMatchers("/piatti/**").hasAuthority(Credentials.ADMIN_ROLE);
-            authorize.requestMatchers("/ristoranti/**").hasAuthority(Credentials.ADMIN_ROLE);
+            /* Tutto il resto sotto /ristoranti/** e' la gestione del locale:
+               menu, tavoli, conti, scontrini, agenda. E' mestiere del
+               ristoratore.
+
+               ATTENZIONE: questa regola dice "un ristoratore", non "IL
+               ristoratore di quel locale". Il secondo controllo non e'
+               esprimibile in un indirizzo e vive in
+               RistoranteService.ristoranteGestito, richiamato dal
+               @ModelAttribute di ogni controller di gestione. */
+            authorize.requestMatchers("/mio-ristorante").hasAuthority(Credentials.RISTORATORE_ROLE);
+            authorize.requestMatchers("/ristoranti/**").hasAuthority(Credentials.RISTORATORE_ROLE);
 
             // tutto il resto richiede un utente autenticato
             authorize.anyRequest().authenticated();

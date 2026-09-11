@@ -26,13 +26,21 @@
         <nav class="navigazione"
              th:with="autenticato=${#authentication != null and #authentication.name != 'anonymousUser'},
                       cliente=${#authentication != null
-                                and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}">
+                                and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()},
+                      ristoratore=${#authentication != null
+                                and !#authentication.authorities.?[authority == 'RISTORATORE'].isEmpty()},
+                      amministratore=${#authentication != null
+                                and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()}">
             <a th:unless="${autenticato}" th:href="@{/login}">Accedi</a>
 
-            <!-- Prenotare e' cosa da clienti: l'amministratore non ha questa
-                 voce, e la regola nella SecurityConfiguration glielo impedisce
-                 comunque anche digitando l'indirizzo a mano. -->
+            <!-- Ogni ruolo ha la sua voce, e nessuno vede quelle degli altri:
+                 il cliente prenota, il ristoratore gestisce il suo locale,
+                 l'amministratore apre e chiude i locali. Nascondere le voci e'
+                 cortesia: a vietare gli indirizzi e' la
+                 SecurityConfiguration. -->
             <a th:if="${cliente}" th:href="@{/prenotazioni}">Le mie prenotazioni</a>
+            <a th:if="${ristoratore}" th:href="@{/mio-ristorante}">Il mio ristorante</a>
+            <a th:if="${amministratore}" th:href="@{/admin/ristoranti}">Gestione ristoranti</a>
 
             <span th:if="${autenticato}" class="utente">
                 <span th:text="${#authentication.name}">utente</span>

@@ -27,11 +27,12 @@
         <a class="bottone" th:href="@{/ristoranti/{id}/prenotazioni/new(id=${ristorante.id})}">Prenota un tavolo</a>
     </p>
 
-    <!-- Nascondere il pulsante e' cortesia verso l'utente, non sicurezza: a
-         proteggere l'indirizzo e' la regola /ristoranti/** nella
-         SecurityConfiguration. La selezione ?[...] filtra le authorities. -->
-    <p th:if="${#authentication != null
-               and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()}">
+    <!-- "gestore" arriva gia' deciso dal controller: e' vero solo per il
+         ristoratore di QUESTO locale, non per un ristoratore qualsiasi.
+         Nascondere i pulsanti e' comunque cortesia verso l'utente, non
+         sicurezza: a proteggere gli indirizzi e' RistoranteService.
+         ristoranteGestito, richiamato prima di ogni metodo di gestione. -->
+    <p th:if="${gestore}">
         <a class="bottone" th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
@@ -39,11 +40,7 @@
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/agenda(id=${ristorante.id})}">Agenda prenotazioni</a>
     </p>
 
-    <!-- L'espressione sulle authorities si valuta una volta sola qui, non a
-         ogni piatto. -->
-    <ul class="piatti" th:if="${!#lists.isEmpty(menu)}"
-        th:with="admin=${#authentication != null
-                         and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()}">
+    <ul class="piatti" th:if="${!#lists.isEmpty(menu)}">
         <li th:each="piatto : ${menu}" th:classappend="${piatto.disponibile} ? '' : 'non-disponibile'">
             <div class="piatto-riga">
                 <span class="piatto-nome" th:text="${piatto.nome}">Nome del piatto</span>
@@ -60,7 +57,7 @@
             <!-- Le azioni sono POST e non collegamenti: una GET non deve
                  modificare niente, e con th:action Thymeleaf aggiunge da se' il
                  token CSRF. Fa eccezione "Modifica", che apre solo un modulo. -->
-            <div class="azioni-piatto" th:if="${admin}">
+            <div class="azioni-piatto" th:if="${gestore}">
                 <a class="bottone bottone-tenue"
                    th:href="@{/ristoranti/{r}/piatti/{p}/edit(r=${ristorante.id},p=${piatto.id})}">Modifica</a>
 

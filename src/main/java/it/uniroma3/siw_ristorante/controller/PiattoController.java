@@ -1,5 +1,6 @@
 package it.uniroma3.siw_ristorante.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,10 +30,12 @@ public class PiattoController {
         this.ristoranteService = ristoranteService;
     }
 
+    /* Eseguito prima di ogni metodo della classe, ed e' anche il controllo di
+       proprieta': un ristoratore che chiede un locale non suo, o disattivato,
+       si ferma qui con un 403 e nessun metodo viene eseguito. */
     @ModelAttribute("ristorante")
-    public Ristorante ristorante(@PathVariable Long ristoranteId) {
-        return this.ristoranteService.findById(ristoranteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+    public Ristorante ristorante(@PathVariable Long ristoranteId, Authentication authentication) {
+        return this.ristoranteService.ristoranteGestito(ristoranteId, authentication);
     }
 
     @GetMapping("/new")

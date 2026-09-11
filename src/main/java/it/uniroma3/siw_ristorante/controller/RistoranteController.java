@@ -1,20 +1,16 @@
 package it.uniroma3.siw_ristorante.controller;
 
-import it.uniroma3.siw_ristorante.service.TavoloService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
-import it.uniroma3.siw_ristorante.model.Credentials;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.OrdinazioneService;
 import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
-
-
+import it.uniroma3.siw_ristorante.service.TavoloService;
 
 @Controller
 public class RistoranteController {
@@ -31,33 +27,44 @@ public class RistoranteController {
         this.ordinazioneService = ordinazioneService;
     }
 
+    /* La vetrina del sito: solo i locali attivi. Quelli disattivati non
+       compaiono a nessuno, nemmeno all'amministratore, che per vederli ha la
+       sua pagina sotto /admin. */
     @GetMapping({ "/", "/index", "/ristoranti" })
     public String list(Model model) {
-        model.addAttribute("ristoranti", this.ristoranteService.findAll());
+        model.addAttribute("ristoranti", this.ristoranteService.findAttivi());
         return "ristoranti/list";
     }
 
+    /* Scorciatoia per il ristoratore: dalla barra in alto al proprio locale,
+       senza dover ricordare l'indirizzo. */
+    @GetMapping("/mio-ristorante")
+    public String mioRistorante(Authentication authentication) {
+        Ristorante ristorante = this.ristoranteService.ristoranteDelGestore(authentication);
+        return "redirect:/ristoranti/" + ristorante.getId() + "/menu";
+    }
+
+    /* La stessa pagina serve due pubblici: chi passa di qui vede solo i piatti
+       disponibili, il ristoratore del locale anche quelli spenti, altrimenti
+       non potrebbe piu' riattivarli. Il filtro sta qui e non nella pagina: se
+       fosse solo nel template, i piatti spenti verrebbero comunque inviati al
+       browser di chiunque. */
     @GetMapping("/ristoranti/{id}/menu")
     public String menu(@PathVariable("id") Long id, Authentication authentication, Model model) {
-        Ristorante ristorante = this.ristoranteService.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + id));
-        model.addAttribute("menu", isAmministratore(authentication)
-                ? piattoService.getMenu(id)
-                : piattoService.getMenuDisponibile(id));
+        Ristorante ristorante = this.ristoranteService.ristorantePubblico(id);
+        boolean gestore = this.ristoranteService.gestitoDa(ristorante, authentication);
+
+        model.addAttribute("menu", gestore ? piattoService.getMenu(id) : piattoService.getMenuDisponibile(id));
+        /* La pagina non interroga i ruoli da se': riceve gia' la risposta alla
+           domanda che le interessa, cioe' "chi guarda gestisce questo locale?" */
+        model.addAttribute("gestore", gestore);
         model.addAttribute("ristorante", ristorante);
         return "ristoranti/menu";
     }
 
-    private boolean isAmministratore(Authentication authentication) {
-        return authentication != null
-                && authentication.getAuthorities().stream()
-                        .anyMatch(a -> Credentials.ADMIN_ROLE.equals(a.getAuthority()));
-    }
-
     @GetMapping("/ristoranti/{id}/tavoli")
-    public String getTavoli(@PathVariable("id") Long id, Model model) {
-        Ristorante ristorante = this.ristoranteService.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + id));
+    public String getTavoli(@PathVariable("id") Long id, Authentication authentication, Model model) {
+        Ristorante ristorante = this.ristoranteService.ristoranteGestito(id, authentication);
         model.addAttribute("tavoli", tavoloService.findByRistoranteIdOrderByNumeroTavolo(id));
         /* Quali tavoli hanno un conto aperto: una sola query per tutta la
            pagina, invece di una per tavolo. Lo stato "occupato" si ricava da
@@ -66,6 +73,4 @@ public class RistoranteController {
         model.addAttribute("ristorante", ristorante);
         return "ristoranti/tavoli";
     }
-    
-
 }

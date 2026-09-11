@@ -3,6 +3,7 @@ package it.uniroma3.siw_ristorante.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Prenotazione;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.CredentialsService;
@@ -24,9 +24,9 @@ import it.uniroma3.siw_ristorante.service.TavoloService;
    ATTENZIONE ALL'INDIRIZZO: la pagina NON sta sotto
    /ristoranti/{id}/prenotazioni. Quel ramo e' riservato al ruolo DEFAULT dalla
    SecurityConfiguration (prenotare e' cosa da clienti), quindi una pagina per
-   l'amministratore messa li' dentro riceverebbe 403. Restando su /agenda e su
+   il ristoratore messa li' dentro riceverebbe 403. Restando su /agenda e su
    /tavoli/.../prenotazioni si ricade nella regola generica /ristoranti/**, che
-   e' gia' riservata all'amministratore. */
+   e' gia' riservata al ristoratore. */
 @Controller
 @RequestMapping("/ristoranti/{ristoranteId}")
 public class AgendaController {
@@ -43,10 +43,12 @@ public class AgendaController {
         this.credentialsService = credentialsService;
     }
 
+    /* Eseguito prima di ogni metodo della classe, ed e' anche il controllo di
+       proprieta': un ristoratore che chiede un locale non suo, o disattivato,
+       si ferma qui con un 403 e nessun metodo viene eseguito. */
     @ModelAttribute("ristorante")
-    public Ristorante ristorante(@PathVariable Long ristoranteId) {
-        return this.ristoranteService.findById(ristoranteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+    public Ristorante ristorante(@PathVariable Long ristoranteId, Authentication authentication) {
+        return this.ristoranteService.ristoranteGestito(ristoranteId, authentication);
     }
 
     /* Tutte le prenotazioni ancora valide del locale, di ogni tavolo. */

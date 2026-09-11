@@ -8,8 +8,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
@@ -25,6 +28,19 @@ public class Ristorante {
     @NotBlank(message = "L'indirizzo del ristorante non può essere vuoto")
     @Column(nullable = false)
     private String indirizzo;
+
+    /* Chi gestisce il locale: l'account che l'amministratore crea insieme al
+       ristorante. Uno e uno solo, e non condiviso con altri ristoranti (unique
+       sulla colonna), perche' il ristoratore risponde di un locale soltanto. */
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "gestore_id", nullable = false, unique = true)
+    private User gestore;
+
+    /* Un ristorante disattivato e' come un profilo chiuso: sparisce dal sito e
+       il suo gestore non puo' piu' operare. I dati pero' restano, perche'
+       l'amministratore puo' riattivarlo. */
+    @Column(nullable = false)
+    private boolean attivo = true;
 
     /* Tavoli e piatti compongono il ristorante: sono insiemi piccoli, li si
        vuole quasi sempre per intero, e il cascade risolve la cancellazione
@@ -60,6 +76,22 @@ public class Ristorante {
 
     public void setIndirizzo(String indirizzo) {
         this.indirizzo = indirizzo;
+    }
+
+    public User getGestore() {
+        return gestore;
+    }
+
+    public void setGestore(User gestore) {
+        this.gestore = gestore;
+    }
+
+    public boolean isAttivo() {
+        return attivo;
+    }
+
+    public void setAttivo(boolean attivo) {
+        this.attivo = attivo;
     }
 
     public List<Tavolo> getTavoli() {

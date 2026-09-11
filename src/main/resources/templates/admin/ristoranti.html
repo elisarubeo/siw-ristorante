@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Gestione ristoranti')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <h1>Gestione ristoranti</h1>
+    <p class="sottotitolo">
+        Tutti i locali della piattaforma, attivi e chiusi. Un locale chiuso
+        sparisce dal sito e il suo gestore non puo' piu' entrare.
+    </p>
+
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <!-- La password si legge solo adesso: nel database e' cifrata e non torna
+         piu' leggibile. Ricaricando la pagina questo riquadro sparisce. -->
+    <div class="credenziali" th:if="${nuovaPassword}">
+        <h2>Credenziali del gestore</h2>
+        <p>Consegnale al ristoratore: <strong>non saranno piu' visibili</strong> dopo aver lasciato questa pagina.</p>
+        <dl>
+            <dt>Username</dt>
+            <dd th:text="${nuovoUsername}">username</dd>
+            <dt>Password</dt>
+            <dd th:text="${nuovaPassword}">password</dd>
+        </dl>
+    </div>
+
+    <p>
+        <a class="bottone" th:href="@{/admin/ristoranti/new}">Apri un nuovo ristorante</a>
+    </p>
+
+    <div class="tabella-scorrevole" th:if="${!#lists.isEmpty(ristoranti)}">
+        <table class="conto">
+            <thead>
+                <tr>
+                    <th scope="col">Ristorante</th>
+                    <th scope="col">Indirizzo</th>
+                    <th scope="col">Gestore</th>
+                    <th scope="col">Stato</th>
+                    <th scope="col"><span class="solo-lettori">Azioni</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="r : ${ristoranti}" th:classappend="${r.attivo} ? '' : 'riga-spenta'">
+                    <td th:text="${r.nome}">Nome</td>
+                    <td th:text="${r.indirizzo}">Indirizzo</td>
+                    <td th:text="${gestori.get(r.gestore.id)} ?: 'nessuno'">gestore</td>
+                    <td>
+                        <span class="etichetta etichetta-occupato" th:if="${r.attivo}">attivo</span>
+                        <span class="etichetta" th:unless="${r.attivo}">chiuso</span>
+                    </td>
+                    <!-- Disattivare e riattivare cambiano i dati, quindi sono
+                         POST: con th:action il token CSRF lo aggiunge
+                         Thymeleaf da se'. -->
+                    <td class="azione-riga">
+                        <form th:if="${r.attivo}"
+                              th:action="@{/admin/ristoranti/{id}/disattiva(id=${r.id})}" method="post"
+                              th:data-nome="${r.nome}"
+                              onsubmit="return confirm('Disattivare ' + this.dataset.nome + '? Le prenotazioni future verranno annullate.')">
+                            <button type="submit" class="bottone bottone-tenue">Disattiva</button>
+                        </form>
+                        <form th:unless="${r.attivo}"
+                              th:action="@{/admin/ristoranti/{id}/attiva(id=${r.id})}" method="post">
+                            <button type="submit" class="bottone bottone-tenue">Riattiva</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(ristoranti)}">
+        Non c'e ancora nessun ristorante sulla piattaforma.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

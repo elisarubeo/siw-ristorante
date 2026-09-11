@@ -169,6 +169,19 @@ public class PrenotazioneService {
         return prenotazione;
     }
 
+    /* Quando l'amministratore disattiva un ristorante: le prenotazioni ancora
+       da onorare diventano annullate in blocco, e il cliente le ritrova come
+       tali ne "Le mie prenotazioni". Torna quante ne sono state annullate,
+       cosi' la pagina puo' dirlo a chi ha premuto il pulsante. */
+    @Transactional
+    public int annullaFuturePerRistorante(Long ristoranteId) {
+        List<Prenotazione> daAnnullare = this.prenotazioniFutureDelRistorante(ristoranteId);
+        for (Prenotazione prenotazione : daAnnullare) {
+            prenotazione.setStatus(StatoPrenotazione.CANCELLED);
+        }
+        return daAnnullare.size();
+    }
+
     /* L'agenda di un ristorante: tutte le prenotazioni non ancora finite, di
        qualunque cliente e di qualunque tavolo. Le annullate non ci sono, e una
        prenotazione in corso adesso resta in elenco finche' il turno non

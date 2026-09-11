@@ -37,13 +37,12 @@ public class RecensioneController {
         this.credentialsService = credentialsService;
     }
 
-    /* Eseguito prima di ogni metodo della classe: il ristorante viene caricato
-       una volta sola e resta nel model anche quando si torna al modulo per un
-       errore di validazione. */
+    /* Eseguito prima di ogni metodo della classe. La pagina e' rivolta ai
+       clienti, quindi il ristorante deve solo esistere ed essere attivo: di un
+       locale disattivato non si parla piu'. */
     @ModelAttribute("ristorante")
     public Ristorante ristorante(@PathVariable Long ristoranteId) {
-        return this.ristoranteService.findById(ristoranteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+        return this.ristoranteService.ristorantePubblico(ristoranteId);
     }
 
     /* La pagina e' pubblica: la si vede anche senza aver fatto il login,

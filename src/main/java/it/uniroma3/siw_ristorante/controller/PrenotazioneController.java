@@ -39,10 +39,12 @@ public class PrenotazioneController {
         this.credentialsService = credentialsService;
     }
 
+    /* Eseguito prima di ogni metodo della classe. La pagina e' rivolta ai
+       clienti, quindi il ristorante deve solo esistere ed essere attivo: di un
+       locale disattivato non si parla piu'. */
     @ModelAttribute("ristorante")
     public Ristorante ristorante(@PathVariable Long ristoranteId) {
-        return this.ristoranteService.findById(ristoranteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+        return this.ristoranteService.ristorantePubblico(ristoranteId);
     }
 
     @GetMapping("/new")

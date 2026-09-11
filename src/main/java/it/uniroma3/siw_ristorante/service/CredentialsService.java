@@ -52,6 +52,17 @@ public class CredentialsService {
         return credentialsRepository.save(credentials);
     }
 
+    /* L'account di un ristoratore non nasce da una registrazione ma dalle mani
+       dell'amministratore, insieme al locale: percio' e' un metodo a parte, e
+       il ruolo RISTORATORE non e' assegnabile dal modulo pubblico. */
+    @Transactional
+    public Credentials registraGestore(User user, Credentials credentials) {
+        credentials.setPassword(passwordEncoder.encode(credentials.getPassword()));
+        credentials.setRole(Credentials.RISTORATORE_ROLE);
+        credentials.setUser(user);
+        return credentialsRepository.save(credentials);
+    }
+
     @Transactional
     public Credentials registerUser(User user, Credentials credentials) {
         // la password va cifrata: al login Spring confronta gli hash

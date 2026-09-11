@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Nuovo ristorante')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <a class="ritorno" th:href="@{/admin/ristoranti}">&larr; Torna ai ristoranti</a>
+
+    <div class="riquadro">
+        <h1>Apri un ristorante</h1>
+        <p class="sottotitolo">
+            Il locale e il suo account nascono insieme: la password la genera
+            l'applicazione e la mostra una volta sola.
+        </p>
+
+        <form th:action="@{/admin/ristoranti}" th:object="${ristorante}" method="post">
+
+            <p class="avviso avviso-errore" th:each="errore : ${#fields.globalErrors()}"
+               th:text="${errore}">errore</p>
+
+            <div class="campo">
+                <label for="nome">Nome del ristorante</label>
+                <input type="text" id="nome" th:field="*{nome}" required autofocus>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('nome')}"
+                   th:errors="*{nome}">errore</p>
+            </div>
+
+            <div class="campo">
+                <label for="indirizzo">Indirizzo</label>
+                <input type="text" id="indirizzo" th:field="*{indirizzo}" required>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('indirizzo')}"
+                   th:errors="*{indirizzo}">errore</p>
+            </div>
+
+            <!-- Fuori da th:object: lo username non e' un campo del ristorante
+                 ma dell'account che gli si crea accanto. Per questo si
+                 ripopola a mano quando il modulo torna indietro. -->
+            <div class="campo">
+                <label for="username">Username del gestore</label>
+                <input type="text" id="username" name="username" th:value="${username}" required>
+                <p class="nota-campo">Con questo nome il ristoratore entrera' nel sito.</p>
+            </div>
+
+            <button type="submit" class="bottone">Crea il ristorante</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

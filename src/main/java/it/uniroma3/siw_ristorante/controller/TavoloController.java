@@ -1,5 +1,6 @@
 package it.uniroma3.siw_ristorante.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import it.uniroma3.siw_ristorante.exception.EntityInUseException;
-import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.model.Tavolo;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
@@ -29,10 +29,12 @@ public class TavoloController {
         this.ristoranteService = ristoranteService;
     }
 
+    /* Eseguito prima di ogni metodo della classe, ed e' anche il controllo di
+       proprieta': un ristoratore che chiede un locale non suo, o disattivato,
+       si ferma qui con un 403 e nessun metodo viene eseguito. */
     @ModelAttribute("ristorante")
-    public Ristorante ristorante(@PathVariable Long ristoranteId) {
-        return this.ristoranteService.findById(ristoranteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+    public Ristorante ristorante(@PathVariable Long ristoranteId, Authentication authentication) {
+        return this.ristoranteService.ristoranteGestito(ristoranteId, authentication);
     }
 
     @GetMapping("/new")

@@ -3,12 +3,33 @@
 -- finche' ddl-auto resta "create": e' lui a ricrearlo a ogni avvio.
 -- ATTENZIONE: il lettore di Hibernate tratta UNA RIGA = UNA ISTRUZIONE.
 -- Spezzare un INSERT su piu' righe lo fa fallire.
--- Password in chiaro, per provare il login: admin/admin, elisa/elisa, marco/marco
+-- Password in chiaro, per provare il login:
+--   admin/admin                      l'amministratore della piattaforma
+--   elisa/elisa, marco/marco         clienti
+--   borgo/borgo, nino/nino, verde/verde   i tre ristoratori, uno per locale
+
+-- ---------- utenti e credenziali ----------
+-- Vanno inseriti prima dei ristoranti: ristorante.gestore_id punta a users, e
+-- il vincolo di chiave esterna viene controllato a ogni riga.
+INSERT INTO users (id) VALUES (1);
+INSERT INTO users (id) VALUES (2);
+INSERT INTO users (id) VALUES (3);
+INSERT INTO users (id) VALUES (4);
+INSERT INTO users (id) VALUES (5);
+INSERT INTO users (id) VALUES (6);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (1, 'admin', '$2a$10$j6KMFXrv0bUrvwUwuzgunu.gGb9AhjH3DsDKHPkKnviIFT10mDlam', 'ADMIN', 1);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (2, 'elisa', '$2a$10$B6o2Po0WQCuNIkoYSXP7JeLGPxkkoGU26fdNjk6BVdZyAYgujOM7W', 'DEFAULT', 2);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (3, 'marco', '$2a$10$UEZfF1aPhXw/qJ16qW0OGeM9sB.Ya3tPM/46InXVlKQDeDyTX714.', 'DEFAULT', 3);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (4, 'borgo', '$2a$10$N0oRZ5yNKlXvdAj60htzKedF4pqSgK/S/rHT7K.kG1lc3GeQKAtde', 'RISTORATORE', 4);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (5, 'nino', '$2a$10$d8JfSK6kbc7etfI4n9d29OPiA7gZgjGvVyobF.Za4aXnz7BEg0bCW', 'RISTORATORE', 5);
+INSERT INTO credentials (id, username, password, role, user_id) VALUES (6, 'verde', '$2a$10$9CM1ty51mI79sdbpgM2kI.svk4KuR/nxKZ/610MOaC7Hjrkm3cpju', 'RISTORATORE', 6);
 
 -- ---------- ristoranti ----------
-INSERT INTO ristorante (id, nome, indirizzo) VALUES (1, 'Osteria del Borgo', 'Via dei Coronari 12, Roma');
-INSERT INTO ristorante (id, nome, indirizzo) VALUES (2, 'Trattoria da Nino', 'Piazza Trilussa 4, Roma');
-INSERT INTO ristorante (id, nome, indirizzo) VALUES (3, 'Locanda Verde', 'Via Ostiense 108, Roma');
+-- Ogni locale ha un gestore e uno stato: un ristorante chiuso sparisce dal
+-- sito e il suo gestore non riesce nemmeno a fare il login.
+INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (1, 'Osteria del Borgo', 'Via dei Coronari 12, Roma', true, 4);
+INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (2, 'Trattoria da Nino', 'Piazza Trilussa 4, Roma', true, 5);
+INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (3, 'Locanda Verde', 'Via Ostiense 108, Roma', true, 6);
 
 -- ---------- piatti ----------
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (1, 'Carbonara', 'uova, guanciale, pecorino, pepe nero', 13.50, true, 1);
@@ -30,14 +51,6 @@ INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALU
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (5, 2, 4, 'LIBERO', 2);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (6, 1, 2, 'LIBERO', 3);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (7, 2, 8, 'LIBERO', 3);
-
--- ---------- utenti e credenziali ----------
-INSERT INTO users (id) VALUES (1);
-INSERT INTO users (id) VALUES (2);
-INSERT INTO users (id) VALUES (3);
-INSERT INTO credentials (id, username, password, role, user_id) VALUES (1, 'admin', '$2a$10$j6KMFXrv0bUrvwUwuzgunu.gGb9AhjH3DsDKHPkKnviIFT10mDlam', 'ADMIN', 1);
-INSERT INTO credentials (id, username, password, role, user_id) VALUES (2, 'elisa', '$2a$10$B6o2Po0WQCuNIkoYSXP7JeLGPxkkoGU26fdNjk6BVdZyAYgujOM7W', 'DEFAULT', 2);
-INSERT INTO credentials (id, username, password, role, user_id) VALUES (3, 'marco', '$2a$10$UEZfF1aPhXw/qJ16qW0OGeM9sB.Ya3tPM/46InXVlKQDeDyTX714.', 'DEFAULT', 3);
 
 -- ---------- recensioni ----------
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (1, 'Carbonara memorabile', 5, 'Guanciale croccante e pasta al punto giusto. Ci torno.', CURRENT_DATE - 7, 1, 2);
