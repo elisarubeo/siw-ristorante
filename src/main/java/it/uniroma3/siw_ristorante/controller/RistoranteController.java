@@ -15,6 +15,7 @@ import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 
 
+
 @Controller
 public class RistoranteController {
     private final TavoloService tavoloService;
@@ -36,11 +37,6 @@ public class RistoranteController {
         return "ristoranti/list";
     }
 
-    /* La stessa pagina serve due pubblici: il cliente vede solo i piatti
-       disponibili, l'amministratore anche quelli spenti, altrimenti non
-       potrebbe piu' riattivarli. Il filtro sta qui e non nella pagina: se
-       fosse solo nel template, i piatti spenti verrebbero comunque inviati al
-       browser di chiunque. */
     @GetMapping("/ristoranti/{id}/menu")
     public String menu(@PathVariable("id") Long id, Authentication authentication, Model model) {
         Ristorante ristorante = this.ristoranteService.findById(id)
@@ -65,7 +61,7 @@ public class RistoranteController {
         model.addAttribute("tavoli", tavoloService.findByRistoranteIdOrderByNumeroTavolo(id));
         /* Quali tavoli hanno un conto aperto: una sola query per tutta la
            pagina, invece di una per tavolo. Lo stato "occupato" si ricava da
-           qui e non da Tavolo.status, che nessuno aggiorna. */
+           qui. */
         model.addAttribute("contiAperti", ordinazioneService.contiApertiPerTavolo(id));
         model.addAttribute("ristorante", ristorante);
         return "ristoranti/tavoli";

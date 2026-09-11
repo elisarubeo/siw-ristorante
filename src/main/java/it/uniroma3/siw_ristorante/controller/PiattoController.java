@@ -18,11 +18,6 @@ import it.uniroma3.siw_ristorante.service.PiattoService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 import jakarta.validation.Valid;
 
-
-
-/* Gli indirizzi sono annidati sotto il ristorante perche' un piatto esiste solo
-   nel suo menu, ma la classe resta dedicata ai piatti: il controller si sceglie
-   in base alla risorsa che manipola, non al prefisso dell'indirizzo. */
 @Controller
 @RequestMapping("/ristoranti/{ristoranteId}/piatti")
 public class PiattoController {
@@ -34,10 +29,6 @@ public class PiattoController {
         this.ristoranteService = ristoranteService;
     }
 
-    /* Eseguito prima di ogni metodo della classe: carica il ristorante una
-       volta sola, risponde 404 se non esiste e lo lascia nel model. Cosi' la
-       pagina lo ritrova anche quando si torna al modulo per un errore di
-       validazione, che e' il caso in cui e' facile dimenticarselo. */
     @ModelAttribute("ristorante")
     public Ristorante ristorante(@PathVariable Long ristoranteId) {
         return this.ristoranteService.findById(ristoranteId)

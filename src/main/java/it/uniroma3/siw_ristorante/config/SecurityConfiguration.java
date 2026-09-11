@@ -64,12 +64,20 @@ public class SecurityConfiguration {
             authorize.requestMatchers(HttpMethod.POST, "/register").permitAll();
 
             /* Consultazione pubblica: l'elenco dei ristoranti e il menu di un
-               ristorante li vedono tutti, anche senza autenticazione. Solo
-               queste due GET sono pubbliche sotto /ristoranti: tutto il resto
-               ricade nella regola di amministrazione piu' sotto. */
+               ristorante e le sue recensioni li vedono tutti, anche senza
+               autenticazione. Solo queste GET sono pubbliche sotto
+               /ristoranti: tutto il resto ricade nelle regole piu' sotto. */
             authorize.requestMatchers(HttpMethod.GET,
                     "/ristoranti",
-                    "/ristoranti/*/menu").permitAll();
+                    "/ristoranti/*/menu",
+                    "/ristoranti/*/recensioni").permitAll();
+
+            /* Le recensioni le legge chiunque (regola qui sopra), ma le scrive
+               solo un cliente: l'amministratore non recensisce il proprio
+               locale. La regola sta prima di "/ristoranti/**", che altrimenti
+               si prenderebbe anche questo percorso e risponderebbe 403. */
+            authorize.requestMatchers("/ristoranti/*/recensioni", "/ristoranti/*/recensioni/**")
+                    .hasAuthority(Credentials.DEFAULT_ROLE);
 
             /* "Le mie prenotazioni" e' una pagina da clienti: riservata al
                ruolo DEFAULT, quindi nemmeno l'amministratore la vede. */

@@ -15,6 +15,13 @@
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
+    <!-- Le recensioni le legge chiunque, anche senza aver fatto il login:
+         niente th:if attorno a questo collegamento. -->
+    <p>
+        <a class="bottone bottone-tenue"
+           th:href="@{/ristoranti/{id}/recensioni(id=${ristorante.id})}">Leggi le recensioni</a>
+    </p>
+
     <p th:if="${#authentication != null
                and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}">
         <a class="bottone" th:href="@{/ristoranti/{id}/prenotazioni/new(id=${ristorante.id})}">Prenota un tavolo</a>

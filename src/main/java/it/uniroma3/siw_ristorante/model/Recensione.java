@@ -10,8 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Recensione {
@@ -20,13 +23,17 @@ public class Recensione {
     private Long id;
 
     @NotBlank(message = "Il titolo della recensione non può essere vuoto")
+    @Size(max = 30, message = "Il titolo non può superare i 30 caratteri")
     @Column(nullable = false, length = 30)
     private String titolo;
 
     @NotNull(message = "Il voto della recensione non può essere nullo")
+    @Min(value = 1, message = "Il voto minimo è 1")
+    @Max(value = 5, message = "Il voto massimo è 5")
     @Column(nullable = false)
     private Integer voto;
 
+    @Size(max = 200, message = "Il commento non può superare i 200 caratteri")
     @Column(length = 200)
     private String testo;
 

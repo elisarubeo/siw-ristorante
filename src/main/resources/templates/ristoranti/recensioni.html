@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Recensioni')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<!-- cliente: solo chi ha il ruolo DEFAULT puo' recensire. Nascondere il
+     pulsante e' cortesia verso l'utente, non sicurezza: a proteggere
+     l'indirizzo e' la regola /ristoranti/*/recensioni/** nella
+     SecurityConfiguration. -->
+<main class="contenuto"
+      th:with="cliente=${#authentication != null
+                         and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}">
+
+    <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
+
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <h1>Recensioni</h1>
+    <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
+
+    <!-- Il riepilogo compare solo con almeno una recensione: una media di
+         zero voti non vuol dire niente. -->
+    <div class="riepilogo-voti" th:if="${media != null}">
+        <p class="voto-medio" th:text="${#numbers.formatDecimal(media, 1, 'POINT', 1, 'COMMA')}">0,0</p>
+        <div>
+            <!-- Le stelle sono decorazione: il voto in cifre e' gia' scritto
+                 qui accanto, quindi per un lettore di schermo si nascondono. -->
+            <p class="stelle" aria-hidden="true"
+               th:with="pieni=${T(java.lang.Math).round(media)}"
+               th:text="${#strings.repeat('★', pieni) + #strings.repeat('☆', 5 - pieni)}">★★★★☆</p>
+            <p class="conteggio">
+                su 5 &middot;
+                <span th:text="${#lists.size(recensioni)}">0</span>
+                <span th:text="${#lists.size(recensioni) == 1} ? 'recensione' : 'recensioni'">recensioni</span>
+            </p>
+        </div>
+    </div>
+
+    <p th:if="${cliente}">
+        <a th:if="${miaRecensione == null}" class="bottone"
+           th:href="@{/ristoranti/{id}/recensioni/new(id=${ristorante.id})}">Scrivi una recensione</a>
+        <!-- Una sola recensione per ristorante: chi l'ha gia' scritta trova
+             qui il modo di correggerla, non di scriverne un'altra. -->
+        <a th:unless="${miaRecensione == null}" class="bottone"
+           th:href="@{/ristoranti/{r}/recensioni/{rec}/edit(r=${ristorante.id},rec=${miaRecensione.id})}">Modifica la tua recensione</a>
+    </p>
+
+    <ul class="recensioni" th:if="${!#lists.isEmpty(recensioni)}">
+        <li th:each="recensione : ${recensioni}"
+            th:with="mia=${miaRecensione != null and miaRecensione.id == recensione.id}"
+            th:classappend="${mia} ? 'mia-recensione' : ''">
+
+            <div class="recensione-testa">
+                <h2 th:text="${recensione.titolo}">Titolo della recensione</h2>
+                <p class="stelle" aria-hidden="true"
+                   th:text="${#strings.repeat('★', recensione.voto) + #strings.repeat('☆', 5 - recensione.voto)}">★★★☆☆</p>
+                <p class="solo-lettori" th:text="'Voto ' + ${recensione.voto} + ' su 5'">Voto</p>
+            </div>
+
+            <p class="recensione-firma">
+                <!-- User non ha un nome: lo username arriva dalle credenziali,
+                     raccolte dal controller in una mappa da id a nome. -->
+                <span th:text="${autori.get(recensione.user.id)} ?: 'utente'">autore</span>
+                &middot;
+                <span th:text="${#temporals.format(recensione.data, 'dd/MM/yyyy')}">01/01/2026</span>
+                <span class="etichetta" th:if="${mia}">la tua recensione</span>
+            </p>
+
+            <p class="recensione-testo" th:if="${!#strings.isEmpty(recensione.testo)}"
+               th:text="${recensione.testo}">Testo della recensione</p>
+
+            <!-- "Modifica" apre solo un modulo e resta un collegamento;
+                 "Elimina" cambia i dati, quindi e' una POST, e con th:action
+                 Thymeleaf aggiunge da se' il token CSRF. -->
+            <div class="azioni-recensione" th:if="${mia}">
+                <a class="bottone bottone-tenue"
+                   th:href="@{/ristoranti/{r}/recensioni/{rec}/edit(r=${ristorante.id},rec=${recensione.id})}">Modifica</a>
+
+                <form th:action="@{/ristoranti/{r}/recensioni/{rec}/delete(r=${ristorante.id},rec=${recensione.id})}"
+                      method="post"
+                      onsubmit="return confirm('Eliminare la tua recensione? L\'operazione non si puo\' annullare.')">
+                    <button type="submit" class="bottone bottone-tenue">Elimina</button>
+                </form>
+            </div>
+        </li>
+    </ul>
+
+    <div class="vuoto" th:if="${#lists.isEmpty(recensioni)}">
+        Questo ristorante non ha ancora recensioni.
+        <span th:if="${cliente}">Puoi essere il primo a scriverne una.</span>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

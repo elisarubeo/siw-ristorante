@@ -500,3 +500,113 @@ h2 { font-size: 1.4rem; }
 /* Il turno gia' cominciato: sfondo appena caldo, per distinguerlo dagli altri
    senza gridare. */
 .conto tr.riga-in-corso { background: #fdf4ef; }
+
+/* ---------- recensioni ---------- */
+/* Menu a tendina e area di testo prendono lo stesso aspetto dei campi di
+   testo: un modulo con tre controlli diversi non deve sembrarne tre. */
+.campo select,
+.campo textarea {
+    width: 100%;
+    padding: .6rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--crema);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+}
+
+.campo textarea { resize: vertical; min-height: 6rem; }
+
+.campo select:focus,
+.campo textarea:focus {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 1px;
+    background: var(--carta);
+}
+
+.facoltativo { color: var(--inchiostro-tenue); font-size: .82rem; }
+
+.nota-campo {
+    margin: .35rem 0 0;
+    font-size: .82rem;
+    color: var(--inchiostro-tenue);
+}
+
+/* Il giudizio complessivo in cima alla pagina: la media in cifre e' il dato,
+   le stelle solo il suo disegno. */
+.riepilogo-voti {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.voto-medio {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--terracotta);
+}
+
+.riepilogo-voti > div > p { margin: 0; }
+
+.stelle {
+    color: var(--terracotta);
+    letter-spacing: .12em;
+    line-height: 1.2;
+}
+
+.conteggio { color: var(--inchiostro-tenue); font-size: .9rem; }
+
+/* Una recensione per scheda: il titolo con il suo voto in alto, la firma
+   sotto, e il commento in fondo. */
+.recensioni {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+}
+
+.recensioni li {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 1.2rem 1.4rem;
+}
+
+/* La propria recensione si riconosce a colpo d'occhio in mezzo alle altre. */
+.recensioni li.mia-recensione { border-left: 4px solid var(--terracotta); }
+
+.recensione-testa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .6rem;
+}
+
+.recensione-testa h2 { margin: 0; font-size: 1.15rem; }
+.recensione-testa .stelle { margin: 0; white-space: nowrap; }
+
+.recensione-firma {
+    margin: .3rem 0 0;
+    font-size: .88rem;
+    color: var(--inchiostro-tenue);
+}
+
+.recensione-testo { margin: .8rem 0 0; }
+
+.azioni-recensione {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1rem;
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<!-- Un solo modulo per scrittura e modifica: cambia solo dove viene inviato.
+     A distinguere i due casi e' l'id della recensione, che c'e' solo in
+     modifica. -->
+<head th:replace="~{fragments/layout :: testa(${recensione.id} == null ? 'Scrivi una recensione' : 'Modifica la recensione')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto" th:with="modifica=${recensione.id != null}">
+    <a class="ritorno" th:href="@{/ristoranti/{id}/recensioni(id=${ristorante.id})}">&larr; Torna alle recensioni</a>
+
+    <div class="riquadro">
+        <h1 th:text="${modifica} ? 'Modifica la recensione' : 'Scrivi una recensione'">Scrivi una recensione</h1>
+        <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
+
+        <!-- In scrittura si invia alla collezione, in modifica alla singola
+             risorsa: /ristoranti/1/recensioni contro /ristoranti/1/recensioni/7 -->
+        <form th:action="${modifica}
+                          ? @{/ristoranti/{r}/recensioni/{rec}(r=${ristorante.id},rec=${recensione.id})}
+                          : @{/ristoranti/{r}/recensioni(r=${ristorante.id})}"
+              th:object="${recensione}" method="post">
+
+            <!-- Errori che non appartengono a un campo solo, come la recensione
+                 doppia: vanno mostrati qui, altrimenti non si vedrebbero. -->
+            <p class="avviso avviso-errore" th:each="errore : ${#fields.globalErrors()}"
+               th:text="${errore}">errore</p>
+
+            <div class="campo">
+                <label for="titolo">Titolo</label>
+                <input type="text" id="titolo" th:field="*{titolo}" maxlength="30" required autofocus
+                       placeholder="In poche parole">
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('titolo')}"
+                   th:errors="*{titolo}">errore</p>
+            </div>
+
+            <div class="campo">
+                <label for="voto">Voto</label>
+                <select id="voto" th:field="*{voto}" required>
+                    <option value="">Scegli un voto</option>
+                    <option value="5">★★★★★ &middot; eccellente</option>
+                    <option value="4">★★★★ &middot; molto buono</option>
+                    <option value="3">★★★ &middot; nella media</option>
+                    <option value="2">★★ &middot; deludente</option>
+                    <option value="1">★ &middot; pessimo</option>
+                </select>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('voto')}"
+                   th:errors="*{voto}">errore</p>
+            </div>
+
+            <div class="campo">
+                <label for="testo">Commento <span class="facoltativo">(facoltativo)</span></label>
+                <textarea id="testo" th:field="*{testo}" maxlength="200" rows="5"
+                          placeholder="Che cosa hai mangiato, come ti sei trovato"></textarea>
+                <p class="nota-campo">Al massimo 200 caratteri.</p>
+                <p class="avviso avviso-errore" th:if="${#fields.hasErrors('testo')}"
+                   th:errors="*{testo}">errore</p>
+            </div>
+
+            <button type="submit" class="bottone"
+                    th:text="${modifica} ? 'Salva le modifiche' : 'Pubblica la recensione'">Pubblica la recensione</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>
