@@ -2,18 +2,28 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: testa('Menu')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(${gestore} ? ${ristorante.id} : null)}"></header>
 
 <main class="contenuto">
-    <a class="ritorno" th:href="@{/ristoranti}">&larr; Tutti i ristoranti</a>
+    <!-- Per il ristoratore questa pagina e' la propria casa e non una tappa:
+         il ritorno alla vetrina non ha piu' senso qui, sta nella barra in
+         alto insieme al resto della gestione. -->
+    <a class="ritorno" th:unless="${gestore}" th:href="@{/ristoranti}">&larr; Tutti i ristoranti</a>
 
     <h1 th:text="${ristorante.nome}">Nome del ristorante</h1>
     <p class="sottotitolo" th:text="${ristorante.indirizzo}">Indirizzo</p>
 
-    <!-- Le fotografie del locale, se ce ne sono: le carica il ristoratore, le
-         guardano tutti. Nel database ci sono solo i nomi dei file, i byte
-         stanno nella cartella servita su /uploads. -->
-    <ul class="galleria" th:if="${!#lists.isEmpty(immagini)}">
+    <!-- I flash attribute sopravvivono a un solo redirect: dopo
+         l'eliminazione arrivano qui e poi spariscono. -->
+    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
+    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
+
+    <!-- Le fotografie del locale: le carica il ristoratore, le guardano tutti.
+         Nel database ci sono solo i nomi dei file, i byte stanno nella
+         cartella servita su /uploads.
+         Per il ristoratore la galleria compare sempre, anche vuota, perche'
+         l'ultimo riquadro e' il suo: quello con il piu' per aggiungerne. -->
+    <ul class="galleria" th:if="${gestore or !#lists.isEmpty(immagini)}">
         <li th:each="immagine : ${immagini}">
             <!-- Il nome del file e' un UUID e non descrive niente: il testo
                  alternativo lo ricava dal nome del locale.
@@ -22,44 +32,43 @@
             <img th:src="@{/uploads/{file}(file=${immagine})}"
                  th:alt="'Fotografia di ' + ${ristorante.nome}" loading="lazy">
         </li>
+
+        <!-- Il riquadro del piu': sta in fila con le foto, della stessa misura,
+             e porta alla pagina dove si aggiunge e si toglie. Il segno e'
+             aria-hidden perche' a un lettore di schermo "+" non dice niente:
+             il nome del collegamento e' il testo accanto. -->
+        <li class="galleria-aggiungi" th:if="${gestore}">
+            <a th:href="@{/ristoranti/{id}/immagini(id=${ristorante.id})}">
+                <span class="segno-piu" aria-hidden="true">+</span>
+                <span>Gestisci le immagini</span>
+            </a>
+        </li>
     </ul>
 
-    <!-- I flash attribute sopravvivono a un solo redirect: dopo
-         l'eliminazione arrivano qui e poi spariscono. -->
-    <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
-    <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
-
-    <!-- Le recensioni le legge chiunque, anche senza aver fatto il login:
-         niente th:if attorno a questo collegamento. -->
-    <p>
-        <a class="bottone bottone-tenue"
-           th:href="@{/ristoranti/{id}/recensioni(id=${ristorante.id})}">Leggi le recensioni</a>
-    </p>
-
-    <p th:if="${#authentication != null
-               and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}">
-        <a class="bottone" th:href="@{/ristoranti/{id}/prenotazioni/new(id=${ristorante.id})}">Prenota un tavolo</a>
-    </p>
-
-    <!-- "gestore" arriva gia' deciso dal controller: e' vero solo per il
+    <!-- I gesti di tutti i giorni, e solo quelli: aggiungere un piatto,
+         gestire i tavoli, leggere le recensioni. Conti aperti, scontrini,
+         agenda e statistiche sono passati nella barra in alto, dove si
+         raggiungono da qualunque pagina invece che solo da qui.
+         "gestore" arriva gia' deciso dal controller: e' vero solo per il
          ristoratore di QUESTO locale, non per un ristoratore qualsiasi.
          Nascondere i pulsanti e' comunque cortesia verso l'utente, non
          sicurezza: a proteggere gli indirizzi e' RistoranteService.
          ristoranteGestito, richiamato prima di ogni metodo di gestione. -->
-    <p th:if="${gestore}">
-        <a class="bottone" th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
-        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/immagini(id=${ristorante.id})}">Gestisci le immagini</a>
-        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
-        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
-        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>
-        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/agenda(id=${ristorante.id})}">Agenda prenotazioni</a>
-        <!-- Fuori dall'applicazione Thymeleaf: le statistiche sono la parte
-             REST/React, servita come pagina a se'. Percio' non c'e' nessun id
-             nell'indirizzo (il locale lo ricava il server dal token) e il
-             collegamento non porta con se' la sessione: la SPA chiede un
-             accesso suo, perche' l'autenticazione di la' e' a token e non a
-             cookie. -->
-        <a class="bottone bottone-tenue" th:href="@{/statistiche/}">Statistiche</a>
+    <p class="azioni-locale">
+        <a th:if="${gestore}" class="bottone"
+           th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
+        <a th:if="${gestore}" class="bottone bottone-tenue"
+           th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
+
+        <!-- Le recensioni le legge chiunque, anche senza aver fatto il login:
+             niente th:if attorno a questo collegamento. -->
+        <a class="bottone bottone-tenue"
+           th:href="@{/ristoranti/{id}/recensioni(id=${ristorante.id})}">Leggi le recensioni</a>
+
+        <a th:if="${#authentication != null
+                   and !#authentication.authorities.?[authority == 'DEFAULT'].isEmpty()}"
+           class="bottone"
+           th:href="@{/ristoranti/{id}/prenotazioni/new(id=${ristorante.id})}">Prenota un tavolo</a>
     </p>
 
     <ul class="piatti" th:if="${!#lists.isEmpty(menu)}">

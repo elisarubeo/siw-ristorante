@@ -30,9 +30,32 @@ async function leggi<T>(percorso: string, finto: T, ripiego: string): Promise<T>
     }
 }
 
+/* Il contesto lo chiedono in due: la pagina delle statistiche, per gli anni
+   disponibili, e la barra in alto, che dell'id del locale ha bisogno per i
+   collegamenti al sito in Thymeleaf. Due componenti, una sola richiesta: qui
+   si tiene da parte la PROMESSA, non il risultato, cosi' anche le chiamate che
+   partono insieme al primo disegno si agganciano alla stessa.
+   Il ristorante di chi ha fatto il login non cambia finche' resta collegato:
+   a svuotare la memoria e' dimenticaContesto(), che chiama il logout. */
+let contestoInVolo: Promise<Contesto> | null = null
+
 export function contesto(): Promise<Contesto> {
-    return leggi('/statistiche/contesto', CONTESTO_FINTO,
-        'Non e\' stato possibile leggere i dati del ristorante.')
+    if (contestoInVolo === null) {
+        contestoInVolo = leggi('/statistiche/contesto', CONTESTO_FINTO,
+            'Non e\' stato possibile leggere i dati del ristorante.')
+            .catch((errore: unknown) => {
+                /* Un errore non si tiene da parte: senza questo, una richiesta
+                   fallita per una disconnessione di un momento resterebbe la
+                   risposta definitiva fino al logout. */
+                contestoInVolo = null
+                throw errore
+            })
+    }
+    return contestoInVolo
+}
+
+export function dimenticaContesto(): void {
+    contestoInVolo = null
 }
 
 export function riepilogo(anno: number): Promise<Riepilogo> {

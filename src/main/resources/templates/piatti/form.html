@@ -4,7 +4,7 @@
      A distinguere i due casi e' l'id del piatto, che c'e' solo in modifica. -->
 <head th:replace="~{fragments/layout :: testa(${piatto.id} == null ? 'Nuovo piatto' : 'Modifica piatto')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(${ristorante.id})}"></header>
 
 <main class="contenuto" th:with="modifica=${piatto.id != null}">
     <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>

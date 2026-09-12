@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 import type { ReactNode } from 'react'
 import { CHIAVE_TOKEN, CHIAVE_UTENTE } from '../services/api'
 import * as authService from '../services/authService'
+import { dimenticaContesto } from '../services/statisticheService'
 import type { RispostaLogin } from '../types'
 
 /* Chi ha fatto il login serve in punti lontani dell'albero dei componenti: la
@@ -85,6 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = useCallback(() => {
         localStorage.removeItem(CHIAVE_TOKEN)
         localStorage.removeItem(CHIAVE_UTENTE)
+        /* Il contesto (il locale di chi era collegato) e' tenuto da parte nel
+           service: senza questo, chi entra dopo si troverebbe in barra i
+           collegamenti al ristorante di chi c'era prima. */
+        dimenticaContesto()
         setUtente(null)
     }, [])
 

@@ -2,7 +2,7 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: testa(${prenotazione.id} == null ? 'Prenota un tavolo' : 'Modifica prenotazione')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(null)}"></header>
 
 <main class="contenuto" th:with="modifica=${prenotazione.id != null}">
     <a class="ritorno" th:if="${modifica}" th:href="@{/prenotazioni}">&larr; Le mie prenotazioni</a>

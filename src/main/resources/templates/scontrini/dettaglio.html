@@ -2,7 +2,7 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: testa('Scontrino')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(${ristorante.id})}"></header>
 
 <main class="contenuto">
     <a class="ritorno" th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">&larr; Tutti gli scontrini</a>

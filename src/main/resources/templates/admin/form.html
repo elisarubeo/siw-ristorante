@@ -2,7 +2,7 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: testa('Nuovo ristorante')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(null)}"></header>
 
 <main class="contenuto">
     <a class="ritorno" th:href="@{/admin/ristoranti}">&larr; Torna ai ristoranti</a>

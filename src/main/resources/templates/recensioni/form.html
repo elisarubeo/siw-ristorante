@@ -5,7 +5,7 @@
      modifica. -->
 <head th:replace="~{fragments/layout :: testa(${recensione.id} == null ? 'Scrivi una recensione' : 'Modifica la recensione')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(null)}"></header>
 
 <main class="contenuto" th:with="modifica=${recensione.id != null}">
     <a class="ritorno" th:href="@{/ristoranti/{id}/recensioni(id=${ristorante.id})}">&larr; Torna alle recensioni</a>

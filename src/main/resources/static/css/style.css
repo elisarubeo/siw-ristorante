@@ -657,6 +657,17 @@ h2 { font-size: 1.4rem; }
 /* Il locale chiuso resta in elenco ma attenuato: c'e', e si puo' riaprire. */
 .conto tr.riga-spenta td { color: var(--inchiostro-tenue); background: #faf7f4; }
 
+/* ---------- i pulsanti della pagina del locale ---------- */
+/* Stanno tutti su una riga sola e vanno a capo da soli quando lo schermo e'
+   stretto: il gap li tiene distanti anche dopo essere andati a capo, cosa che
+   un margine sul solo lato destro non farebbe. */
+.azioni-locale {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    align-items: center;
+}
+
 /* ---------- galleria delle immagini ---------- */
 /* Le foto del locale: nella pagina pubblica una striscia, nella pagina di
    gestione la stessa griglia con il pulsante di eliminazione sotto ciascuna. */
@@ -689,6 +700,37 @@ h2 { font-size: 1.4rem; }
     aspect-ratio: 4 / 3;
     object-fit: cover;
     background: var(--crema);
+}
+
+/* Il riquadro con il piu', in coda alle foto sulla pagina del ristoratore:
+   e' una casella vuota da riempire, e il tratteggio lo dice senza scriverlo.
+   Le misure sono quelle di una foto (lo stesso 4/3 di .galleria img), cosi'
+   la fila resta allineata anche quando di foto non ce n'e' ancora nessuna. */
+.galleria li.galleria-aggiungi {
+    background: var(--crema);
+    border-style: dashed;
+    box-shadow: none;
+}
+
+.galleria li.galleria-aggiungi a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    aspect-ratio: 4 / 3;
+    padding: 1rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--inchiostro-tenue);
+}
+
+.galleria li.galleria-aggiungi a:hover { color: var(--terracotta); }
+
+.segno-piu {
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 300;
 }
 
 .galleria-gestione li form {

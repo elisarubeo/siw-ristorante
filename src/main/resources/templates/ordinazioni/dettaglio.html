@@ -2,7 +2,7 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: testa('Conto')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(${ristorante.id})}"></header>
 
 <!-- Un'ordinazione esiste solo finche' il conto e' aperto: alla chiusura
      diventa uno scontrino e sparisce. Non c'e' nessuno stato da mostrare,

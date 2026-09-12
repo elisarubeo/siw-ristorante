@@ -2,7 +2,7 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: testa('Recensioni')}"></head>
 <body>
-<header th:replace="~{fragments/layout :: intestazione}"></header>
+<header th:replace="~{fragments/layout :: intestazione(null)}"></header>
 
 <!-- cliente: solo chi ha il ruolo DEFAULT puo' recensire. Nascondere il
      pulsante e' cortesia verso l'utente, non sicurezza: a proteggere
