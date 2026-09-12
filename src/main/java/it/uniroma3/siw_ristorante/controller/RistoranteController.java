@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.OrdinazioneService;
@@ -70,9 +71,10 @@ public class RistoranteController {
     }
 
     @GetMapping({ "/", "/index", "/ristoranti" })
-    public String list(Model model) {
+    public String list(@RequestParam(name = "q", required = false) String q, Model model) {
         model.addAttribute("classifica", this.recensioneService.classifica());
-        model.addAttribute("ristoranti", this.ristoranteService.findAttivi());
+        model.addAttribute("ristoranti", this.ristoranteService.search(q));
+        model.addAttribute("q", q);
         return "ristoranti/list";
     }
 }

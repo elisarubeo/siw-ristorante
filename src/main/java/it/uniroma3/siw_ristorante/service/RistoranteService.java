@@ -315,4 +315,12 @@ public class RistoranteService {
         }
         return password.toString();
     }
+
+    @Transactional(readOnly = true)
+    public List<Ristorante> search(String testo) {
+        if (testo == null || testo.isBlank()) {
+            return ristoranteRepository.findByAttivoTrueOrderByNome();
+        }
+        return ristoranteRepository.search("%" + testo.trim().toLowerCase() + "%");
+    }
 }

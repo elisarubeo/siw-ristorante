@@ -16,13 +16,14 @@
     --ombra: 0 1px 2px rgba(43, 37, 33, .06), 0 6px 18px rgba(43, 37, 33, .06);
     --larghezza-max: 1000px;
     --serif: Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--sans);
     font-size: 16px;
     line-height: 1.6;
     color: var(--inchiostro);
@@ -246,8 +247,81 @@ h2 { font-size: 1.4rem; }
    pagina delle recensioni, e mai spezzate su due righe. */
 .classifica .stelle { font-size: .9rem; white-space: nowrap; }
 
-/* Adesso che la vetrina ha due sezioni, l'elenco completo ha il suo titolo. */
-.titolo-elenco { margin: 0 0 1.1rem; }
+/* ---------- testa dell'elenco: titolo e ricerca ---------- */
+/* Adesso che la vetrina ha due sezioni, l'elenco completo ha il suo titolo, e
+   accanto ci sta la ricerca: la stessa riga di .recensione-testa, titolo a
+   sinistra e comandi a destra. Il campo appartiene all'elenco, e messo li' lo
+   dice da se' senza bisogno di una scritta che lo spieghi. Quando la riga si
+   stringe il form va a capo sotto il titolo - flex-wrap invece di una media
+   query, come nel resto del foglio. */
+.testa-elenco {
+    display: flex;
+    flex-wrap: wrap;
+    /* baseline e non center: la scritta dentro al campo si siede sulla stessa
+       riga d'appoggio del titolo, che e' quello che l'occhio segue */
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .7rem 1.5rem;
+    margin-bottom: 1.1rem;
+}
+
+.titolo-elenco { margin: 0; }
+
+/* Quanti ne ha trovati: e' la didascalia del titolo, non parte del titolo, e
+   percio' torna al carattere del testo mentre l'intestazione resta in serif. */
+.conteggio-elenco {
+    font-family: var(--sans);
+    font-size: .9rem;
+    font-weight: 400;
+    color: var(--inchiostro-tenue);
+}
+
+/* ---------- ricerca fra i ristoranti ---------- */
+.ricerca {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    /* cresce nello spazio che il titolo lascia libero e riempie la riga
+       quando va a capo da solo, ma non oltre: un campo largo mezza pagina per
+       due parole di ricerca sarebbe sproporzionato */
+    flex: 1 1 18rem;
+    max-width: 26rem;
+}
+
+/* Stesso vestito dei campi dei moduli (.campo input): un campo di testo si
+   riconosce uguale in tutto il sito. min-width:0 perche' senza, il valore
+   minimo di un campo impedisce alla riga di stringersi davvero. */
+.ricerca input[type="search"] {
+    flex: 1 1 10rem;
+    min-width: 0;
+    padding: .6rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--crema);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+}
+
+.ricerca input[type="search"]:focus {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 1px;
+    background: var(--carta);
+}
+
+/* I pulsanti alti quanto il campo: .bottone non ha bordo, e i due pixel che
+   al campo vengono dal suo glieli restituisce un bordo trasparente. Senza,
+   restano piu' bassi e la riga si vede storta. */
+.ricerca .bottone {
+    border: 1px solid transparent;
+    padding: .6rem 1.1rem;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+/* Azzera accanto a Cerca: stessa misura, ma tenue - e' la via d'uscita, non
+   il gesto principale. */
+.ricerca .bottone-tenue { border-color: var(--bordo); }
 
 /* ---------- elenco dei ristoranti ---------- */
 .griglia {
@@ -379,6 +453,11 @@ h2 { font-size: 1.4rem; }
     text-align: center;
     color: var(--inchiostro-tenue);
 }
+
+/* Il collegamento che riporta all'elenco completo quando una ricerca non ha
+   trovato niente: a capo e staccato, cosi' si vede che e' qualcosa da fare e
+   non la coda della frase. */
+.vuoto-azione { display: block; margin-top: .8rem; }
 
 /* ---------- pagine di errore ---------- */
 .errore { text-align: center; padding: 3rem 1rem; }

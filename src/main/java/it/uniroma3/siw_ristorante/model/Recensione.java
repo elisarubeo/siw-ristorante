@@ -10,13 +10,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+/* Un utente puo' recensire un ristorante una volta sola. Il controllo c'e'
+   gia' in RecensioneService.save, ma e' una lettura seguita da una scrittura:
+   due richieste contemporanee dello stesso utente le passano tutte e due.
+   Il vincolo sul database e' l'unico punto in cui la regola non si aggira. */
 @Entity
+@Table(name = "recensione",
+        uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "ristorante_id" }))
 public class Recensione {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

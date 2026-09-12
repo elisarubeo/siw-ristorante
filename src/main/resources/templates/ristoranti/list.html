@@ -4,7 +4,11 @@
 <body>
 <header th:replace="~{fragments/layout :: intestazione(null)}"></header>
 
-<main class="contenuto">
+<!-- "ricerca" si calcola una volta sola qui perche' serve in tre punti
+     lontani fra loro (la classifica, il titolo, il riquadro vuoto): ripetere
+     il controllo su ${q} in ognuno vorrebbe dire poterlo cambiare in uno solo
+     e lasciare gli altri indietro. -->
+<main class="contenuto" th:with="ricerca=${q != null and !q.isBlank()}">
     <h1>Il piacere di mangiare fuori</h1>
     <p class="sottotitolo">
         Scegli un ristorante e consultane il menu: ogni piatto con i suoi
@@ -16,7 +20,7 @@
          RecensioneService, la lista torna vuota e la sezione sparisce del
          tutto. Niente riquadro "nessun dato": sotto c'e' gia' l'elenco
          completo, che da' alla pagina un contenuto in ogni caso. -->
-    <section class="sezione-classifica" th:if="${!#lists.isEmpty(classifica)}">
+    <section class="sezione-classifica" th:if="${!#lists.isEmpty(classifica) and !ricerca}">
         <h2>I piu apprezzati</h2>
         <p class="nota-sezione">
             I locali con la media piu alta fra chi ha raccolto abbastanza
@@ -71,7 +75,42 @@
          cambiarlo non lascia indietro un titolo che dice altro), qui ci sono
          tutti, in ordine di nome. Il titolo prima non serviva, adesso si':
          senza, le due sezioni si leggerebbero come una sola lista lunga. -->
-    <h2 class="titolo-elenco">Tutti i ristoranti</h2>
+    <div class="testa-elenco">
+        <!-- Il titolo dice quale elenco si sta leggendo, e a ricerca attiva
+             quello non e' piu' "tutti": lasciarlo fisso farebbe sembrare
+             sparito meta' archivio. -->
+        <h2 class="titolo-elenco" th:if="${ricerca}">
+            Risultati per &laquo;<span th:text="${q}">ricerca</span>&raquo;
+            <!-- Il conteggio non compare quando non c'e' niente: lo dice gia'
+                 il riquadro vuoto qui sotto, e "0 ristoranti" accanto al
+                 titolo sarebbe la stessa cosa detta due volte. -->
+            <span class="conteggio-elenco" th:if="${!#lists.isEmpty(ristoranti)}"
+                  th:text="${#lists.size(ristoranti)}
+                           + (${#lists.size(ristoranti) == 1} ? ' ristorante' : ' ristoranti')">3 ristoranti</span>
+        </h2>
+        <h2 class="titolo-elenco" th:unless="${ricerca}">Tutti i ristoranti</h2>
+
+        <!-- method="get": la ricerca e' una lettura, e cosi' il risultato sta
+             tutto nell'indirizzo - si puo' ricaricare, salvare fra i preferiti
+             e mandare a qualcuno. role="search" da' alla riga il suo nome per
+             chi naviga la pagina per regioni. -->
+        <form method="get" th:action="@{/ristoranti}" class="ricerca" role="search">
+            <!-- L'etichetta non si vede ma c'e': sulla riga del titolo non
+                 avrebbe spazio, e il segnaposto da solo sparisce appena si
+                 scrive - un lettore di schermo resterebbe senza nome del
+                 campo. -->
+            <label for="q" class="solo-lettori">Cerca per nome o indirizzo</label>
+            <!-- type="search": il browser offre il campo con la crocetta
+                 per svuotarlo e la cronologia delle ricerche precedenti. -->
+            <input type="search" id="q" name="q"
+                   placeholder="Nome o indirizzo"
+                   th:value="${q}">
+            <button type="submit" class="bottone">Cerca</button>
+            <!-- Compare solo a ricerca attiva: riporta all'elenco completo -->
+            <a th:if="${ricerca}" th:href="@{/ristoranti}"
+               class="bottone bottone-tenue">Azzera</a>
+        </form>
+    </div>
 
     <!-- th:if sulla lista: se e' vuota si mostra il riquadro piu' sotto
          invece di una griglia vuota che sembrerebbe un errore -->
@@ -87,8 +126,21 @@
         </li>
     </ul>
 
+    <!-- Due vuoti diversi: un archivio ancora da riempire non e' una ricerca
+         andata a vuoto, e chi legge deve capire subito in quale dei due si
+         trova - nel secondo caso gli serve anche la strada per tornare
+         indietro, altrimenti l'unica uscita e' svuotare il campo a mano. -->
     <div class="vuoto" th:if="${#lists.isEmpty(ristoranti)}">
-        Non c'e ancora nessun ristorante da mostrare.
+        <th:block th:if="${ricerca}">
+            Nessun ristorante corrisponde a
+            <strong th:text="${q}">ricerca</strong>.
+            <span class="vuoto-azione">
+                <a th:href="@{/ristoranti}">Mostra tutti i ristoranti</a>
+            </span>
+        </th:block>
+        <th:block th:unless="${ricerca}">
+            Non c'e ancora nessun ristorante da mostrare.
+        </th:block>
     </div>
 </main>
 
