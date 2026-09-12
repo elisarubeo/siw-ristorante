@@ -470,6 +470,16 @@ h2 { font-size: 1.4rem; }
 
 .conto td.azione-riga { text-align: right; width: 1%; }
 
+/* Piu' comandi nella stessa cella: ognuno e' un form a se' (sono POST
+   distinte), e senza questo si impilerebbero uno sotto l'altro perche' un
+   form e' un elemento di blocco. */
+.azioni-riga {
+    display: flex;
+    justify-content: flex-end;
+    gap: .4rem;
+    flex-wrap: wrap;
+}
+
 /* Un pulsante piccolo e rotondo: sta dentro la riga senza dominarla. */
 .bottone-meno {
     background: none;

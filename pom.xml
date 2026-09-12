@@ -28,6 +28,11 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<!-- springdoc 3.x e' la linea per Spring Boot 4: la 2.x e' compilata
+		     contro Boot 3 e all'avvio non trova le classi che si aspetta. -->
+		<springdoc.version>3.0.0</springdoc.version>
+		<!-- jjwt: firma e verifica del token della parte REST. -->
+		<jjwt.version>0.13.0</jjwt.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -55,6 +60,42 @@
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
+		</dependency>
+
+		<!-- ====== parte REST / React: statistiche del ristoratore ======
+		     Il resto dell'applicazione non dipende da queste librerie: sono
+		     usate solo dai @RestController sotto /api e dalla catena di
+		     sicurezza che li protegge. -->
+
+		<!-- Documentazione automatica delle API: legge le annotazioni dei
+		     controller e pubblica /v3/api-docs e /swagger-ui.html, da cui si
+		     provano gli endpoint senza React. -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+
+		<!-- JSON Web Token. Diviso in tre: l'API sta nel codice che si scrive,
+		     implementazione e serializzatore servono solo a runtime e restano
+		     fuori dal classpath di compilazione, cosi' non si rischia di
+		     importarne le classi interne per sbaglio. -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

@@ -14,8 +14,11 @@
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
-    <!-- La password si legge solo adesso: nel database e' cifrata e non torna
-         piu' leggibile. Ricaricando la pagina questo riquadro sparisce. -->
+    <!-- Lo stesso riquadro per il locale appena aperto e per la password
+         appena rigenerata: per chi guarda sono la stessa cosa, cioe' delle
+         credenziali leggibili adesso e mai piu'. Nel database c'e' solo
+         l'impronta BCrypt. Ricaricando la pagina il riquadro sparisce, perche'
+         i flash attribute sopravvivono a un solo redirect. -->
     <div class="credenziali" th:if="${nuovaPassword}">
         <h2>Credenziali del gestore</h2>
         <p>Consegnale al ristoratore: <strong>non saranno piu' visibili</strong> dopo aver lasciato questa pagina.</p>
@@ -51,20 +54,32 @@
                         <span class="etichetta etichetta-occupato" th:if="${r.attivo}">attivo</span>
                         <span class="etichetta" th:unless="${r.attivo}">chiuso</span>
                     </td>
-                    <!-- Disattivare e riattivare cambiano i dati, quindi sono
-                         POST: con th:action il token CSRF lo aggiunge
-                         Thymeleaf da se'. -->
+                    <!-- Rigenerare, disattivare e riattivare cambiano i dati,
+                         quindi sono POST: con th:action il token CSRF lo
+                         aggiunge Thymeleaf da se'. -->
                     <td class="azione-riga">
-                        <form th:if="${r.attivo}"
-                              th:action="@{/admin/ristoranti/{id}/disattiva(id=${r.id})}" method="post"
-                              th:data-nome="${r.nome}"
-                              onsubmit="return confirm('Disattivare ' + this.dataset.nome + '? Le prenotazioni future verranno annullate.')">
-                            <button type="submit" class="bottone bottone-tenue">Disattiva</button>
-                        </form>
-                        <form th:unless="${r.attivo}"
-                              th:action="@{/admin/ristoranti/{id}/attiva(id=${r.id})}" method="post">
-                            <button type="submit" class="bottone bottone-tenue">Riattiva</button>
-                        </form>
+                        <div class="azioni-riga">
+                            <!-- La password consegnata alla creazione si legge
+                                 una volta sola: nel database c'e' l'impronta
+                                 BCrypt, che non si puo' rileggere. Quando va
+                                 persa, l'unica strada e' sostituirla. -->
+                            <form th:action="@{/admin/ristoranti/{id}/password(id=${r.id})}" method="post"
+                                  th:data-gestore="${gestori.get(r.gestore.id)} ?: 'questo gestore'"
+                                  onsubmit="return confirm('Generare una nuova password per ' + this.dataset.gestore + '? Quella attuale smetterà di funzionare.')">
+                                <button type="submit" class="bottone bottone-tenue">Nuova password</button>
+                            </form>
+
+                            <form th:if="${r.attivo}"
+                                  th:action="@{/admin/ristoranti/{id}/disattiva(id=${r.id})}" method="post"
+                                  th:data-nome="${r.nome}"
+                                  onsubmit="return confirm('Disattivare ' + this.dataset.nome + '? Le prenotazioni future verranno annullate.')">
+                                <button type="submit" class="bottone bottone-tenue">Disattiva</button>
+                            </form>
+                            <form th:unless="${r.attivo}"
+                                  th:action="@{/admin/ristoranti/{id}/attiva(id=${r.id})}" method="post">
+                                <button type="submit" class="bottone bottone-tenue">Riattiva</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             </tbody>

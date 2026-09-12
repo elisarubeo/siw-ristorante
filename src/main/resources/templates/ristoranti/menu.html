@@ -38,6 +38,13 @@
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/agenda(id=${ristorante.id})}">Agenda prenotazioni</a>
+        <!-- Fuori dall'applicazione Thymeleaf: le statistiche sono la parte
+             REST/React, servita come pagina a se'. Percio' non c'e' nessun id
+             nell'indirizzo (il locale lo ricava il server dal token) e il
+             collegamento non porta con se' la sessione: la SPA chiede un
+             accesso suo, perche' l'autenticazione di la' e' a token e non a
+             cookie. -->
+        <a class="bottone bottone-tenue" th:href="@{/statistiche/}">Statistiche</a>
     </p>
 
     <ul class="piatti" th:if="${!#lists.isEmpty(menu)}">

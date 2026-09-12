@@ -1,0 +1,458 @@
+/* ============================================================
+   Statistiche - foglio di stile della parte React
+
+   Le variabili qui sotto sono le stesse di
+   src/main/resources/static/css/style.css, ricopiate di proposito.
+   Il motivo: la SPA deve poter girare anche senza Spring Boot avviato
+   (con VITE_FINTO=1), quindi non puo' dipendere da un CSS servito da
+   quel server. Se un giorno si cambia il colore del sito, va cambiato
+   anche qui: sono due file, un tema solo.
+   ============================================================ */
+:root {
+    --terracotta: #b4532a;
+    --terracotta-scuro: #8d3f1f;
+    --crema: #fbf7f1;
+    --carta: #ffffff;
+    --inchiostro: #2b2521;
+    --inchiostro-tenue: #6d635c;
+    --bordo: #e7ded2;
+
+    --raggio: 10px;
+    --ombra: 0 1px 2px rgba(43, 37, 33, .06), 0 6px 18px rgba(43, 37, 33, .06);
+    --larghezza-max: 1120px;
+    --serif: Georgia, "Times New Roman", serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--inchiostro);
+    background: var(--crema);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#root { display: contents; }
+
+a { color: var(--terracotta); }
+a:hover { color: var(--terracotta-scuro); }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
+h1 { font-size: 2rem; margin: 0 0 .3em; }
+h2 { font-size: 1.4rem; }
+
+/* ---------- struttura ---------- */
+.contenuto {
+    flex: 1;
+    width: 100%;
+    max-width: var(--larghezza-max);
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 3.5rem;
+}
+
+.sottotitolo { color: var(--inchiostro-tenue); margin: 0 0 2rem; max-width: 60ch; }
+
+/* ---------- intestazione ---------- */
+.intestazione { background: var(--carta); border-bottom: 1px solid var(--bordo); }
+
+.intestazione .barra {
+    max-width: var(--larghezza-max);
+    margin: 0 auto;
+    padding: .9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.marchio {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--inchiostro);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navigazione {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.navigazione a {
+    text-decoration: none;
+    color: var(--inchiostro-tenue);
+    padding: .25rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.navigazione a:hover { color: var(--terracotta); border-bottom-color: var(--terracotta); }
+
+.utente {
+    display: inline-flex;
+    align-items: center;
+    gap: .75rem;
+    color: var(--inchiostro-tenue);
+    font-size: .9rem;
+    border-left: 1px solid var(--bordo);
+    padding-left: 1.25rem;
+}
+
+/* ---------- pulsanti ---------- */
+.bottone {
+    display: inline-block;
+    background: var(--terracotta);
+    color: #fff;
+    border: none;
+    border-radius: var(--raggio);
+    padding: .6rem 1.2rem;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.bottone:hover { background: var(--terracotta-scuro); color: #fff; }
+.bottone:disabled { opacity: .55; cursor: default; }
+.bottone:disabled:hover { background: var(--terracotta); }
+
+.bottone-tenue {
+    background: none;
+    color: var(--inchiostro-tenue);
+    border: 1px solid var(--bordo);
+    padding: .35rem .8rem;
+    font-size: .9rem;
+}
+
+.bottone-tenue:hover { background: var(--crema); color: var(--inchiostro); }
+
+/* ---------- moduli ---------- */
+.riquadro {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 2rem;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.campo { margin-bottom: 1.1rem; }
+
+.campo label {
+    display: block;
+    margin-bottom: .35rem;
+    font-size: .9rem;
+    color: var(--inchiostro-tenue);
+}
+
+.campo input, .campo select {
+    width: 100%;
+    padding: .6rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--crema);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+}
+
+.campo input:focus, .campo select:focus {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 1px;
+    background: var(--carta);
+}
+
+/* ---------- messaggi ---------- */
+.avviso {
+    border-radius: var(--raggio);
+    padding: .8rem 1rem;
+    margin-bottom: 1.2rem;
+    font-size: .95rem;
+}
+
+.avviso-errore { background: #fdeceb; border: 1px solid #f3c9c4; color: #8f2018; }
+.avviso-esito  { background: #eaf4ec; border: 1px solid #c6e0cd; color: #26623a; }
+
+.vuoto {
+    background: var(--carta);
+    border: 1px dashed var(--bordo);
+    border-radius: var(--raggio);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--inchiostro-tenue);
+}
+
+/* ---------- chiusura ---------- */
+.chiusura {
+    border-top: 1px solid var(--bordo);
+    background: var(--carta);
+    color: var(--inchiostro-tenue);
+    font-size: .88rem;
+}
+
+.chiusura div { max-width: var(--larghezza-max); margin: 0 auto; padding: 1.25rem; }
+
+/* ============================================================
+   Da qui in giu': quello che esiste solo nelle statistiche
+   ============================================================ */
+
+/* ---------- la riga dei filtri, sopra tutto il resto ---------- */
+.filtri {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.8rem;
+}
+
+.filtri label { font-size: .9rem; color: var(--inchiostro-tenue); }
+
+.filtri select {
+    padding: .45rem 2rem .45rem .75rem;
+    font: inherit;
+    color: inherit;
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    cursor: pointer;
+    /* la freccia disegnata a mano: quella di sistema cambia da browser a
+       browser e stona con il resto */
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--inchiostro-tenue) 50%),
+                      linear-gradient(135deg, var(--inchiostro-tenue) 50%, transparent 50%);
+    background-position: calc(100% - 17px) 52%, calc(100% - 12px) 52%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.filtri select:focus { outline: 2px solid var(--terracotta); outline-offset: 1px; }
+
+/* ---------- gli indicatori in cima ---------- */
+/* Sei indicatori che stanno su una riga sola alla larghezza massima: la
+   misura minima e lo spazio fra le schede sono calcolati per quello
+   (6 x 165 + 5 x 13 = 1055, dentro i 1080 utili). Con minmax piu' generosi
+   l'ultimo andava a capo da solo, e una riga da cinque piu' una da uno si
+   legge come se il sesto fosse un ripensamento. */
+.indicatori {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+    gap: .8rem;
+    margin-bottom: 1.5rem;
+}
+
+.indicatore {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 1rem 1.1rem;
+}
+
+/* L'etichetta prima, piccola: si legge il nome e poi il numero, non il
+   contrario. */
+.indicatore .etichetta-indicatore {
+    display: block;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--inchiostro-tenue);
+    margin-bottom: .2rem;
+}
+
+.indicatore .valore {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    display: block;
+}
+
+/* Il numero principale della pagina e' piu' grande degli altri: e' l'incasso,
+   ed e' la prima cosa che un ristoratore cerca. */
+.indicatore.primario .valore { font-size: 1.8rem; color: var(--terracotta); }
+
+.indicatore .nota { font-size: .82rem; color: var(--inchiostro-tenue); }
+
+/* La variazione rispetto all'anno prima: il colore da solo non basta mai, c'e'
+   sempre anche il segno scritto. */
+.variazione-su { color: #26623a; }
+.variazione-giu { color: #8f2018; }
+
+/* ---------- i pannelli dei grafici ---------- */
+.pannelli {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+    gap: 1.25rem;
+}
+
+/* Il grafico principale occupa tutta la riga: e' quello che risponde alla
+   domanda da cui e' nata la pagina ("quando viene piu' gente?"). */
+.pannelli .larghezza-piena { grid-column: 1 / -1; }
+
+.pannello {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 1.3rem 1.4rem 1rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;   /* senza, un grafico largo sfonda la colonna della griglia */
+}
+
+.pannello h2 { margin: 0; font-size: 1.15rem; }
+
+.pannello .descrizione {
+    margin: .2rem 0 1rem;
+    font-size: .88rem;
+    color: var(--inchiostro-tenue);
+}
+
+/* Altezza fissa per l'area del grafico: ResponsiveContainer misura il
+   genitore, e un genitore che si dimensiona sul contenuto non ha un'altezza da
+   misurare (il grafico collasserebbe a zero). */
+.area-grafico { width: 100%; height: 260px; }
+.area-grafico.alta { height: 320px; }
+
+/* Stati del pannello: si occupano lo stesso spazio del grafico, cosi' la
+   pagina non salta quando i dati arrivano. */
+.stato-pannello {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--inchiostro-tenue);
+    font-size: .92rem;
+    padding: 1rem;
+}
+
+/* ---------- caricamento ---------- */
+/* Un rettangolo che pulsa al posto del contenuto: dice "sta arrivando" senza
+   far ballare la pagina come farebbe una scritta che compare e sparisce. */
+.scheletro {
+    background: linear-gradient(90deg, var(--crema), #f2ece3, var(--crema));
+    background-size: 200% 100%;
+    border-radius: var(--raggio);
+    animation: scorrimento 1.4s ease-in-out infinite;
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes scorrimento {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Chi ha chiesto di ridurre le animazioni non deve vedere niente muoversi. */
+@media (prefers-reduced-motion: reduce) {
+    .scheletro { animation: none; }
+}
+
+/* ---------- tooltip dei grafici ---------- */
+/* Recharts disegna il contenuto che gli si passa: questo e' il suo vestito. */
+.tooltip {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: .6rem .8rem;
+    font-size: .88rem;
+    line-height: 1.45;
+}
+
+.tooltip .tooltip-titolo {
+    font-family: var(--serif);
+    font-weight: 600;
+    margin-bottom: .2rem;
+}
+
+.tooltip dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 0 .8rem; }
+.tooltip dt { color: var(--inchiostro-tenue); }
+.tooltip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- tabella di riserva ---------- */
+/* Ogni grafico ha sotto i suoi numeri, apribili. Non e' una comodita': un
+   grafico e' inaccessibile a chi usa un lettore di schermo, e i valori
+   esatti non si leggono comunque da una barra. */
+.tabella-dati { margin-top: .8rem; font-size: .88rem; }
+
+.tabella-dati summary {
+    cursor: pointer;
+    color: var(--inchiostro-tenue);
+    padding: .3rem 0;
+}
+
+.tabella-dati summary:hover { color: var(--terracotta); }
+
+.tabella-dati .contenitore-tabella { overflow-x: auto; margin-top: .5rem; }
+
+.tabella-dati table { width: 100%; border-collapse: collapse; }
+
+.tabella-dati th, .tabella-dati td {
+    padding: .35rem .6rem;
+    text-align: left;
+    border-bottom: 1px solid var(--bordo);
+    white-space: nowrap;
+}
+
+.tabella-dati thead th {
+    font-size: .76rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--inchiostro-tenue);
+    font-weight: 600;
+}
+
+.tabella-dati td.numerica, .tabella-dati th.numerica {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- pagina di accesso ---------- */
+.accesso { padding-top: 3rem; }
+.accesso h1 { text-align: center; }
+.accesso .sottotitolo { text-align: center; margin-left: auto; margin-right: auto; }
+
+.nota-credenziali {
+    margin-top: 1.2rem;
+    font-size: .85rem;
+    color: var(--inchiostro-tenue);
+    text-align: center;
+}
+
+/* ---------- pagina non trovata ---------- */
+.errore { text-align: center; padding: 3rem 1rem; }
+
+.errore .codice {
+    font-family: var(--serif);
+    font-size: 4rem;
+    color: var(--terracotta);
+    margin: 0;
+    line-height: 1;
+}
+
+.ritorno { display: inline-block; margin-bottom: 1.2rem; font-size: .92rem; }
+
+/* ---------- schermi stretti ---------- */
+@media (max-width: 560px) {
+    .pannelli { grid-template-columns: 1fr; }
+    .area-grafico { height: 230px; }
+    h1 { font-size: 1.6rem; }
+}
+
+/* Visibile ai lettori di schermo, non sullo schermo. */
+.solo-lettori {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}

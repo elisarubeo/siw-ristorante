@@ -32,4 +32,28 @@ public interface RecensioneRepository extends JpaRepository<Recensione, Long> {
        Double e non double perche' senza recensioni il risultato e' null. */
     @Query("select avg(r.voto) from Recensione r where r.ristorante.id = ?1")
     Double mediaVoti(Long ristoranteId);
+
+    /* Quante recensioni ha il locale: accanto alla media dice quanto pesa.
+       Un 5,0 su una recensione sola e un 4,3 su duecento non si commentano
+       allo stesso modo. */
+    long countByRistoranteId(Long ristoranteId);
+
+    /* Quante recensioni per ogni voto, per il grafico delle statistiche.
+       Tornano solo i voti che qualcuno ha dato: a rimettere a zero le righe
+       mancanti pensa StatisticheService, perche' una scala da 1 a 5 a cui
+       mancano dei gradini non e' piu' una scala. */
+    @Query("""
+            select r.voto as voto, count(r) as quantita
+            from Recensione r
+            where r.ristorante.id = ?1
+            group by r.voto
+            order by r.voto
+            """)
+    List<AggregatoVoto> distribuzioneVoti(Long ristoranteId);
+
+    interface AggregatoVoto {
+        Integer getVoto();
+
+        Long getQuantita();
+    }
 }
