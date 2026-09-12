@@ -15,4 +15,10 @@ public interface CredentialsRepository extends JpaRepository<Credentials, Long> 
        prenotazioni, e una query per riga sarebbe una query per riga. */
     List<Credentials> findByUserIdIn(Collection<Long> userIds);
 
+    /* Le credenziali di un utente, partendo dall'utente. Serve perche' il
+       verso dell'associazione e' l'altro: Credentials conosce il suo User, ma
+       User non conosce le sue Credentials, e dal ristorante si arriva al
+       gestore (uno User), non al suo account. */
+    Optional<Credentials> findByUserId(Long userId);
+
 }

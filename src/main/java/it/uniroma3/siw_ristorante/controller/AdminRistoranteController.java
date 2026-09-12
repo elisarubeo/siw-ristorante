@@ -17,11 +17,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.CredentialsService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
+import it.uniroma3.siw_ristorante.service.RistoranteService.CredenzialiGestore;
 import jakarta.validation.Valid;
 
-/* L'amministratore della piattaforma fa due cose sole: apre un ristorante,
-   creandone insieme l'account del gestore, e lo chiude. Dentro i locali non
-   entra: menu, tavoli, conti e prenotazioni sono mestiere del ristoratore.
+/* L'amministratore della piattaforma amministra gli account, non i locali:
+   apre un ristorante creandone insieme le credenziali del gestore, lo chiude,
+   e rigenera la password quando quella consegnata si perde. Dentro i locali
+   non entra: menu, tavoli, conti e prenotazioni sono mestiere del ristoratore.
    Tutto quello che sta qui e' sotto /admin, che la SecurityConfiguration
    riserva al ruolo ADMIN con una regola sola. */
 @Controller
@@ -87,6 +89,30 @@ public class AdminRistoranteController {
                 "Ristorante " + ristorante.getNome() + " creato.");
         redirectAttributes.addFlashAttribute("nuovoUsername", nomeUtente);
         redirectAttributes.addFlashAttribute("nuovaPassword", password);
+        return "redirect:/admin/ristoranti";
+    }
+
+    /* Una password nuova per il gestore di un locale.
+
+       E' una POST e non un collegamento, come disattiva e attiva: cambia i
+       dati, e un GET che cambia i dati verrebbe rieseguito da qualunque cosa
+       segua i link - il tasto "indietro", una preview, un antivirus che
+       controlla gli indirizzi di una pagina. Qui vorrebbe dire invalidare la
+       password del ristoratore senza che nessuno abbia cliccato niente.
+
+       La password torna come flash attribute, negli stessi due campi usati
+       dalla creazione: e' lo stesso riquadro che la mostra, e per la pagina
+       le due situazioni sono la stessa cosa - "ecco delle credenziali, sono
+       leggibili adesso e mai piu'". Non finisce nell'indirizzo, non resta
+       nella cronologia, e sparisce ricaricando. */
+    @PostMapping("/{ristoranteId}/password")
+    public String rigeneraPassword(@PathVariable Long ristoranteId, RedirectAttributes redirectAttributes) {
+        CredenzialiGestore credenziali = this.ristoranteService.rigeneraPassword(ristoranteId);
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Nuova password per " + credenziali.username() + ". La precedente non funziona più.");
+        redirectAttributes.addFlashAttribute("nuovoUsername", credenziali.username());
+        redirectAttributes.addFlashAttribute("nuovaPassword", credenziali.password());
         return "redirect:/admin/ristoranti";
     }
 

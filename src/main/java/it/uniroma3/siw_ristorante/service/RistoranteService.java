@@ -17,6 +17,14 @@ import it.uniroma3.siw_ristorante.repository.RistoranteRepository;
 
 @Service
 public class RistoranteService {
+
+    /* Quello che si puo' mostrare una volta sola: lo username, che nel
+       database resta, e la password in chiaro, che non ci arriva mai. Un
+       record e non due valori sciolti perche' hanno senso solo insieme -
+       una password senza l'account a cui appartiene non si sa a chi darla. */
+    public record CredenzialiGestore(String username, String password) {
+    }
+
     /* Lunghezza della password generata per il ristoratore. Dieci caratteri
        casuali presi da un alfabeto senza lettere ambigue (niente O/0, l/1):
        la password va letta e ricopiata da una persona. */
@@ -161,6 +169,39 @@ public class RistoranteService {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
         ristorante.setAttivo(true);
+    }
+
+    /* Una password nuova per il gestore di un locale.
+
+       Serve quando quella consegnata alla creazione e' andata persa: era
+       leggibile solo in quel momento, perche' nel database c'e' l'impronta
+       BCrypt e da li' non si torna indietro. L'unica cosa che si puo' fare e'
+       sostituirla, ed e' quello che fa questo metodo.
+
+       La vecchia password smette di funzionare subito: e' la stessa riga che
+       viene sovrascritta. Chi la stava usando viene disconnesso al primo
+       accesso successivo, non all'istante - la sessione gia' aperta vive nel
+       server e non dipende dalla password.
+
+       Il ristorante puo' essere anche disattivato: rigenerare le credenziali
+       di un locale chiuso e' legittimo, si puo' voler preparare la
+       riapertura. Entrare, quello no: a impedirlo e' la colonna "enabled"
+       calcolata nella SecurityConfiguration, che per un locale spento resta
+       falsa qualunque sia la password. */
+    @Transactional
+    public CredenzialiGestore rigeneraPassword(Long ristoranteId) {
+        Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+
+        String password = passwordCasuale();
+        Credentials credenziali = this.credentialsService
+                .reimpostaPassword(ristorante.getGestore().getId(), password);
+
+        /* Lo username si legge dalle credenziali appena aggiornate e non da
+           una seconda query: e' gia' qui. La password e' quella in chiaro
+           generata sopra - dentro l'oggetto Credentials ormai c'e' l'impronta,
+           e non serve a nessuno. */
+        return new CredenzialiGestore(credenziali.getUsername(), password);
     }
 
     /* ---------- utilita' ---------- */
