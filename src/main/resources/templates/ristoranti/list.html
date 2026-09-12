@@ -11,11 +11,73 @@
         ingredienti e il suo prezzo, senza sorprese.
     </p>
 
+    <!-- La classifica apre la pagina, ma solo quando c'e': all'inizio, o
+         finche' nessun locale raggiunge il minimo di recensioni chiesto da
+         RecensioneService, la lista torna vuota e la sezione sparisce del
+         tutto. Niente riquadro "nessun dato": sotto c'e' gia' l'elenco
+         completo, che da' alla pagina un contenuto in ogni caso. -->
+    <section class="sezione-classifica" th:if="${!#lists.isEmpty(classifica)}">
+        <h2>I piu apprezzati</h2>
+        <p class="nota-sezione">
+            I locali con la media piu alta fra chi ha raccolto abbastanza
+            recensioni da poter essere giudicato.
+        </p>
+
+        <!-- ol e non ul: qui l'ordine E' l'informazione. Il numero di
+             posizione si legge dallo stato dell'iterazione invece di
+             stamparlo con un contatore a mano, e resta allineato a quello
+             che il database ha deciso. -->
+        <ol class="classifica">
+            <li th:each="riga, stato : ${classifica}">
+                <span class="posizione" th:text="${stato.count}">1</span>
+
+                <div class="classifica-locale">
+                    <h3>
+                        <a th:href="@{/ristoranti/{id}/menu(id=${riga.id})}"
+                           th:text="${riga.nome}">Nome del ristorante</a>
+                    </h3>
+                    <p class="indirizzo" th:text="${riga.indirizzo}">Indirizzo</p>
+                </div>
+
+                <div class="classifica-voto">
+                    <p class="voto-riga">
+                        <span class="media"
+                              th:text="${#numbers.formatDecimal(riga.media, 1, 'POINT', 1, 'COMMA')}">4,7</span>
+                        <!-- Le stelle sono il disegno del voto, che in cifre
+                             e' gia' scritto qui accanto: per un lettore di
+                             schermo si nascondono, e al suo posto c'e' la
+                             riga .solo-lettori in fondo. -->
+                        <span class="stelle" aria-hidden="true"
+                              th:with="pieni=${T(java.lang.Math).round(riga.media)}"
+                              th:text="${#strings.repeat('★', pieni) + #strings.repeat('☆', 5 - pieni)}">★★★★★</span>
+                    </p>
+                    <p class="conteggio" aria-hidden="true">
+                        su 5 &middot;
+                        <span th:text="${riga.quantita}">0</span>
+                        <span th:text="${riga.quantita == 1} ? 'recensione' : 'recensioni'">recensioni</span>
+                    </p>
+                    <p class="solo-lettori"
+                       th:text="'Voto medio ' + ${#numbers.formatDecimal(riga.media, 1, 'POINT', 1, 'COMMA')}
+                                + ' su 5, ' + ${riga.quantita}
+                                + (${riga.quantita == 1} ? ' recensione' : ' recensioni')">Voto medio</p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <!-- L'elenco completo resta la sostanza della pagina: la classifica ne
+         mostra i primi (quanti, lo decide QUANTI_IN_CLASSIFICA in
+         RecensioneService: la pagina non lo scrive da nessuna parte, cosi'
+         cambiarlo non lascia indietro un titolo che dice altro), qui ci sono
+         tutti, in ordine di nome. Il titolo prima non serviva, adesso si':
+         senza, le due sezioni si leggerebbero come una sola lista lunga. -->
+    <h2 class="titolo-elenco">Tutti i ristoranti</h2>
+
     <!-- th:if sulla lista: se e' vuota si mostra il riquadro piu' sotto
          invece di una griglia vuota che sembrerebbe un errore -->
     <ul class="griglia" th:if="${!#lists.isEmpty(ristoranti)}">
         <li class="scheda" th:each="ristorante : ${ristoranti}">
-            <h2 th:text="${ristorante.nome}">Nome del ristorante</h2>
+            <h3 th:text="${ristorante.nome}">Nome del ristorante</h3>
             <p class="indirizzo" th:text="${ristorante.indirizzo}">Indirizzo</p>
             <p class="azione">
                 <!-- il segnaposto {id} viene sostituito dal valore indicato

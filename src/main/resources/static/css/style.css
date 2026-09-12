@@ -150,6 +150,105 @@ h2 { font-size: 1.4rem; }
     margin: 0 auto 1.8rem;
 }
 
+/* ---------- classifica in vetrina ---------- */
+/* Righe, non schede: la griglia qui sotto e' gia' fatta di riquadri, e una
+   classifica si legge dall'alto in basso - la forma allungata dice da se'
+   che l'ordine conta. */
+.sezione-classifica { margin-bottom: 2.6rem; }
+
+.nota-sezione {
+    color: var(--inchiostro-tenue);
+    font-size: .95rem;
+    margin: .2rem 0 1.1rem;
+    max-width: 60ch;
+}
+
+.classifica {
+    /* il numero lo disegna .posizione: quello che l'ol stampa da se' non si
+       puo' vestire, e qui deve stare dentro un cerchio */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: .6rem;
+}
+
+.classifica li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* flex-wrap invece di una media query, come il resto del foglio: se la
+       riga non ci sta, il voto va a capo sotto il nome */
+    flex-wrap: wrap;
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: .9rem 1.3rem;
+}
+
+.classifica .posizione {
+    flex: 0 0 2.1rem;
+    height: 2.1rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--bordo);
+    font-family: var(--serif);
+    color: var(--inchiostro-tenue);
+}
+
+/* Il podio pieno, gli altri con il solo contorno: tre posizioni si
+   distinguono a colpo d'occhio senza bisogno di scritte. */
+.classifica li:nth-child(-n+3) .posizione {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: var(--carta);
+}
+
+.classifica-locale {
+    /* prende lo spazio che avanza ed e' il primo a cedere quando la riga si
+       stringe; min-width:0 perche' senza, un nome lungo non si accorcia e
+       sfonda la riga */
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
+.classifica-locale h3 { margin: 0; font-size: 1.15rem; }
+.classifica-locale h3 a { text-decoration: none; }
+.classifica-locale h3 a:hover { text-decoration: underline; }
+
+.classifica-locale .indirizzo {
+    margin: 0;
+    color: var(--inchiostro-tenue);
+    font-size: .95rem;
+}
+
+/* margin-left:auto tiene il voto a destra anche quando la riga va a capo */
+.classifica-voto { flex: 0 0 auto; margin-left: auto; text-align: right; }
+.classifica-voto p { margin: 0; }
+
+.voto-riga {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+.voto-riga .media {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--terracotta);
+}
+
+/* Le stelle qui accompagnano una cifra gia' grande: piu' piccole che nella
+   pagina delle recensioni, e mai spezzate su due righe. */
+.classifica .stelle { font-size: .9rem; white-space: nowrap; }
+
+/* Adesso che la vetrina ha due sezioni, l'elenco completo ha il suo titolo. */
+.titolo-elenco { margin: 0 0 1.1rem; }
+
 /* ---------- elenco dei ristoranti ---------- */
 .griglia {
     display: grid;
@@ -173,7 +272,7 @@ h2 { font-size: 1.4rem; }
     gap: .5rem;
 }
 
-.scheda h2 { margin: 0; font-size: 1.25rem; }
+.scheda h2, .scheda h3 { margin: 0; font-size: 1.25rem; }
 
 .scheda .indirizzo {
     color: var(--inchiostro-tenue);

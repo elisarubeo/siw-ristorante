@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,9 @@ public class RecensioneService {
     private final RecensioneRepository recensioneRepository;
     private final RistoranteRepository ristoranteRepository;
 
+    private static final int QUANTI_IN_CLASSIFICA = 5;
+    private static final long MINIMO_RECENSIONI = 3;
+
     public RecensioneService(RecensioneRepository recensioneRepository, RistoranteRepository ristoranteRepository) {
         this.recensioneRepository = recensioneRepository;
         this.ristoranteRepository = ristoranteRepository;
@@ -29,15 +33,11 @@ public class RecensioneService {
     public List<Recensione> recensioniDelRistorante(Long ristoranteId) {
         return recensioneRepository.findByRistoranteIdOrderByDataDescIdDesc(ristoranteId);
     }
-
-    /* null quando non c'e' ancora nessuna recensione: la pagina in quel caso
-       non mostra nessuna media, che e' diverso da una media pari a zero. */
     @Transactional(readOnly = true)
     public Double mediaVoti(Long ristoranteId) {
         return recensioneRepository.mediaVoti(ristoranteId);
     }
 
-    /* Ogni utente puo' lasciare una sola recensione per ristorante. */
     @Transactional(readOnly = true)
     public boolean haGiaRecensito(Long userId, Long ristoranteId) {
         return recensioneRepository.existsByUserIdAndRistoranteId(userId, ristoranteId);
@@ -62,9 +62,6 @@ public class RecensioneService {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
 
-        /* Il controllo c'e' anche nel controller, per mostrare l'errore dentro
-           il modulo: qui e' l'ultima difesa, perche' il servizio non puo'
-           dipendere dal fatto che chi lo chiama abbia gia' controllato. */
         if (recensioneRepository.existsByUserIdAndRistoranteId(autore.getId(), ristoranteId)) {
             throw new RecensioneNonValidaException("Hai gia' recensito questo ristorante");
         }
@@ -75,16 +72,11 @@ public class RecensioneService {
         return recensioneRepository.save(recensione);
     }
 
-    /* Solo l'autore cancella la sua: miaRecensione fa gia' il controllo, e su
-       una recensione altrui la cancellazione non avviene perche' la recensione
-       non viene proprio trovata. */
     @Transactional
     public void delete(Long ristoranteId, Long recensioneId, User autore) {
         recensioneRepository.delete(this.miaRecensione(ristoranteId, recensioneId, autore));
     }
 
-    /* Niente save() finale: dentro la transazione l'entita' e' gestita da
-       Hibernate, che al termine scrive da se' i campi cambiati. */
     @Transactional
     public Recensione update(Long ristoranteId, Long recensioneId, User autore, Recensione data) {
         Recensione recensione = this.miaRecensione(ristoranteId, recensioneId, autore);
@@ -94,4 +86,10 @@ public class RecensioneService {
         recensione.setData(LocalDate.now());
         return recensione;
     }
+
+    @Transactional(readOnly = true)
+    public List<RecensioneRepository.RistoranteInClassifica> classifica() {
+        return recensioneRepository.classifica(MINIMO_RECENSIONI, Limit.of(QUANTI_IN_CLASSIFICA));
+    }
+
 }
