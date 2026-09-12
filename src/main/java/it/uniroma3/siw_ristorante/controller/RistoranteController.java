@@ -58,6 +58,10 @@ public class RistoranteController {
         /* La pagina non interroga i ruoli da se': riceve gia' la risposta alla
            domanda che le interessa, cioe' "chi guarda gestisce questo locale?" */
         model.addAttribute("gestore", gestore);
+        /* Le foto non si leggono da ristorante.getImmagini(): la collezione e'
+           LAZY e qui la transazione e' gia' chiusa. Le chiede il service, che
+           le legge dentro la propria. */
+        model.addAttribute("immagini", this.ristoranteService.immaginiDi(id));
         model.addAttribute("ristorante", ristorante);
         return "ristoranti/menu";
     }

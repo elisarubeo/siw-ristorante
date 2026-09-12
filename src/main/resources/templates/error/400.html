@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: testa('Richiesta non valida')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: intestazione}"></header>
+
+<main class="contenuto">
+    <div class="errore">
+        <p class="codice">400</p>
+        <h1 th:text="${errorMessage} ?: 'Richiesta non valida'">Richiesta non valida</h1>
+        <p>Quello che hai inviato non e in una forma che l'applicazione possa usare.</p>
+        <p><a class="bottone" th:href="@{/}">Torna alla home</a></p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: chiusura}"></footer>
+</body>
+</html>

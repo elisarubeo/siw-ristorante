@@ -29,6 +29,18 @@ public class GlobalExceptionHandler {
         return "error/403";
     }
 
+    /* Il file caricato non era un'immagine utilizzabile. Di norma il caso lo
+       intercetta prima il controller, che rimanda alla galleria con un
+       messaggio; qui si finisce solo per le strade che il controller non
+       copre - per esempio un nome di file manomesso - e allora tanto vale
+       dirlo con una pagina, che e' una richiesta malformata e non un guasto. */
+    @ExceptionHandler(InvalidImageException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleInvalidImage(InvalidImageException e, Model model) {
+        model.addAttribute("errorMessage", e.getMessage());
+        return "error/400";
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleUnexpectedException(Exception e, Model model) {

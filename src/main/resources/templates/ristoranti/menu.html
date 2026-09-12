@@ -10,6 +10,20 @@
     <h1 th:text="${ristorante.nome}">Nome del ristorante</h1>
     <p class="sottotitolo" th:text="${ristorante.indirizzo}">Indirizzo</p>
 
+    <!-- Le fotografie del locale, se ce ne sono: le carica il ristoratore, le
+         guardano tutti. Nel database ci sono solo i nomi dei file, i byte
+         stanno nella cartella servita su /uploads. -->
+    <ul class="galleria" th:if="${!#lists.isEmpty(immagini)}">
+        <li th:each="immagine : ${immagini}">
+            <!-- Il nome del file e' un UUID e non descrive niente: il testo
+                 alternativo lo ricava dal nome del locale.
+                 loading="lazy": le foto oltre il bordo dello schermo si
+                 scaricano solo quando servono. -->
+            <img th:src="@{/uploads/{file}(file=${immagine})}"
+                 th:alt="'Fotografia di ' + ${ristorante.nome}" loading="lazy">
+        </li>
+    </ul>
+
     <!-- I flash attribute sopravvivono a un solo redirect: dopo
          l'eliminazione arrivano qui e poi spariscono. -->
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
@@ -34,6 +48,7 @@
          ristoranteGestito, richiamato prima di ogni metodo di gestione. -->
     <p th:if="${gestore}">
         <a class="bottone" th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
+        <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/immagini(id=${ristorante.id})}">Gestisci le immagini</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/ordinazioni(id=${ristorante.id})}">Conti aperti</a>
         <a class="bottone bottone-tenue" th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>

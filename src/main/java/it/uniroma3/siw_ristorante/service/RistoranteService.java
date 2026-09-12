@@ -1,6 +1,8 @@
 package it.uniroma3.siw_ristorante.service;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +10,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
 import it.uniroma3.siw_ristorante.exception.ResourceNotFoundException;
 import it.uniroma3.siw_ristorante.model.Credentials;
@@ -34,13 +39,15 @@ public class RistoranteService {
     private final RistoranteRepository ristoranteRepository;
     private final CredentialsService credentialsService;
     private final PrenotazioneService prenotazioneService;
+    private final ImageStorageService imageStorageService;
     private final SecureRandom random = new SecureRandom();
 
     public RistoranteService(RistoranteRepository ristoranteRepository, CredentialsService credentialsService,
-            PrenotazioneService prenotazioneService) {
+            PrenotazioneService prenotazioneService, ImageStorageService imageStorageService) {
         this.ristoranteRepository = ristoranteRepository;
         this.credentialsService = credentialsService;
         this.prenotazioneService = prenotazioneService;
+        this.imageStorageService = imageStorageService;
     }
 
     /* ---------- consultazione ---------- */
@@ -202,6 +209,94 @@ public class RistoranteService {
            generata sopra - dentro l'oggetto Credentials ormai c'e' l'impronta,
            e non serve a nessuno. */
         return new CredenzialiGestore(credenziali.getUsername(), password);
+    }
+
+    /* ---------- immagini ---------- */
+
+    /* Le foto di un locale, nell'ordine in cui sono state caricate.
+
+       Il metodo esiste perche' la collezione e' LAZY: letta da un template,
+       cioe' fuori da ogni transazione, darebbe LazyInitializationException.
+       Qui viene letta dentro la transazione e copiata, cosi' quello che esce
+       e' una lista normale, staccata da Hibernate. */
+    @Transactional(readOnly = true)
+    public List<String> immaginiDi(Long ristoranteId) {
+        Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+        return List.copyOf(ristorante.getImmagini());
+    }
+
+    /* Aggiunge alla galleria i file caricati, e restituisce quanti ne sono
+       entrati davvero.
+
+       I file vuoti si saltano: il campo di caricamento, se non si sceglie
+       niente, viene spedito comunque dal browser, e senza questo controllo si
+       finirebbe per rifiutare una richiesta che l'utente considera legittima.
+
+       QUI STA IL PUNTO DELICATO: i byte vanno su disco subito, la riga nel
+       database solo al commit. Il filesystem non partecipa alla transazione,
+       quindi se questa viene annullata i file appena scritti restano li' senza
+       che nessuno li nomini piu': si cancellano in caso di rollback. */
+    @Transactional
+    public int aggiungiImmagini(Long ristoranteId, MultipartFile[] file) {
+        Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+
+        List<String> caricate = new ArrayList<>();
+        if (file != null) {
+            for (MultipartFile singolo : file) {
+                if (singolo != null && !singolo.isEmpty()) {
+                    String nomeFile = this.imageStorageService.store(singolo);
+                    ristorante.aggiungiImmagine(nomeFile);
+                    caricate.add(nomeFile);
+                }
+            }
+        }
+
+        cancellaDopoLaTransazione(List.of(), caricate);
+        return caricate.size();
+    }
+
+    /* Toglie una foto dalla galleria: il nome dal database e il file dal
+       disco.
+
+       Il nome arriva dalla form, quindi non ci si fida: si cancella il file
+       solo se quel nome era davvero nella galleria DI QUESTO ristorante,
+       altrimenti un ristoratore potrebbe far sparire la foto di un collega
+       indovinandone il nome. E si cancella dopo il commit, non prima: se la
+       transazione fallisse, nel database resterebbe un nome senza file. */
+    @Transactional
+    public boolean rimuoviImmagine(Long ristoranteId, String nomeFile) {
+        Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Nessun ristorante con id " + ristoranteId));
+
+        if (!ristorante.rimuoviImmagine(nomeFile)) {
+            return false;
+        }
+
+        cancellaDopoLaTransazione(List.of(nomeFile), List.of());
+        return true;
+    }
+
+    /* Rimanda la cancellazione di un gruppo di file alla conclusione della
+       transazione: vengono eliminati quelli in "seCommit" se la transazione e'
+       confermata, quelli in "seRollback" se viene annullata. */
+    private void cancellaDopoLaTransazione(Collection<String> seCommit, Collection<String> seRollback) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            /* Nessuna transazione in corso (metodo chiamato fuori da
+               @Transactional): non c'e' un commit da attendere, si cancella
+               subito. */
+            seCommit.forEach(this.imageStorageService::delete);
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                Collection<String> daCancellare = (status == STATUS_COMMITTED) ? seCommit : seRollback;
+                daCancellare.forEach(imageStorageService::delete);
+            }
+        });
     }
 
     /* ---------- utilita' ---------- */

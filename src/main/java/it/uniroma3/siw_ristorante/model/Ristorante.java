@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderColumn;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
@@ -53,6 +56,32 @@ public class Ristorante {
 
     @OneToMany(mappedBy = "ristorante", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Piatto> piatti = new ArrayList<>();
+
+    /* Le fotografie del locale: sala, dehors, un piatto in tavola. Nel
+       database non ci sono le immagini ma i NOMI dei file che le contengono -
+       i byte stanno su disco, nella cartella di ImageStorageService, e il
+       browser li chiede a /uploads/<nome>.
+
+       @ElementCollection e non un'entita' a se': un'immagine qui e' solo una
+       stringa che non esiste fuori dal suo ristorante, non ha un'identita'
+       propria ne' qualcuno che la referenzi. Hibernate le tiene in una
+       tabella a parte, ristorante_immagine, e le cancella con il ristorante.
+
+       @OrderColumn aggiunge la colonna "posizione": senza, l'ordine in cui si
+       rileggono non e' garantito e la galleria si rimescolerebbe a ogni
+       caricamento di pagina. Con essa, le foto restano nell'ordine in cui il
+       ristoratore le ha caricate.
+
+       LAZY (e' il valore predefinito, scritto qui per chiarezza): la maggior
+       parte delle pagine carica un Ristorante senza doverne mostrare le foto.
+       Chi le vuole le chiede a RistoranteService.immaginiDi, che le legge
+       dentro la propria transazione. */
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "ristorante_immagine",
+            joinColumns = @JoinColumn(name = "ristorante_id"))
+    @OrderColumn(name = "posizione")
+    @Column(name = "nome_file", nullable = false, length = 100)
+    private List<String> immagini = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -110,6 +139,14 @@ public class Ristorante {
         this.piatti = piatti;
     }
 
+    public List<String> getImmagini() {
+        return immagini;
+    }
+
+    public void setImmagini(List<String> immagini) {
+        this.immagini = immagini;
+    }
+
     public void aggiungiTavolo(Tavolo tavolo) {
         tavoli.add(tavolo);
         tavolo.setRistorante(this);
@@ -128,6 +165,18 @@ public class Ristorante {
     public void rimuoviPiatto(Piatto piatto) {
         piatti.remove(piatto);
         piatto.setRistorante(null);
+    }
+
+    public void aggiungiImmagine(String nomeFile) {
+        immagini.add(nomeFile);
+    }
+
+    /* Toglie l'immagine dalla galleria, se c'e'. Il nome e' un UUID generato
+       da ImageStorageService, quindi identifica una foto sola: non serve un
+       indice, che per giunta il browser potrebbe mandare sfasato rispetto a
+       quello che si vede a schermo. */
+    public boolean rimuoviImmagine(String nomeFile) {
+        return immagini.remove(nomeFile);
     }
 
     @Override

@@ -199,6 +199,13 @@ public class SecurityConfiguration {
             // risorse statiche: sempre accessibili
             authorize.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll();
 
+            /* Le foto caricate dai ristoratori. Sono pubbliche come il resto
+               della vetrina: compaiono nella pagina del locale, che si guarda
+               senza aver fatto il login. Solo in lettura, pero': aggiungerle
+               e toglierle passa dalle rotte "immagini" di un ristorante, che
+               ricadono sotto le regole di gestione piu' in basso. */
+            authorize.requestMatchers(HttpMethod.GET, "/uploads/**").permitAll();
+
             /* /error deve restare accessibile: quando una richiesta produce un
                404 o un 500, Spring la inoltra internamente qui. Se fosse
                protetta, ogni errore diventerebbe un redirect al login. */

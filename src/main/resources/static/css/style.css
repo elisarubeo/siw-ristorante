@@ -656,3 +656,61 @@ h2 { font-size: 1.4rem; }
 
 /* Il locale chiuso resta in elenco ma attenuato: c'e', e si puo' riaprire. */
 .conto tr.riga-spenta td { color: var(--inchiostro-tenue); background: #faf7f4; }
+
+/* ---------- galleria delle immagini ---------- */
+/* Le foto del locale: nella pagina pubblica una striscia, nella pagina di
+   gestione la stessa griglia con il pulsante di eliminazione sotto ciascuna. */
+.galleria {
+    display: grid;
+    /* stessa logica della griglia dei ristoranti: le colonne si adattano da
+       sole alla larghezza, senza media query */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+}
+
+.galleria li {
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    overflow: hidden;
+}
+
+/* Le foto arrivano dai ristoratori, con proporzioni qualsiasi: un riquadro
+   fisso e object-fit: cover le uniformano ritagliandole invece di
+   deformarle. display:block toglie lo spazio che l'immagine, essendo
+   inline, lascerebbe sotto di se'. */
+.galleria img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: var(--crema);
+}
+
+.galleria-gestione li form {
+    padding: .7rem;
+    text-align: center;
+}
+
+/* ---------- caricamento delle immagini ---------- */
+.caricamento { margin-bottom: 2rem; }
+
+.caricamento input[type="file"] {
+    width: 100%;
+    padding: .7rem;
+    border: 1px dashed var(--bordo);
+    border-radius: var(--raggio);
+    background: var(--crema);
+    font: inherit;
+    color: var(--inchiostro);
+}
+
+.aiuto {
+    margin: .5rem 0 0;
+    font-size: .88rem;
+    color: var(--inchiostro-tenue);
+}
