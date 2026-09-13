@@ -129,11 +129,6 @@ public class RistoranteService {
     }
 
     /* ---------- amministrazione ---------- */
-
-    /* Il ristorante e il suo account nascono insieme: un locale senza gestore
-       non servirebbe a nessuno. La password generata torna al chiamante in
-       chiaro perche' e' l'unico momento in cui si puo' leggere: nel database
-       finisce cifrata e non e' piu' recuperabile. */
     @Transactional
     public String crea(Ristorante ristorante, String username) {
         String password = passwordCasuale();
@@ -178,23 +173,6 @@ public class RistoranteService {
         ristorante.setAttivo(true);
     }
 
-    /* Una password nuova per il gestore di un locale.
-
-       Serve quando quella consegnata alla creazione e' andata persa: era
-       leggibile solo in quel momento, perche' nel database c'e' l'impronta
-       BCrypt e da li' non si torna indietro. L'unica cosa che si puo' fare e'
-       sostituirla, ed e' quello che fa questo metodo.
-
-       La vecchia password smette di funzionare subito: e' la stessa riga che
-       viene sovrascritta. Chi la stava usando viene disconnesso al primo
-       accesso successivo, non all'istante - la sessione gia' aperta vive nel
-       server e non dipende dalla password.
-
-       Il ristorante puo' essere anche disattivato: rigenerare le credenziali
-       di un locale chiuso e' legittimo, si puo' voler preparare la
-       riapertura. Entrare, quello no: a impedirlo e' la colonna "enabled"
-       calcolata nella SecurityConfiguration, che per un locale spento resta
-       falsa qualunque sia la password. */
     @Transactional
     public CredenzialiGestore rigeneraPassword(Long ristoranteId) {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
@@ -256,15 +234,6 @@ public class RistoranteService {
         cancellaDopoLaTransazione(List.of(), caricate);
         return caricate.size();
     }
-
-    /* Toglie una foto dalla galleria: il nome dal database e il file dal
-       disco.
-
-       Il nome arriva dalla form, quindi non ci si fida: si cancella il file
-       solo se quel nome era davvero nella galleria DI QUESTO ristorante,
-       altrimenti un ristoratore potrebbe far sparire la foto di un collega
-       indovinandone il nome. E si cancella dopo il commit, non prima: se la
-       transazione fallisse, nel database resterebbe un nome senza file. */
     @Transactional
     public boolean rimuoviImmagine(Long ristoranteId, String nomeFile) {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
@@ -278,9 +247,6 @@ public class RistoranteService {
         return true;
     }
 
-    /* Rimanda la cancellazione di un gruppo di file alla conclusione della
-       transazione: vengono eliminati quelli in "seCommit" se la transazione e'
-       confermata, quelli in "seRollback" se viene annullata. */
     private void cancellaDopoLaTransazione(Collection<String> seCommit, Collection<String> seRollback) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             /* Nessuna transazione in corso (metodo chiamato fuori da

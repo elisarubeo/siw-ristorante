@@ -4,10 +4,6 @@
 <body>
 <header th:replace="~{fragments/layout :: intestazione(null)}"></header>
 
-<!-- "ricerca" si calcola una volta sola qui perche' serve in tre punti
-     lontani fra loro (la classifica, il titolo, il riquadro vuoto): ripetere
-     il controllo su ${q} in ognuno vorrebbe dire poterlo cambiare in uno solo
-     e lasciare gli altri indietro. -->
 <main class="contenuto" th:with="ricerca=${q != null and !q.isBlank()}">
     <h1>Il piacere di mangiare fuori</h1>
     <p class="sottotitolo">
@@ -15,11 +11,6 @@
         ingredienti e il suo prezzo, senza sorprese.
     </p>
 
-    <!-- La classifica apre la pagina, ma solo quando c'e': all'inizio, o
-         finche' nessun locale raggiunge il minimo di recensioni chiesto da
-         RecensioneService, la lista torna vuota e la sezione sparisce del
-         tutto. Niente riquadro "nessun dato": sotto c'e' gia' l'elenco
-         completo, che da' alla pagina un contenuto in ogni caso. -->
     <section class="sezione-classifica" th:if="${!#lists.isEmpty(classifica) and !ricerca}">
         <h2>I piu apprezzati</h2>
         <p class="nota-sezione">
@@ -27,10 +18,6 @@
             recensioni da poter essere giudicato.
         </p>
 
-        <!-- ol e non ul: qui l'ordine E' l'informazione. Il numero di
-             posizione si legge dallo stato dell'iterazione invece di
-             stamparlo con un contatore a mano, e resta allineato a quello
-             che il database ha deciso. -->
         <ol class="classifica">
             <li th:each="riga, stato : ${classifica}">
                 <span class="posizione" th:text="${stato.count}">1</span>
@@ -47,10 +34,6 @@
                     <p class="voto-riga">
                         <span class="media"
                               th:text="${#numbers.formatDecimal(riga.media, 1, 'POINT', 1, 'COMMA')}">4,7</span>
-                        <!-- Le stelle sono il disegno del voto, che in cifre
-                             e' gia' scritto qui accanto: per un lettore di
-                             schermo si nascondono, e al suo posto c'e' la
-                             riga .solo-lettori in fondo. -->
                         <span class="stelle" aria-hidden="true"
                               th:with="pieni=${T(java.lang.Math).round(riga.media)}"
                               th:text="${#strings.repeat('★', pieni) + #strings.repeat('☆', 5 - pieni)}">★★★★★</span>
@@ -68,40 +51,16 @@
             </li>
         </ol>
     </section>
-
-    <!-- L'elenco completo resta la sostanza della pagina: la classifica ne
-         mostra i primi (quanti, lo decide QUANTI_IN_CLASSIFICA in
-         RecensioneService: la pagina non lo scrive da nessuna parte, cosi'
-         cambiarlo non lascia indietro un titolo che dice altro), qui ci sono
-         tutti, in ordine di nome. Il titolo prima non serviva, adesso si':
-         senza, le due sezioni si leggerebbero come una sola lista lunga. -->
     <div class="testa-elenco">
-        <!-- Il titolo dice quale elenco si sta leggendo, e a ricerca attiva
-             quello non e' piu' "tutti": lasciarlo fisso farebbe sembrare
-             sparito meta' archivio. -->
         <h2 class="titolo-elenco" th:if="${ricerca}">
             Risultati per &laquo;<span th:text="${q}">ricerca</span>&raquo;
-            <!-- Il conteggio non compare quando non c'e' niente: lo dice gia'
-                 il riquadro vuoto qui sotto, e "0 ristoranti" accanto al
-                 titolo sarebbe la stessa cosa detta due volte. -->
             <span class="conteggio-elenco" th:if="${!#lists.isEmpty(ristoranti)}"
                   th:text="${#lists.size(ristoranti)}
                            + (${#lists.size(ristoranti) == 1} ? ' ristorante' : ' ristoranti')">3 ristoranti</span>
         </h2>
         <h2 class="titolo-elenco" th:unless="${ricerca}">Tutti i ristoranti</h2>
-
-        <!-- method="get": la ricerca e' una lettura, e cosi' il risultato sta
-             tutto nell'indirizzo - si puo' ricaricare, salvare fra i preferiti
-             e mandare a qualcuno. role="search" da' alla riga il suo nome per
-             chi naviga la pagina per regioni. -->
         <form method="get" th:action="@{/ristoranti}" class="ricerca" role="search">
-            <!-- L'etichetta non si vede ma c'e': sulla riga del titolo non
-                 avrebbe spazio, e il segnaposto da solo sparisce appena si
-                 scrive - un lettore di schermo resterebbe senza nome del
-                 campo. -->
             <label for="q" class="solo-lettori">Cerca per nome o indirizzo</label>
-            <!-- type="search": il browser offre il campo con la crocetta
-                 per svuotarlo e la cronologia delle ricerche precedenti. -->
             <input type="search" id="q" name="q"
                    placeholder="Nome o indirizzo"
                    th:value="${q}">
@@ -112,24 +71,16 @@
         </form>
     </div>
 
-    <!-- th:if sulla lista: se e' vuota si mostra il riquadro piu' sotto
-         invece di una griglia vuota che sembrerebbe un errore -->
     <ul class="griglia" th:if="${!#lists.isEmpty(ristoranti)}">
         <li class="scheda" th:each="ristorante : ${ristoranti}">
             <h3 th:text="${ristorante.nome}">Nome del ristorante</h3>
             <p class="indirizzo" th:text="${ristorante.indirizzo}">Indirizzo</p>
             <p class="azione">
-                <!-- il segnaposto {id} viene sostituito dal valore indicato
-                     dopo la virgola: cosi' l'indirizzo resta leggibile -->
                 <a th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">Vedi il menu</a>
             </p>
         </li>
     </ul>
 
-    <!-- Due vuoti diversi: un archivio ancora da riempire non e' una ricerca
-         andata a vuoto, e chi legge deve capire subito in quale dei due si
-         trova - nel secondo caso gli serve anche la strada per tornare
-         indietro, altrimenti l'unica uscita e' svuotare il campo a mano. -->
     <div class="vuoto" th:if="${#lists.isEmpty(ristoranti)}">
         <th:block th:if="${ricerca}">
             Nessun ristorante corrisponde a
