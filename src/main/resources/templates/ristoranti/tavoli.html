@@ -7,8 +7,6 @@
 <main class="contenuto">
     <a class="ritorno" th:href="@{/ristoranti/{id}/menu(id=${ristorante.id})}">&larr; Torna al menu</a>
 
-    <!-- I flash attribute sopravvivono a un solo redirect: dopo
-         l'eliminazione arrivano qui e poi spariscono. -->
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
@@ -23,19 +21,10 @@
            th:href="@{/ristoranti/{id}/scontrini(id=${ristorante.id})}">Scontrini</a>
         <a class="bottone bottone-tenue"
            th:href="@{/ristoranti/{id}/agenda(id=${ristorante.id})}">Agenda prenotazioni</a>
-        <!-- Fuori dall'applicazione Thymeleaf: le statistiche sono la parte
-             REST/React, servita come pagina a se'. Percio' non c'e' nessun id
-             nell'indirizzo (il locale lo ricava il server dal token) e il
-             collegamento non porta con se' la sessione: la SPA chiede un
-             accesso suo, perche' l'autenticazione di la' e' a token e non a
-             cookie. -->
         <a class="bottone bottone-tenue" th:href="@{/statistiche/}">Statistiche</a>
     </p>
 
-    <!-- I tavoli arrivano gia' ordinati per numero di tavolo dal repository -->
     <ul class="griglia" th:if="${!#lists.isEmpty(tavoli)}">
-        <!-- Il conto aperto del tavolo, o null se il tavolo e' libero: e' lui a
-             dire se il tavolo e' occupato, non Tavolo.status. -->
         <li class="scheda" th:each="tavolo : ${tavoli}"
             th:with="conto=${contiAperti.get(tavolo.id)}">
 
@@ -46,7 +35,6 @@
 
             <p class="indirizzo" th:text="${tavolo.numeroPosti} + ' posti'">4 posti</p>
 
-            <!-- Riepilogo del conto in corso: quanto dura e a quanto sta. -->
             <p class="indirizzo" th:if="${conto != null}">
                 Aperto alle
                 <span th:text="${#temporals.format(conto.apertura, 'HH:mm')}">20:00</span>
@@ -56,28 +44,18 @@
             </p>
 
             <div class="azioni-piatto azione">
-                <!-- Tavolo libero: aprire il conto e' una POST, non un
-                     collegamento, perche' crea qualcosa. Nessun campo da
-                     compilare: apertura, totale e tavolo li decide il server.
-                     Il token CSRF lo aggiunge Thymeleaf perche' c'e' th:action. -->
                 <form th:if="${conto == null}"
                       th:action="@{/ristoranti/{r}/tavoli/{t}/ordinazione(r=${ristorante.id},t=${tavolo.id})}"
                       method="post">
                     <button type="submit" class="bottone bottone-tenue">Apri conto</button>
                 </form>
 
-                <!-- Tavolo occupato: il conto esiste gia', si va a leggerlo.
-                     Questa e' una GET perche' non modifica niente. -->
                 <a th:if="${conto != null}" class="bottone bottone-tenue"
                    th:href="@{/ristoranti/{r}/ordinazioni/{o}(r=${ristorante.id},o=${conto.id})}">Vai al conto</a>
 
-                <!-- Le prenotazioni di questo tavolo: una GET, non modifica niente. -->
                 <a class="bottone bottone-tenue"
                    th:href="@{/ristoranti/{r}/tavoli/{t}/prenotazioni(r=${ristorante.id},t=${tavolo.id})}">Prenotazioni</a>
 
-                <!-- L'eliminazione e' una POST, non un collegamento: le GET non
-                     devono modificare niente. Il pulsante resta anche sui tavoli
-                     occupati: e' il servizio a rifiutare, spiegando perche'. -->
                 <form th:action="@{/ristoranti/{r}/tavoli/{t}/delete(r=${ristorante.id},t=${tavolo.id})}"
                       method="post"
                       th:data-numero="${tavolo.numeroTavolo}"

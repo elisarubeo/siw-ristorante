@@ -8,16 +8,6 @@ import type {
     Riepilogo, ScontriniMese, VotiRecensioni,
 } from '../types'
 
-/* Una funzione per endpoint, e nient'altro: nessun calcolo, nessuna
-   trasformazione. I numeri arrivano gia' pronti dal server - i mesi vuoti, i
-   giorni a zero e le cinque righe dei voti li riempie StatisticheService in
-   Java. E' una scelta, non una comodita': se li completasse il frontend, la
-   stessa regola andrebbe riscritta in ogni pagina che li usa.
-
-   Nessun endpoint qui riceve l'id del ristorante: il locale e' quello del
-   gestore che ha fatto il login, ricavato dal token lato server. Non esiste un
-   numero da cambiare nell'indirizzo per leggere la cassa di qualcun altro. */
-
 async function leggi<T>(percorso: string, finto: T, ripiego: string): Promise<T> {
     if (DATI_FINTI) {
         return ritardo(finto)
@@ -30,13 +20,6 @@ async function leggi<T>(percorso: string, finto: T, ripiego: string): Promise<T>
     }
 }
 
-/* Il contesto lo chiedono in due: la pagina delle statistiche, per gli anni
-   disponibili, e la barra in alto, che dell'id del locale ha bisogno per i
-   collegamenti al sito in Thymeleaf. Due componenti, una sola richiesta: qui
-   si tiene da parte la PROMESSA, non il risultato, cosi' anche le chiamate che
-   partono insieme al primo disegno si agganciano alla stessa.
-   Il ristorante di chi ha fatto il login non cambia finche' resta collegato:
-   a svuotare la memoria e' dimenticaContesto(), che chiama il logout. */
 let contestoInVolo: Promise<Contesto> | null = null
 
 export function contesto(): Promise<Contesto> {
@@ -44,9 +27,6 @@ export function contesto(): Promise<Contesto> {
         contestoInVolo = leggi('/statistiche/contesto', CONTESTO_FINTO,
             'Non e\' stato possibile leggere i dati del ristorante.')
             .catch((errore: unknown) => {
-                /* Un errore non si tiene da parte: senza questo, una richiesta
-                   fallita per una disconnessione di un momento resterebbe la
-                   risposta definitiva fino al logout. */
                 contestoInVolo = null
                 throw errore
             })

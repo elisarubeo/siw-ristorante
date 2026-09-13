@@ -36,8 +36,6 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- in-corso: il turno e' gia' cominciato ma non ancora finito.
-                     E' l'informazione piu' utile in sala, quindi si evidenzia. -->
                 <tr th:each="p : ${prenotazioni}"
                     th:with="inCorso=${p.copre(T(java.time.LocalDateTime).now())}"
                     th:classappend="${inCorso} ? 'riga-in-corso' : ''">
@@ -50,8 +48,6 @@
                     </td>
                     <td class="numerica" th:text="${p.tavolo.numeroTavolo}">1</td>
                     <td class="numerica" th:text="${p.numeroPersone}">2</td>
-                    <!-- User non ha un nome: lo username arriva dalle credenziali,
-                         raccolte dal controller in una mappa da id a nome. -->
                     <td th:text="${clienti.get(p.user.id)} ?: 'sconosciuto'">cliente</td>
                 </tr>
             </tbody>

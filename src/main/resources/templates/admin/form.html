@@ -33,9 +33,6 @@
                    th:errors="*{indirizzo}">errore</p>
             </div>
 
-            <!-- Fuori da th:object: lo username non e' un campo del ristorante
-                 ma dell'account che gli si crea accanto. Per questo si
-                 ripopola a mano quando il modulo torna indietro. -->
             <div class="campo">
                 <label for="username">Username del gestore</label>
                 <input type="text" id="username" name="username" th:value="${username}" required>

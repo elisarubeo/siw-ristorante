@@ -11,8 +11,6 @@
         <h1>Nuovo tavolo</h1>
         <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
-        <!-- Questa pagina si aspetta nel model "ristorante" e "tavolo":
-             il secondo e' l'oggetto a cui il modulo si lega. -->
         <form th:action="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}"
               th:object="${tavolo}" method="post">
             <div class="campo">

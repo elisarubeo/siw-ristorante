@@ -17,19 +17,11 @@
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
-    <!-- enctype="multipart/form-data" e' obbligatorio: senza, il browser
-         spedisce il solo NOME del file e non il suo contenuto, e il
-         caricamento fallisce senza un errore che si capisca.
-         Il token CSRF lo aggiunge Thymeleaf da se', perche' il form usa
-         th:action. -->
     <form class="riquadro caricamento"
           th:action="@{/ristoranti/{id}/immagini(id=${ristorante.id})}"
           method="post" enctype="multipart/form-data">
         <div class="campo">
             <label for="file">Aggiungi delle fotografie</label>
-            <!-- multiple: si possono scegliere piu' file in una volta sola.
-                 accept limita cio' che la finestra di scelta propone; a
-                 decidere davvero quali formati passano e' il server. -->
             <input type="file" id="file" name="file" multiple
                    accept="image/jpeg,image/png,image/webp,image/gif">
             <p class="aiuto">Formati ammessi: JPG, PNG, WEBP e GIF, fino a 5 MB per immagine.</p>
@@ -39,13 +31,8 @@
 
     <ul class="galleria galleria-gestione" th:if="${!#lists.isEmpty(immagini)}">
         <li th:each="immagine : ${immagini}">
-            <!-- Il nome del file e' un UUID: non dice niente del contenuto, e
-                 per questo il testo alternativo descrive il locale. -->
             <img th:src="@{/uploads/{file}(file=${immagine})}"
                  th:alt="'Fotografia di ' + ${ristorante.nome}">
-            <!-- Eliminare e' una POST e non un collegamento: una GET non deve
-                 modificare niente. Il nome del file viaggia in un campo
-                 nascosto, cosi' non finisce nell'indirizzo. -->
             <form th:action="@{/ristoranti/{id}/immagini/elimina(id=${ristorante.id})}"
                   method="post"
                   onsubmit="return confirm('Eliminare questa immagine?')">

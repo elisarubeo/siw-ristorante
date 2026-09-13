@@ -4,9 +4,6 @@
 <body>
 <header th:replace="~{fragments/layout :: intestazione(${ristorante.id})}"></header>
 
-<!-- Un'ordinazione esiste solo finche' il conto e' aperto: alla chiusura
-     diventa uno scontrino e sparisce. Non c'e' nessuno stato da mostrare,
-     perche' un conto chiuso non arriva mai fino a questa pagina. -->
 <main class="contenuto">
     <a class="ritorno" th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">&larr; Torna ai tavoli</a>
 
@@ -26,9 +23,6 @@
         <span th:text="${#temporals.format(ordinazione.apertura, 'HH:mm')}">20:00</span>
     </p>
 
-    <!-- Aggiungere un piatto: un menu a tendina con i soli piatti ordinabili e
-         una quantita'. Del piatto arriva solo l'identificativo: il prezzo lo
-         copia il server dal listino, non il browser. -->
     <form class="aggiungi-riga" th:if="${!#lists.isEmpty(menu)}"
           th:action="@{/ristoranti/{r}/ordinazioni/{o}/righe(r=${ristorante.id},o=${ordinazione.id})}"
           method="post">
@@ -47,8 +41,6 @@
         Questo ristorante non ha piatti disponibili da ordinare.
     </p>
 
-    <!-- La tabella scorre da sola sugli schermi stretti invece di allargare
-         tutta la pagina. -->
     <div class="tabella-scorrevole" th:if="${!#lists.isEmpty(ordinazione.righe)}">
         <table class="conto">
             <thead>
@@ -64,15 +56,10 @@
                 <tr th:each="riga : ${ordinazione.righe}">
                     <td th:text="${riga.piatto.nome}">Nome del piatto</td>
                     <td class="numerica" th:text="${riga.quantita}">1</td>
-                    <!-- formatDecimal(numero, cifre intere minime, separatore
-                         migliaia, decimali, separatore decimale) -->
                     <td class="numerica"
                         th:text="${#numbers.formatDecimal(riga.prezzoUnitario, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
                     <td class="numerica"
                         th:text="${#numbers.formatDecimal(riga.importo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</td>
-                    <!-- Si toglie una unita' per volta: sull'ultima la riga
-                         sparisce da se', quindi non serve un secondo pulsante
-                         per eliminarla. -->
                     <td class="azione-riga">
                         <form th:action="@{/ristoranti/{r}/ordinazioni/{o}/righe/diminuisci(r=${ristorante.id},o=${ordinazione.id})}"
                               method="post">
@@ -94,9 +81,6 @@
         </table>
     </div>
 
-    <!-- Il conto ha voci: si chiude, e la chiusura emette lo scontrino. POST,
-         perche' e' l'operazione che incassa, e con conferma perche' non si
-         torna indietro: l'ordinazione dopo non esiste piu'. -->
     <form th:if="${!#lists.isEmpty(ordinazione.righe)}" class="azioni-conto"
           th:action="@{/ristoranti/{r}/ordinazioni/{o}/chiudi(r=${ristorante.id},o=${ordinazione.id})}"
           method="post"
@@ -105,9 +89,6 @@
         <button type="submit" class="bottone">Chiudi il conto</button>
     </form>
 
-    <!-- Il conto e' vuoto: si annulla, non si chiude. Appena ha una voce il
-         pulsante sparisce, perche' da li' in poi e' una vendita e va incassata.
-         POST, non collegamento: cancella qualcosa. -->
     <div class="vuoto" th:if="${#lists.isEmpty(ordinazione.righe)}">
         Nessun piatto sul conto. Aggiungine uno qui sopra, oppure annulla l apertura.
         <form style="margin-top:1rem"

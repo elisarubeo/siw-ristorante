@@ -16,7 +16,6 @@
         i conti gia chiusi, dal piu recente.
     </p>
 
-    <!-- Il totale incassato: la somma degli scontrini in elenco. -->
     <p class="riepilogo" th:if="${!#lists.isEmpty(scontrini)}">
         <span th:text="${#lists.size(scontrini)}">0</span>
         <span th:text="${#lists.size(scontrini) == 1} ? 'scontrino' : 'scontrini'">scontrini</span>

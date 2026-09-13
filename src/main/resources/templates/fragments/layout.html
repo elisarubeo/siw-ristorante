@@ -1,33 +1,15 @@
 <!DOCTYPE html>
-<!-- Questo file non e' una pagina: raccoglie i pezzi comuni che le altre
-     pagine richiamano con th:replace. -->
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 
 <head th:fragment="testa(titolo)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${titolo} + ' · Ristorante'">Ristorante</title>
-    <!-- @{...} antepone il context path: se un giorno l'applicazione viene
-         pubblicata sotto un sottopercorso, i link continuano a funzionare -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-<!-- L'intestazione riceve un parametro: l'identificativo del ristorante che
-     chi guarda GESTISCE in questa pagina, oppure null. Serve alla barra del
-     ristoratore, che porta le voci di gestione (conti, scontrini, agenda) e
-     quindi ha bisogno dell'id del locale. Non lo si ricava da ${ristorante}:
-     quella variabile, sulle pagine pubbliche, e' il locale di un ALTRO, e i
-     collegamenti finirebbero su un 403.
-
-     Il parametro pero' non basta a far vedere la stessa barra OVUNQUE: le
-     pagine che non parlano di un locale (l'elenco dei ristoranti, quella di un
-     collega, un errore) non hanno niente da passare, e li' le voci di gestione
-     sparirebbero. Per questo la barra preferisce ${mioRistoranteId}, che vale
-     su ogni pagina - va messo nel model una volta sola, lato Java, per chi ha
-     il ruolo RISTORATORE (vedi il commento in fondo al file). Quando c'e',
-     il parametro diventa superfluo. -->
 <header th:fragment="intestazione(idGestione)" class="intestazione">
     <div class="barra"
          th:with="autenticato=${#authentication != null and #authentication.name != 'anonymousUser'},
@@ -38,53 +20,25 @@
                   amministratore=${#authentication != null
                             and !#authentication.authorities.?[authority == 'ADMIN'].isEmpty()},
                   idLocale=${mioRistoranteId != null ? mioRistoranteId : idGestione}">
-        <!-- Per il ristoratore la casa e' il suo locale, non la vetrina: il
-             marchio lo riporta li'. Per tutti gli altri resta l'elenco dei
-             ristoranti. -->
         <a class="marchio" th:href="${ristoratore} ? @{/mio-ristorante} : @{/}">Ristorante</a>
-        <!-- #authentication e' l'utente corrente. Si controlla anche il nome
-             perche' chi non ha fatto il login non ha un Authentication nullo:
-             ha quello anonimo, che risulta comunque "autenticato".
-             Non si usa sec:authorize perche' richiede un
-             SecurityExpressionHandler basato su FilterInvocation, che Spring
-             Security 7 non espone piu'. -->
         <nav class="navigazione">
             <a th:unless="${autenticato}" th:href="@{/login}">Accedi</a>
 
-            <!-- Ogni ruolo ha la sua voce, e nessuno vede quelle degli altri:
-                 il cliente prenota, il ristoratore gestisce il suo locale,
-                 l'amministratore apre e chiude i locali. Nascondere le voci e'
-                 cortesia: a vietare gli indirizzi e' la
-                 SecurityConfiguration. -->
             <a th:if="${cliente}" th:href="@{/prenotazioni}">Le mie prenotazioni</a>
             <a th:if="${amministratore}" th:href="@{/admin/ristoranti}">Gestione ristoranti</a>
 
-            <!-- Il banco di lavoro del ristoratore. Sulla pagina del locale
-                 restano i tre gesti di tutti i giorni (un piatto, i tavoli, le
-                 recensioni): tutto il resto vive qui, a portata di mano da
-                 qualunque pagina. Le voci legate a un locale compaiono solo
-                 dove l'id c'e' davvero. -->
             <th:block th:if="${ristoratore}">
                 <th:block th:if="${idLocale != null}">
                     <a th:href="@{/ristoranti/{id}/ordinazioni(id=${idLocale})}">Conti aperti</a>
                     <a th:href="@{/ristoranti/{id}/scontrini(id=${idLocale})}">Scontrini</a>
                     <a th:href="@{/ristoranti/{id}/agenda(id=${idLocale})}">Agenda</a>
                 </th:block>
-                <!-- Fuori dall'applicazione Thymeleaf: le statistiche sono la
-                     parte REST/React, servita come pagina a se'. Percio' non
-                     c'e' nessun id nell'indirizzo (il locale lo ricava il
-                     server dal token) e il collegamento non porta con se' la
-                     sessione: la SPA chiede un accesso suo, perche'
-                     l'autenticazione di la' e' a token e non a cookie. -->
                 <a th:href="@{/statistiche/}">Statistiche</a>
                 <a th:href="@{/ristoranti}">Tutti i ristoranti</a>
             </th:block>
 
             <span th:if="${autenticato}" class="utente">
                 <span th:text="${#authentication.name}">utente</span>
-                <!-- il logout e' una POST: Spring Security rifiuta il logout
-                     via GET, e il token CSRF lo aggiunge Thymeleaf da solo
-                     perche' il form usa th:action -->
                 <form th:action="@{/logout}" method="post" style="display:inline">
                     <button type="submit" class="bottone bottone-tenue">Esci</button>
                 </form>
@@ -92,14 +46,6 @@
         </nav>
     </div>
 </header>
-
-<!-- Il pezzo che manca alla barra, e che sta in Java perche' e' un dato del
-     model: per chi ha il ruolo RISTORATORE, "mioRistoranteId" va aggiunto a
-     OGNI pagina. Un @ControllerAdvice con un @ModelAttribute che chiama
-     RistoranteService.ristoranteDelGestore(authentication) e ne restituisce
-     l'id (null per tutti gli altri ruoli) basta e avanza: da quel momento la
-     barra e' identica anche sull'elenco dei ristoranti, sulla pagina di un
-     collega e sulle pagine di errore. -->
 
 <footer th:fragment="chiusura" class="chiusura">
     <div>Progetto SIW · Universita degli Studi Roma Tre</div>

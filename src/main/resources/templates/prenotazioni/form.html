@@ -13,16 +13,11 @@
         <h1 th:text="${modifica} ? 'Modifica prenotazione' : 'Prenota un tavolo'">Prenota un tavolo</h1>
         <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
-        <!-- In creazione si invia alla collezione annidata sotto il ristorante,
-             in modifica alla singola prenotazione, che il ristorante ce l'ha
-             gia' dentro e non e' cambiabile. -->
         <form th:action="${modifica}
                           ? @{/prenotazioni/{p}(p=${prenotazione.id})}
                           : @{/ristoranti/{r}/prenotazioni(r=${ristorante.id})}"
               th:object="${prenotazione}" method="post">
 
-            <!-- Errore non legato a un singolo campo: dipende dalla
-                 combinazione di persone, data e ora. -->
             <p class="avviso avviso-errore" th:if="${#fields.hasGlobalErrors()}"
                th:each="errore : ${#fields.globalErrors()}" th:text="${errore}">errore</p>
 
@@ -36,10 +31,6 @@
 
             <div class="campo">
                 <label for="dataPrenotazione">Giorno</label>
-                <!-- min e max restringono il calendario del browser al periodo
-                     prenotabile: da oggi a due mesi. Restano un aiuto, non una
-                     protezione: chi invia la richiesta a mano viene fermato dal
-                     controllo nel service. -->
                 <input type="date" id="dataPrenotazione" th:field="*{dataPrenotazione}"
                        th:min="${dataMinima}" th:max="${dataMassima}" required>
                 <p class="avviso avviso-errore" th:if="${#fields.hasErrors('dataPrenotazione')}"
@@ -48,9 +39,6 @@
 
             <div class="campo">
                 <label for="orarioPrenotazione">Orario</label>
-                <!-- Il limite sull'ora vale solo se il giorno scelto e' oggi:
-                     per domani qualunque orario va bene. Lo aggiorna lo script
-                     in fondo alla pagina. -->
                 <input type="time" id="orarioPrenotazione" th:field="*{orarioPrenotazione}"
                        th:data-ora-minima-oggi="${oraMinimaOggi}"
                        th:data-data-minima="${dataMinima}" required>

@@ -3,24 +3,10 @@ import type {
     Riepilogo, RispostaLogin, ScontriniMese, VotiRecensioni,
 } from '../types'
 
-/* Dati finti, usati solo con VITE_FINTO=1.
-   Servono a due cose: sviluppare l'interfaccia prima che i @RestController
-   esistano, e avere sempre un caso con cui confrontarsi quando il backend
-   risponde qualcosa di strano.
-
-   Le forme ricalcano quelle di import.sql (stagionalita', sabato pieno, due
-   gobbe orarie) perche' passando ai dati veri l'interfaccia non debba
-   cambiare: se qui i numeri fossero tutti uguali, un grafico storto si
-   noterebbe solo alla fine. */
-
 const ANNO_CORRENTE = new Date().getFullYear()
 
-/* gennaio ... dicembre */
 const STAGIONE = [0.60, 0.70, 0.90, 1.15, 1.30, 1.45, 1.35, 0.55, 1.20, 1.05, 0.65, 1.25]
 
-/* Un generatore deterministico: gli stessi numeri a ogni ricarica. Con
-   Math.random i grafici ballerebbero a ogni refresh e sarebbe impossibile
-   capire se una differenza e' un bug o il caso. */
 function rumore(seme: number): number {
     const x = Math.sin(seme * 12.9898) * 43758.5453
     return x - Math.floor(x)
@@ -93,7 +79,7 @@ export function piattiFinti(anno: number, limite: number): PiattoVenduto[] {
 }
 
 export function incassoPerGiornoFinto(anno: number): IncassoGiorno[] {
-    const pesi = [0.45, 0.55, 0.75, 0.95, 1.60, 1.85, 1.35]   // lunedi ... domenica
+    const pesi = [0.45, 0.55, 0.75, 0.95, 1.60, 1.85, 1.35]
     const scala = anno === ANNO_CORRENTE ? 1 : 0.78
     return pesi.map((peso, indice) => {
         const numeroScontrini = Math.round(24 * peso * scala)
@@ -123,7 +109,6 @@ export const VOTI_FINTI: VotiRecensioni = {
     ],
 }
 
-/* Il login finto accetta borgo/borgo, come i dati di prova di import.sql. */
 export function loginFinto(username: string, password: string): RispostaLogin {
     if (username !== password) {
         throw new Error('Credenziali non valide.')
@@ -136,8 +121,6 @@ export function loginFinto(username: string, password: string): RispostaLogin {
     }
 }
 
-/* Un ritardo simulato: senza, gli stati di caricamento non si vedrebbero mai
-   in sviluppo e ci si accorgerebbe solo alla consegna che non erano disegnati. */
 export function ritardo<T>(valore: T, ms = 350): Promise<T> {
     return new Promise((risolvi) => setTimeout(() => risolvi(valore), ms))
 }

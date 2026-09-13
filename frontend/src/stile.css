@@ -1,13 +1,3 @@
-/* ============================================================
-   Statistiche - foglio di stile della parte React
-
-   Le variabili qui sotto sono le stesse di
-   src/main/resources/static/css/style.css, ricopiate di proposito.
-   Il motivo: la SPA deve poter girare anche senza Spring Boot avviato
-   (con VITE_FINTO=1), quindi non puo' dipendere da un CSS servito da
-   quel server. Se un giorno si cambia il colore del sito, va cambiato
-   anche qui: sono due file, un tema solo.
-   ============================================================ */
 :root {
     --terracotta: #b4532a;
     --terracotta-scuro: #8d3f1f;
@@ -46,7 +36,6 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
 h1 { font-size: 2rem; margin: 0 0 .3em; }
 h2 { font-size: 1.4rem; }
 
-/* ---------- struttura ---------- */
 .contenuto {
     flex: 1;
     width: 100%;
@@ -57,7 +46,6 @@ h2 { font-size: 1.4rem; }
 
 .sottotitolo { color: var(--inchiostro-tenue); margin: 0 0 2rem; max-width: 60ch; }
 
-/* ---------- intestazione ---------- */
 .intestazione { background: var(--carta); border-bottom: 1px solid var(--bordo); }
 
 .intestazione .barra {
@@ -106,7 +94,6 @@ h2 { font-size: 1.4rem; }
     padding-left: 1.25rem;
 }
 
-/* ---------- pulsanti ---------- */
 .bottone {
     display: inline-block;
     background: var(--terracotta);
@@ -133,7 +120,6 @@ h2 { font-size: 1.4rem; }
 
 .bottone-tenue:hover { background: var(--crema); color: var(--inchiostro); }
 
-/* ---------- moduli ---------- */
 .riquadro {
     background: var(--carta);
     border: 1px solid var(--bordo);
@@ -169,7 +155,6 @@ h2 { font-size: 1.4rem; }
     background: var(--carta);
 }
 
-/* ---------- messaggi ---------- */
 .avviso {
     border-radius: var(--raggio);
     padding: .8rem 1rem;
@@ -189,7 +174,6 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* ---------- chiusura ---------- */
 .chiusura {
     border-top: 1px solid var(--bordo);
     background: var(--carta);
@@ -199,11 +183,6 @@ h2 { font-size: 1.4rem; }
 
 .chiusura div { max-width: var(--larghezza-max); margin: 0 auto; padding: 1.25rem; }
 
-/* ============================================================
-   Da qui in giu': quello che esiste solo nelle statistiche
-   ============================================================ */
-
-/* ---------- la riga dei filtri, sopra tutto il resto ---------- */
 .filtri {
     display: flex;
     align-items: center;
@@ -222,8 +201,6 @@ h2 { font-size: 1.4rem; }
     border: 1px solid var(--bordo);
     border-radius: var(--raggio);
     cursor: pointer;
-    /* la freccia disegnata a mano: quella di sistema cambia da browser a
-       browser e stona con il resto */
     appearance: none;
     background-image: linear-gradient(45deg, transparent 50%, var(--inchiostro-tenue) 50%),
                       linear-gradient(135deg, var(--inchiostro-tenue) 50%, transparent 50%);
@@ -234,12 +211,6 @@ h2 { font-size: 1.4rem; }
 
 .filtri select:focus { outline: 2px solid var(--terracotta); outline-offset: 1px; }
 
-/* ---------- gli indicatori in cima ---------- */
-/* Sei indicatori che stanno su una riga sola alla larghezza massima: la
-   misura minima e lo spazio fra le schede sono calcolati per quello
-   (6 x 165 + 5 x 13 = 1055, dentro i 1080 utili). Con minmax piu' generosi
-   l'ultimo andava a capo da solo, e una riga da cinque piu' una da uno si
-   legge come se il sesto fosse un ripensamento. */
 .indicatori {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
@@ -255,8 +226,6 @@ h2 { font-size: 1.4rem; }
     padding: 1rem 1.1rem;
 }
 
-/* L'etichetta prima, piccola: si legge il nome e poi il numero, non il
-   contrario. */
 .indicatore .etichetta-indicatore {
     display: block;
     font-size: .8rem;
@@ -274,26 +243,19 @@ h2 { font-size: 1.4rem; }
     display: block;
 }
 
-/* Il numero principale della pagina e' piu' grande degli altri: e' l'incasso,
-   ed e' la prima cosa che un ristoratore cerca. */
 .indicatore.primario .valore { font-size: 1.8rem; color: var(--terracotta); }
 
 .indicatore .nota { font-size: .82rem; color: var(--inchiostro-tenue); }
 
-/* La variazione rispetto all'anno prima: il colore da solo non basta mai, c'e'
-   sempre anche il segno scritto. */
 .variazione-su { color: #26623a; }
 .variazione-giu { color: #8f2018; }
 
-/* ---------- i pannelli dei grafici ---------- */
 .pannelli {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
     gap: 1.25rem;
 }
 
-/* Il grafico principale occupa tutta la riga: e' quello che risponde alla
-   domanda da cui e' nata la pagina ("quando viene piu' gente?"). */
 .pannelli .larghezza-piena { grid-column: 1 / -1; }
 
 .pannello {
@@ -304,7 +266,7 @@ h2 { font-size: 1.4rem; }
     padding: 1.3rem 1.4rem 1rem;
     display: flex;
     flex-direction: column;
-    min-width: 0;   /* senza, un grafico largo sfonda la colonna della griglia */
+    min-width: 0;
 }
 
 .pannello h2 { margin: 0; font-size: 1.15rem; }
@@ -315,14 +277,9 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* Altezza fissa per l'area del grafico: ResponsiveContainer misura il
-   genitore, e un genitore che si dimensiona sul contenuto non ha un'altezza da
-   misurare (il grafico collasserebbe a zero). */
 .area-grafico { width: 100%; height: 260px; }
 .area-grafico.alta { height: 320px; }
 
-/* Stati del pannello: si occupano lo stesso spazio del grafico, cosi' la
-   pagina non salta quando i dati arrivano. */
 .stato-pannello {
     display: flex;
     align-items: center;
@@ -333,9 +290,6 @@ h2 { font-size: 1.4rem; }
     padding: 1rem;
 }
 
-/* ---------- caricamento ---------- */
-/* Un rettangolo che pulsa al posto del contenuto: dice "sta arrivando" senza
-   far ballare la pagina come farebbe una scritta che compare e sparisce. */
 .scheletro {
     background: linear-gradient(90deg, var(--crema), #f2ece3, var(--crema));
     background-size: 200% 100%;
@@ -350,13 +304,10 @@ h2 { font-size: 1.4rem; }
     100% { background-position: -200% 0; }
 }
 
-/* Chi ha chiesto di ridurre le animazioni non deve vedere niente muoversi. */
 @media (prefers-reduced-motion: reduce) {
     .scheletro { animation: none; }
 }
 
-/* ---------- tooltip dei grafici ---------- */
-/* Recharts disegna il contenuto che gli si passa: questo e' il suo vestito. */
 .tooltip {
     background: var(--carta);
     border: 1px solid var(--bordo);
@@ -377,10 +328,6 @@ h2 { font-size: 1.4rem; }
 .tooltip dt { color: var(--inchiostro-tenue); }
 .tooltip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 
-/* ---------- tabella di riserva ---------- */
-/* Ogni grafico ha sotto i suoi numeri, apribili. Non e' una comodita': un
-   grafico e' inaccessibile a chi usa un lettore di schermo, e i valori
-   esatti non si leggono comunque da una barra. */
 .tabella-dati { margin-top: .8rem; font-size: .88rem; }
 
 .tabella-dati summary {
@@ -415,7 +362,6 @@ h2 { font-size: 1.4rem; }
     font-variant-numeric: tabular-nums;
 }
 
-/* ---------- pagina di accesso ---------- */
 .accesso { padding-top: 3rem; }
 .accesso h1 { text-align: center; }
 .accesso .sottotitolo { text-align: center; margin-left: auto; margin-right: auto; }
@@ -427,7 +373,6 @@ h2 { font-size: 1.4rem; }
     text-align: center;
 }
 
-/* ---------- pagina non trovata ---------- */
 .errore { text-align: center; padding: 3rem 1rem; }
 
 .errore .codice {
@@ -440,14 +385,12 @@ h2 { font-size: 1.4rem; }
 
 .ritorno { display: inline-block; margin-bottom: 1.2rem; font-size: .92rem; }
 
-/* ---------- schermi stretti ---------- */
 @media (max-width: 560px) {
     .pannelli { grid-template-columns: 1fr; }
     .area-grafico { height: 230px; }
     h1 { font-size: 1.6rem; }
 }
 
-/* Visibile ai lettori di schermo, non sullo schermo. */
 .solo-lettori {
     position: absolute;
     width: 1px;

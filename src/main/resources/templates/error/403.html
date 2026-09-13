@@ -7,11 +7,6 @@
 <main class="contenuto">
     <div class="errore">
         <p class="codice">403</p>
-        <!-- Due strade portano qui: le regole della SecurityConfiguration,
-             quando il ruolo non basta, e il controllo di proprieta' nel
-             service, quando un ristoratore chiede un locale non suo. La
-             seconda passa da GlobalExceptionHandler, che lascia il messaggio
-             in errorMessage; la prima no, da qui il testo di riserva. -->
         <h1 th:text="${errorMessage} ?: 'Accesso negato'">Accesso negato</h1>
         <p>Questa pagina non e disponibile per il tuo account.</p>
         <p><a class="bottone" th:href="@{/}">Torna alla home</a></p>

@@ -8,10 +8,6 @@
     <div class="riquadro">
         <h1>Crea un account</h1>
 
-        <!-- th:object lega il modulo all'attributo "credentials" del model:
-             dentro, *{campo} si riferisce a quell'oggetto. Il nome deve essere
-             lo stesso usato nel @ModelAttribute del controller, altrimenti
-             Spring non ritrova gli errori di validazione. -->
         <form th:action="@{/register}" th:object="${credentials}" method="post">
             <div class="campo">
                 <label for="username">Nome utente</label>

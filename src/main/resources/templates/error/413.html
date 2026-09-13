@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 
-<!-- File caricato troppo grande (413 Content Too Large).
-
-     E' una pagina di errore e non un messaggio dentro la form perche'
-     l'eccezione non arriva mai a un controller: il filtro CSRF legge il token
-     dal corpo della richiesta, e per farlo Tomcat deve analizzare il multipart
-     - trovando il file oltre il limite e interrompendo tutto prima che Spring
-     MVC scelga un controller. Spring Boot cerca allora un template che si
-     chiami come lo stato HTTP, ed e' questo. -->
-
 <head th:replace="~{fragments/layout :: testa('Immagine troppo grande')}"></head>
 <body>
 <header th:replace="~{fragments/layout :: intestazione(null)}"></header>

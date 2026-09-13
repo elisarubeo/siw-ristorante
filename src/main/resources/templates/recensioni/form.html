@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
-<!-- Un solo modulo per scrittura e modifica: cambia solo dove viene inviato.
-     A distinguere i due casi e' l'id della recensione, che c'e' solo in
-     modifica. -->
 <head th:replace="~{fragments/layout :: testa(${recensione.id} == null ? 'Scrivi una recensione' : 'Modifica la recensione')}"></head>
 <body>
 <header th:replace="~{fragments/layout :: intestazione(null)}"></header>
@@ -14,15 +11,11 @@
         <h1 th:text="${modifica} ? 'Modifica la recensione' : 'Scrivi una recensione'">Scrivi una recensione</h1>
         <p class="sottotitolo" th:text="${ristorante.nome}">Nome del ristorante</p>
 
-        <!-- In scrittura si invia alla collezione, in modifica alla singola
-             risorsa: /ristoranti/1/recensioni contro /ristoranti/1/recensioni/7 -->
         <form th:action="${modifica}
                           ? @{/ristoranti/{r}/recensioni/{rec}(r=${ristorante.id},rec=${recensione.id})}
                           : @{/ristoranti/{r}/recensioni(r=${ristorante.id})}"
               th:object="${recensione}" method="post">
 
-            <!-- Errori che non appartengono a un campo solo, come la recensione
-                 doppia: vanno mostrati qui, altrimenti non si vedrebbero. -->
             <p class="avviso avviso-errore" th:each="errore : ${#fields.globalErrors()}"
                th:text="${errore}">errore</p>
 

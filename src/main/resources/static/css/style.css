@@ -1,8 +1,3 @@
-/* ============================================================
-   Ristorante - foglio di stile unico
-   Le variabili raccolgono colori e misure in un posto solo:
-   per cambiare l'aspetto del sito si toccano solo queste.
-   ============================================================ */
 :root {
     --terracotta: #b4532a;
     --terracotta-scuro: #8d3f1f;
@@ -28,7 +23,6 @@ body {
     line-height: 1.6;
     color: var(--inchiostro);
     background: var(--crema);
-    /* il footer resta in fondo anche sulle pagine corte */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -41,7 +35,6 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
 h1 { font-size: 2rem; margin: 0 0 .3em; }
 h2 { font-size: 1.4rem; }
 
-/* ---------- struttura ---------- */
 .contenuto {
     flex: 1;
     width: 100%;
@@ -56,7 +49,6 @@ h2 { font-size: 1.4rem; }
     max-width: 60ch;
 }
 
-/* ---------- intestazione ---------- */
 .intestazione {
     background: var(--carta);
     border-bottom: 1px solid var(--bordo);
@@ -108,7 +100,6 @@ h2 { font-size: 1.4rem; }
     padding-left: 1.25rem;
 }
 
-/* ---------- pulsanti ---------- */
 .bottone {
     display: inline-block;
     background: var(--terracotta);
@@ -133,7 +124,6 @@ h2 { font-size: 1.4rem; }
 
 .bottone-tenue:hover { background: var(--crema); color: var(--inchiostro); }
 
-/* ---------- copertina della home ---------- */
 .copertina {
     background: var(--carta);
     border: 1px solid var(--bordo);
@@ -151,10 +141,6 @@ h2 { font-size: 1.4rem; }
     margin: 0 auto 1.8rem;
 }
 
-/* ---------- classifica in vetrina ---------- */
-/* Righe, non schede: la griglia qui sotto e' gia' fatta di riquadri, e una
-   classifica si legge dall'alto in basso - la forma allungata dice da se'
-   che l'ordine conta. */
 .sezione-classifica { margin-bottom: 2.6rem; }
 
 .nota-sezione {
@@ -165,8 +151,6 @@ h2 { font-size: 1.4rem; }
 }
 
 .classifica {
-    /* il numero lo disegna .posizione: quello che l'ol stampa da se' non si
-       puo' vestire, e qui deve stare dentro un cerchio */
     list-style: none;
     padding: 0;
     margin: 0;
@@ -178,8 +162,6 @@ h2 { font-size: 1.4rem; }
     display: flex;
     align-items: center;
     gap: 1rem;
-    /* flex-wrap invece di una media query, come il resto del foglio: se la
-       riga non ci sta, il voto va a capo sotto il nome */
     flex-wrap: wrap;
     background: var(--carta);
     border: 1px solid var(--bordo);
@@ -199,8 +181,6 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* Il podio pieno, gli altri con il solo contorno: tre posizioni si
-   distinguono a colpo d'occhio senza bisogno di scritte. */
 .classifica li:nth-child(-n+3) .posizione {
     background: var(--terracotta);
     border-color: var(--terracotta);
@@ -208,9 +188,6 @@ h2 { font-size: 1.4rem; }
 }
 
 .classifica-locale {
-    /* prende lo spazio che avanza ed e' il primo a cedere quando la riga si
-       stringe; min-width:0 perche' senza, un nome lungo non si accorcia e
-       sfonda la riga */
     flex: 1 1 12rem;
     min-width: 0;
 }
@@ -225,7 +202,6 @@ h2 { font-size: 1.4rem; }
     font-size: .95rem;
 }
 
-/* margin-left:auto tiene il voto a destra anche quando la riga va a capo */
 .classifica-voto { flex: 0 0 auto; margin-left: auto; text-align: right; }
 .classifica-voto p { margin: 0; }
 
@@ -243,22 +219,11 @@ h2 { font-size: 1.4rem; }
     color: var(--terracotta);
 }
 
-/* Le stelle qui accompagnano una cifra gia' grande: piu' piccole che nella
-   pagina delle recensioni, e mai spezzate su due righe. */
 .classifica .stelle { font-size: .9rem; white-space: nowrap; }
 
-/* ---------- testa dell'elenco: titolo e ricerca ---------- */
-/* Adesso che la vetrina ha due sezioni, l'elenco completo ha il suo titolo, e
-   accanto ci sta la ricerca: la stessa riga di .recensione-testa, titolo a
-   sinistra e comandi a destra. Il campo appartiene all'elenco, e messo li' lo
-   dice da se' senza bisogno di una scritta che lo spieghi. Quando la riga si
-   stringe il form va a capo sotto il titolo - flex-wrap invece di una media
-   query, come nel resto del foglio. */
 .testa-elenco {
     display: flex;
     flex-wrap: wrap;
-    /* baseline e non center: la scritta dentro al campo si siede sulla stessa
-       riga d'appoggio del titolo, che e' quello che l'occhio segue */
     align-items: baseline;
     justify-content: space-between;
     gap: .7rem 1.5rem;
@@ -267,8 +232,6 @@ h2 { font-size: 1.4rem; }
 
 .titolo-elenco { margin: 0; }
 
-/* Quanti ne ha trovati: e' la didascalia del titolo, non parte del titolo, e
-   percio' torna al carattere del testo mentre l'intestazione resta in serif. */
 .conteggio-elenco {
     font-family: var(--sans);
     font-size: .9rem;
@@ -276,22 +239,15 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* ---------- ricerca fra i ristoranti ---------- */
 .ricerca {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: .5rem;
-    /* cresce nello spazio che il titolo lascia libero e riempie la riga
-       quando va a capo da solo, ma non oltre: un campo largo mezza pagina per
-       due parole di ricerca sarebbe sproporzionato */
     flex: 1 1 18rem;
     max-width: 26rem;
 }
 
-/* Stesso vestito dei campi dei moduli (.campo input): un campo di testo si
-   riconosce uguale in tutto il sito. min-width:0 perche' senza, il valore
-   minimo di un campo impedisce alla riga di stringersi davvero. */
 .ricerca input[type="search"] {
     flex: 1 1 10rem;
     min-width: 0;
@@ -309,9 +265,6 @@ h2 { font-size: 1.4rem; }
     background: var(--carta);
 }
 
-/* I pulsanti alti quanto il campo: .bottone non ha bordo, e i due pixel che
-   al campo vengono dal suo glieli restituisce un bordo trasparente. Senza,
-   restano piu' bassi e la riga si vede storta. */
 .ricerca .bottone {
     border: 1px solid transparent;
     padding: .6rem 1.1rem;
@@ -319,15 +272,10 @@ h2 { font-size: 1.4rem; }
     white-space: nowrap;
 }
 
-/* Azzera accanto a Cerca: stessa misura, ma tenue - e' la via d'uscita, non
-   il gesto principale. */
 .ricerca .bottone-tenue { border-color: var(--bordo); }
 
-/* ---------- elenco dei ristoranti ---------- */
 .griglia {
     display: grid;
-    /* auto-fill + minmax: le colonne si adattano da sole alla larghezza,
-       senza bisogno di media query */
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1.25rem;
     list-style: none;
@@ -356,7 +304,6 @@ h2 { font-size: 1.4rem; }
 
 .scheda .azione { margin-top: auto; padding-top: .8rem; }
 
-/* ---------- menu ---------- */
 .piatti {
     list-style: none;
     padding: 0;
@@ -383,7 +330,6 @@ h2 { font-size: 1.4rem; }
 
 .piatto-nome { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; }
 
-/* la linea punteggiata tipica dei menu: riempie lo spazio fra nome e prezzo */
 .puntini {
     flex: 1;
     border-bottom: 1px dotted var(--bordo);
@@ -398,7 +344,6 @@ h2 { font-size: 1.4rem; }
     margin: .3rem 0 0;
 }
 
-/* ---------- moduli ---------- */
 .riquadro {
     background: var(--carta);
     border: 1px solid var(--bordo);
@@ -434,7 +379,6 @@ h2 { font-size: 1.4rem; }
     background: var(--carta);
 }
 
-/* ---------- messaggi ---------- */
 .avviso {
     border-radius: var(--raggio);
     padding: .8rem 1rem;
@@ -454,12 +398,8 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* Il collegamento che riporta all'elenco completo quando una ricerca non ha
-   trovato niente: a capo e staccato, cosi' si vede che e' qualcosa da fare e
-   non la coda della frase. */
 .vuoto-azione { display: block; margin-top: .8rem; }
 
-/* ---------- pagine di errore ---------- */
 .errore { text-align: center; padding: 3rem 1rem; }
 
 .errore .codice {
@@ -470,7 +410,6 @@ h2 { font-size: 1.4rem; }
     line-height: 1;
 }
 
-/* ---------- chiusura ---------- */
 .chiusura {
     border-top: 1px solid var(--bordo);
     background: var(--carta);
@@ -484,14 +423,11 @@ h2 { font-size: 1.4rem; }
     padding: 1.25rem;
 }
 
-/* utilita' */
 .ritorno { display: inline-block; margin-bottom: 1.2rem; font-size: .92rem; }
 
-/* ---------- piatti non disponibili e azioni ---------- */
 .piatti li.non-disponibile .piatto-nome,
 .piatti li.non-disponibile .prezzo,
 .piatti li.non-disponibile .ingredienti {
-    /* attenuato ma ancora leggibile: resta in pagina per chi amministra */
     opacity: .55;
 }
 
@@ -513,9 +449,6 @@ h2 { font-size: 1.4rem; }
     margin-top: .8rem;
 }
 
-/* ---------- conti e ordinazioni ---------- */
-/* Il titolo e la sua etichetta di stato sulla stessa riga, con l'etichetta
-   allineata alla base del testo e non al centro del blocco. */
 .titolo-con-etichetta {
     display: flex;
     align-items: baseline;
@@ -523,15 +456,11 @@ h2 { font-size: 1.4rem; }
     gap: .6rem;
 }
 
-/* L'etichetta dello stato occupato si distingue da quelle neutre: e' un
-   avvertimento leggero, non un colore d'allarme. */
 .etichetta-occupato {
     color: var(--terracotta);
     border-color: var(--terracotta);
 }
 
-/* La tabella scorre dentro il suo riquadro sugli schermi stretti: e' il
-   contenitore a scorrere, cosi' la pagina non si allarga in orizzontale. */
 .tabella-scorrevole {
     overflow-x: auto;
     background: var(--carta);
@@ -542,7 +471,6 @@ h2 { font-size: 1.4rem; }
 
 .conto {
     width: 100%;
-    /* collapse: un solo filo fra una riga e l'altra, non due accostati */
     border-collapse: collapse;
     min-width: 32rem;
 }
@@ -564,8 +492,6 @@ h2 { font-size: 1.4rem; }
 
 .conto tbody td:first-child { font-family: var(--serif); font-size: 1.05rem; }
 
-/* tabular-nums: le cifre hanno tutte la stessa larghezza, cosi' gli importi
-   incolonnati restano allineati anche cambiando numero. */
 .conto .numerica {
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -581,26 +507,19 @@ h2 { font-size: 1.4rem; }
 
 .conto tfoot th { text-align: right; font-family: var(--serif); }
 
-/* ---------- scontrini ---------- */
-/* Le azioni sotto la tabella del conto: staccate dal totale, cosi' chiudere non
-   e' un gesto che si fa per sbaglio scorrendo. */
 .azioni-conto { margin-top: 1.5rem; }
 
-/* La riga di riepilogo sopra l'elenco degli scontrini. */
 .riepilogo {
     color: var(--inchiostro-tenue);
     margin: 0 0 1.5rem;
 }
 
-/* Uno scontrino e' un documento chiuso: la nota lo dice senza pulsanti che
-   suggeriscano il contrario. */
 .nota-chiusa {
     color: var(--inchiostro-tenue);
     font-size: .92rem;
     margin-top: 1.2rem;
 }
 
-/* ---------- righe del conto ---------- */
 .aggiungi-riga {
     background: var(--carta);
     border: 1px solid var(--bordo);
@@ -617,7 +536,6 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* I campi su una riga sola, ma vanno a capo da soli sugli schermi stretti. */
 .riga-campi {
     display: flex;
     flex-wrap: wrap;
@@ -648,9 +566,6 @@ h2 { font-size: 1.4rem; }
 
 .conto td.azione-riga { text-align: right; width: 1%; }
 
-/* Piu' comandi nella stessa cella: ognuno e' un form a se' (sono POST
-   distinte), e senza questo si impilerebbero uno sotto l'altro perche' un
-   form e' un elemento di blocco. */
 .azioni-riga {
     display: flex;
     justify-content: flex-end;
@@ -658,7 +573,6 @@ h2 { font-size: 1.4rem; }
     flex-wrap: wrap;
 }
 
-/* Un pulsante piccolo e rotondo: sta dentro la riga senza dominarla. */
 .bottone-meno {
     background: none;
     border: 1px solid var(--bordo);
@@ -673,8 +587,6 @@ h2 { font-size: 1.4rem; }
 
 .bottone-meno:hover { background: var(--crema); color: var(--terracotta); border-color: var(--terracotta); }
 
-/* Visibile ai lettori di schermo, non sullo schermo: l'intestazione della
-   colonna delle azioni serve a chi naviga la tabella senza vederla. */
 .solo-lettori {
     position: absolute;
     width: 1px;
@@ -684,14 +596,8 @@ h2 { font-size: 1.4rem; }
     white-space: nowrap;
 }
 
-/* ---------- agenda delle prenotazioni ---------- */
-/* Il turno gia' cominciato: sfondo appena caldo, per distinguerlo dagli altri
-   senza gridare. */
 .conto tr.riga-in-corso { background: #fdf4ef; }
 
-/* ---------- recensioni ---------- */
-/* Menu a tendina e area di testo prendono lo stesso aspetto dei campi di
-   testo: un modulo con tre controlli diversi non deve sembrarne tre. */
 .campo select,
 .campo textarea {
     width: 100%;
@@ -720,8 +626,6 @@ h2 { font-size: 1.4rem; }
     color: var(--inchiostro-tenue);
 }
 
-/* Il giudizio complessivo in cima alla pagina: la media in cifre e' il dato,
-   le stelle solo il suo disegno. */
 .riepilogo-voti {
     display: flex;
     align-items: center;
@@ -752,8 +656,6 @@ h2 { font-size: 1.4rem; }
 
 .conteggio { color: var(--inchiostro-tenue); font-size: .9rem; }
 
-/* Una recensione per scheda: il titolo con il suo voto in alto, la firma
-   sotto, e il commento in fondo. */
 .recensioni {
     list-style: none;
     margin: 0;
@@ -770,7 +672,6 @@ h2 { font-size: 1.4rem; }
     padding: 1.2rem 1.4rem;
 }
 
-/* La propria recensione si riconosce a colpo d'occhio in mezzo alle altre. */
 .recensioni li.mia-recensione { border-left: 4px solid var(--terracotta); }
 
 .recensione-testa {
@@ -799,9 +700,6 @@ h2 { font-size: 1.4rem; }
     margin-top: 1rem;
 }
 
-/* ---------- area dell'amministratore ---------- */
-/* Le credenziali appena create: un riquadro che si nota, perche' e' l'unico
-   momento in cui la password si puo' leggere. */
 .credenziali {
     background: var(--carta);
     border: 2px dashed var(--terracotta);
@@ -823,8 +721,6 @@ h2 { font-size: 1.4rem; }
 
 .credenziali dt { color: var(--inchiostro-tenue); font-size: .85rem; }
 
-/* A spaziatura fissa: una password si ricopia carattere per carattere, e le
-   lettere tutte della stessa larghezza si distinguono meglio. */
 .credenziali dd {
     margin: 0;
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -832,13 +728,8 @@ h2 { font-size: 1.4rem; }
     letter-spacing: .03em;
 }
 
-/* Il locale chiuso resta in elenco ma attenuato: c'e', e si puo' riaprire. */
 .conto tr.riga-spenta td { color: var(--inchiostro-tenue); background: #faf7f4; }
 
-/* ---------- i pulsanti della pagina del locale ---------- */
-/* Stanno tutti su una riga sola e vanno a capo da soli quando lo schermo e'
-   stretto: il gap li tiene distanti anche dopo essere andati a capo, cosa che
-   un margine sul solo lato destro non farebbe. */
 .azioni-locale {
     display: flex;
     flex-wrap: wrap;
@@ -846,13 +737,8 @@ h2 { font-size: 1.4rem; }
     align-items: center;
 }
 
-/* ---------- galleria delle immagini ---------- */
-/* Le foto del locale: nella pagina pubblica una striscia, nella pagina di
-   gestione la stessa griglia con il pulsante di eliminazione sotto ciascuna. */
 .galleria {
     display: grid;
-    /* stessa logica della griglia dei ristoranti: le colonne si adattano da
-       sole alla larghezza, senza media query */
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1rem;
     list-style: none;
@@ -868,10 +754,6 @@ h2 { font-size: 1.4rem; }
     overflow: hidden;
 }
 
-/* Le foto arrivano dai ristoratori, con proporzioni qualsiasi: un riquadro
-   fisso e object-fit: cover le uniformano ritagliandole invece di
-   deformarle. display:block toglie lo spazio che l'immagine, essendo
-   inline, lascerebbe sotto di se'. */
 .galleria img {
     display: block;
     width: 100%;
@@ -880,10 +762,6 @@ h2 { font-size: 1.4rem; }
     background: var(--crema);
 }
 
-/* Il riquadro con il piu', in coda alle foto sulla pagina del ristoratore:
-   e' una casella vuota da riempire, e il tratteggio lo dice senza scriverlo.
-   Le misure sono quelle di una foto (lo stesso 4/3 di .galleria img), cosi'
-   la fila resta allineata anche quando di foto non ce n'e' ancora nessuna. */
 .galleria li.galleria-aggiungi {
     background: var(--crema);
     border-style: dashed;
@@ -916,7 +794,6 @@ h2 { font-size: 1.4rem; }
     text-align: center;
 }
 
-/* ---------- caricamento delle immagini ---------- */
 .caricamento { margin-bottom: 2rem; }
 
 .caricamento input[type="file"] {

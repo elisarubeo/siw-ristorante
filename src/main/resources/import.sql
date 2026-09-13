@@ -1,21 +1,3 @@
--- Dati di prova.
--- Hibernate esegue questo file da solo dopo aver creato lo schema, ma solo
--- finche' ddl-auto resta "create": e' lui a ricrearlo a ogni avvio.
--- ATTENZIONE: il lettore di Hibernate tratta UNA RIGA = UNA ISTRUZIONE.
--- Spezzare un INSERT su piu' righe lo fa fallire.
--- Password in chiaro, per provare il login (ogni account ha per password il
--- proprio username, tranne i dodici clienti di contorno piu' in basso, che
--- hanno tutti 'elisa'):
---   admin/admin                      l'amministratore della piattaforma
---   elisa, marco                     clienti dei primi tre locali
---   federica, tommaso, alessia, gabriele, noemi, riccardo   altri clienti
---   borgo, nino, verde               i ristoratori dei primi tre locali
---   croce, cortile, sakura, bottega, brace   gli altri cinque ristoratori
---   caffe                            gestisce un locale CHIUSO: non entra
-
--- ---------- utenti e credenziali ----------
--- Vanno inseriti prima dei ristoranti: ristorante.gestore_id punta a users, e
--- il vincolo di chiave esterna viene controllato a ogni riga.
 INSERT INTO users (id) VALUES (1);
 INSERT INTO users (id) VALUES (2);
 INSERT INTO users (id) VALUES (3);
@@ -29,14 +11,10 @@ INSERT INTO credentials (id, username, password, role, user_id) VALUES (4, 'borg
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (5, 'nino', '$2a$10$d8JfSK6kbc7etfI4n9d29OPiA7gZgjGvVyobF.Za4aXnz7BEg0bCW', 'RISTORATORE', 5);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (6, 'verde', '$2a$10$9CM1ty51mI79sdbpgM2kI.svk4KuR/nxKZ/610MOaC7Hjrkm3cpju', 'RISTORATORE', 6);
 
--- ---------- ristoranti ----------
--- Ogni locale ha un gestore e uno stato: un ristorante chiuso sparisce dal
--- sito e il suo gestore non riesce nemmeno a fare il login.
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (1, 'Osteria del Borgo', 'Via dei Coronari 12, Roma', true, 4);
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (2, 'Trattoria da Nino', 'Piazza Trilussa 4, Roma', true, 5);
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (3, 'Locanda Verde', 'Via Ostiense 108, Roma', true, 6);
 
--- ---------- piatti ----------
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (1, 'Carbonara', 'uova, guanciale, pecorino, pepe nero', 13.50, true, 1);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (2, 'Cacio e pepe', 'pecorino romano, pepe nero, tonnarelli', 12.00, true, 1);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (3, 'Amatriciana', 'guanciale, pomodoro, pecorino', 12.50, true, 1);
@@ -47,8 +25,6 @@ INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) V
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (8, 'Vellutata di zucca', 'zucca, patate, rosmarino', 9.00, true, 3);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (9, 'Risotto ai funghi', 'riso carnaroli, porcini, burro', 14.00, true, 3);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (10, 'Tortino al cioccolato', 'cioccolato fondente, uova, burro', 6.50, true, 3);
--- Il resto del menu. Serve anche alle statistiche: con quattro piatti per
--- locale la classifica dei piu' ordinati non avrebbe una forma da guardare.
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (11, 'Bruschette miste', 'pane casereccio, pomodoro, alici', 5.50, true, 1);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (12, 'Saltimbocca alla romana', 'vitello, prosciutto crudo, salvia', 17.00, true, 1);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (13, 'Puntarelle', 'puntarelle, alici, aceto', 6.50, true, 1);
@@ -58,7 +34,6 @@ INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) V
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (17, 'Sorbetto al limone', 'limoni di Sorrento, zucchero', 5.00, true, 2);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (18, 'Tagliere di formaggi', 'pecorino, caciotta, miele', 11.00, true, 3);
 
--- ---------- tavoli ----------
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (1, 1, 2, 'LIBERO', 1);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (2, 2, 4, 'LIBERO', 1);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (3, 3, 6, 'LIBERO', 1);
@@ -67,69 +42,26 @@ INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALU
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (6, 1, 2, 'LIBERO', 3);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (7, 2, 8, 'LIBERO', 3);
 
--- ---------- recensioni ----------
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (1, 'Carbonara memorabile', 5, 'Guanciale croccante e pasta al punto giusto. Ci torno.', CURRENT_DATE - 7, 1, 2);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (2, 'Buono ma affollato', 4, 'Si mangia bene, peccato per l attesa al tavolo.', CURRENT_DATE - 3, 1, 3);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (3, 'Pesce fresco', 4, 'Vongole ottime, servizio cordiale.', CURRENT_DATE - 1, 2, 2);
 
--- ---------- prenotazioni ----------
--- turno normale di domani sera
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (1, 4, CURRENT_DATE + 1, TIME '20:00', 120, 'SCHEDULED', 1, 2, 2);
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (2, 2, CURRENT_DATE + 1, TIME '21:00', 120, 'SCHEDULED', 1, 1, 3);
--- annullata all ultimo momento: il tavolo deve risultare di nuovo LIBERO
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (3, 2, CURRENT_DATE, TIME '13:00', 120, 'CANCELLED', 3, 6, 2);
--- turno che scavalca la mezzanotte, per provare Prenotazione.copre()
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (4, 6, CURRENT_DATE, TIME '23:00', 180, 'SCHEDULED', 1, 3, 3);
 
--- ---------- ordinazioni ----------
--- Qui stanno solo i conti APERTI: alla chiusura l'ordinazione diventa uno
--- scontrino e viene cancellata. Un tavolo non puo' avere piu' di una riga
--- (vincolo unico su tavolo_id, dichiarato in Ordinazione).
--- il tavolo 4 (ristorante 2) e' occupato: 1 x 14.00 + 1 x 16.00 = 30.00
 INSERT INTO ordinazione (id, totale, apertura, tavolo_id) VALUES (1, 30.00, now() - interval '30 minutes', 4);
--- il tavolo 2 (ristorante 1) e' occupato: 2 x 13.50 + 1 x 6.00 = 33.00
 INSERT INTO ordinazione (id, totale, apertura, tavolo_id) VALUES (2, 33.00, now() - interval '20 minutes', 2);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (1, 1, 14.00, 1, 5);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (2, 1, 16.00, 1, 6);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (3, 2, 13.50, 2, 1);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (4, 1, 6.00, 2, 4);
 
--- ---------- scontrini ----------
--- Il conto del tavolo 2 del ristorante 2, pagato all'una e mezza: era
--- un'ordinazione, alla chiusura e' diventato questo e il tavolo e' tornato
--- libero (e di nuovo eliminabile). Numero del tavolo, nome e prezzo dei piatti
--- sono copie: restano veri anche se il tavolo sparisce o il listino cambia.
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (1, CURRENT_DATE + TIME '13:30', CURRENT_DATE + TIME '12:00', 2, 46.00, 2);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1, 2, 'Spaghetti alle vongole', 16.00, 6, 1);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (2, 1, 'Fritto misto', 14.00, 5, 1);
 
--- ---------- storico di cassa (dati generati) ----------
--- Le statistiche della parte REST/React leggono da qui: con un solo scontrino
--- ogni grafico sarebbe una barra sola, e non si vedrebbe se funziona.
---
--- Sono circa quattordici mesi di conti chiusi, costruiti perche' ogni grafico
--- abbia una forma leggibile e non del rumore:
---   * per mese     primavera ed estate piene, agosto in ferie, novembre fiacco;
---   * per giorno   sabato e venerdi' pieni, inizio settimana scarico;
---   * per ora      due gobbe, pranzo (12-14) e cena (19-22);
---   * per piatto   i primi vendono piu' dei dolci, la classifica ha una scala.
--- Il numero di conti di ogni mese e' deciso, non estratto a sorte: con una
--- ventina di conti al mese il caso da solo coprirebbe la stagionalita'. A
--- sorte sono il giorno, l'ora, i piatti e le quantita'.
---
--- Le date sono relative a CURRENT_DATE come tutto il resto del file: con
--- ddl-auto=create il database si ricrea a ogni avvio, e i dati restano sempre
--- "degli ultimi quattordici mesi" a qualunque data li si guardi. Percio' gli
--- anni disponibili sono sempre due e il confronto con l'anno precedente ha
--- sempre qualcosa da confrontare.
---
--- I tre locali hanno volumi diversi apposta: borgo vede una dashboard piena,
--- nino una piu' rada, verde quasi vuota. Il caso con pochi dati e' quello in
--- cui i grafici di solito si rompono, e va provato.
--- Per rigenerarli o cambiarne la forma: sono solo INSERT, si possono
--- cancellare da qui fino al blocco delle sequenze senza toccare altro.
-
--- Osteria del Borgo (gestore borgo): la cassa piena, il locale su cui si prova la dashboard
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (101, (CURRENT_DATE - 434) + TIME '21:14', (CURRENT_DATE - 434) + TIME '19:00', 3, 23.50, 1);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (101, 1, 'Tiramisu', 6.00, 4, 101);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (102, 1, 'Bruschette miste', 5.50, 11, 101);
@@ -1189,7 +1121,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (866, 2, 'Saltimbocca alla romana', 17.00, 12, 391);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (867, 1, 'Panna cotta', 5.50, 15, 391);
 
--- Trattoria da Nino (gestore nino): meno lavoro, grafici piu' radi
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (392, (CURRENT_DATE - 416) + TIME '21:58', (CURRENT_DATE - 416) + TIME '20:45', 1, 59.00, 2);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (868, 1, 'Spaghetti alle vongole', 16.00, 6, 392);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (869, 2, 'Crudo di mare', 19.00, 16, 392);
@@ -1553,7 +1484,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1125, 1, 'Tagliata di manzo', 18.50, 7, 494);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1126, 1, 'Sorbetto al limone', 5.00, 17, 494);
 
--- Locanda Verde (gestore verde): pochissimi dati, il caso limite
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (495, (CURRENT_DATE - 419) + TIME '14:54', (CURRENT_DATE - 419) + TIME '13:15', 1, 52.00, 3);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1127, 2, 'Risotto ai funghi', 14.00, 9, 495);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1128, 2, 'Tortino al cioccolato', 6.50, 10, 495);
@@ -1757,13 +1687,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1268, 1, 'Tortino al cioccolato', 6.50, 10, 553);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (1269, 1, 'Tagliere di formaggi', 11.00, 18, 553);
 
-
--- ---------- altri clienti, per le recensioni ----------
--- Dodici account di prova, tutti con password 'elisa' (e' la stessa
--- impronta BCrypt copiata: sono dati finti, non serve una password
--- diversa per ognuno). Servono perche' ogni utente puo' lasciare una
--- sola recensione per ristorante, quindi per avere una distribuzione
--- di voti con una forma servono piu' persone.
 INSERT INTO users (id) VALUES (7);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (7, 'giulia', '$2a$10$B6o2Po0WQCuNIkoYSXP7JeLGPxkkoGU26fdNjk6BVdZyAYgujOM7W', 'DEFAULT', 7);
 INSERT INTO users (id) VALUES (8);
@@ -1789,10 +1712,6 @@ INSERT INTO credentials (id, username, password, role, user_id) VALUES (17, 'ila
 INSERT INTO users (id) VALUES (18);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (18, 'matteo', '$2a$10$B6o2Po0WQCuNIkoYSXP7JeLGPxkkoGU26fdNjk6BVdZyAYgujOM7W', 'DEFAULT', 18);
 
--- ---------- altre recensioni ----------
--- Il grafico dei voti nelle statistiche legge da qui: con tre
--- recensioni in tutto mostrerebbe tre barre su cinque e non si
--- capirebbe se funziona.
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (4, 'Carbonara da manuale', 5, 'Guanciale croccante, pasta al dente. La migliore di Roma.', CURRENT_DATE - 83, 1, 7);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (5, 'Serata perfetta', 5, 'Servizio attento senza essere invadente. Torneremo.', CURRENT_DATE - 39, 1, 8);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (6, 'Ottimo rapporto qualita prezzo', 5, 'Si mangia bene e si spende il giusto.', CURRENT_DATE - 102, 1, 9);
@@ -1816,9 +1735,6 @@ INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) V
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (24, 'Carino', 4, 'Ambiente curato, porzioni piccole.', CURRENT_DATE - 62, 3, 8);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (25, 'Non male', 3, 'La vellutata era tiepida.', CURRENT_DATE - 24, 3, 9);
 
--- ---------- altri locali: i loro gestori ----------
--- Un account per locale, come i primi tre: lo username e' anche la
--- password, per poter provare ogni ruolo senza cercarla altrove.
 INSERT INTO users (id) VALUES (19);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (19, 'croce', '$2a$10$PsgV2DtOKey/31ApfkQTg.DeX/ZMkbNjpuAeBter9c4e7RoLyJMdC', 'RISTORATORE', 19);
 INSERT INTO users (id) VALUES (20);
@@ -1832,10 +1748,6 @@ INSERT INTO credentials (id, username, password, role, user_id) VALUES (23, 'bra
 INSERT INTO users (id) VALUES (24);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (24, 'caffe', '$2a$10$eJ9qXdYmy81VbhcdAolfmOx94a5pX8AwHQOYcl8JVx9foGwUqK90q', 'RISTORATORE', 24);
 
--- ---------- altri clienti ----------
--- Sei persone in piu' che prenotano e recensiscono: ognuna puo' lasciare
--- una sola recensione per locale, quindi per avere pareri diversi sullo
--- stesso ristorante servono teste diverse.
 INSERT INTO users (id) VALUES (25);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (25, 'federica', '$2a$10$APlLoJuSbMdXErn.0d4QeOe1h9pe82v0CY81uywO5oc0.EoIgAK4y', 'DEFAULT', 25);
 INSERT INTO users (id) VALUES (26);
@@ -1849,12 +1761,6 @@ INSERT INTO credentials (id, username, password, role, user_id) VALUES (29, 'noe
 INSERT INTO users (id) VALUES (30);
 INSERT INTO credentials (id, username, password, role, user_id) VALUES (30, 'riccardo', '$2a$10$Ge8v8TYqMy022g7HnCilH.j2gPrL5lzokhbFYtH3P6AJ1Isi.IoIe', 'DEFAULT', 30);
 
--- ---------- altri ristoranti ----------
--- Cinque locali aperti e uno chiuso: il Caffe Letterario ha la storia di
--- un locale che ha lavorato e poi ha abbassato la saracinesca. Serve a
--- provare cio' che gli altri non mostrano - la pagina dell'amministratore
--- con un profilo spento, la sua assenza dalla vetrina, e il gestore
--- 'caffe' che con le credenziali giuste non riesce comunque a entrare.
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (4, 'Pizzeria Santa Croce', 'Via del Pigneto 47, Roma', true, 19);
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (5, 'Trattoria Il Cortile', 'Via dei Genovesi 8, Roma', true, 20);
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (6, 'Sakura Sushi Bar', 'Viale Marconi 221, Roma', true, 21);
@@ -1862,9 +1768,6 @@ INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (7, 'La 
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (8, 'Braceria da Rossi', 'Via Appia Nuova 310, Roma', true, 23);
 INSERT INTO ristorante (id, nome, indirizzo, attivo, gestore_id) VALUES (9, 'Caffe Letterario', 'Via di Monte Testaccio 22, Roma', false, 24);
 
--- ---------- i menu dei nuovi locali ----------
--- Qualche piatto e' spento (disponibile = false): il pubblico non lo vede,
--- il suo ristoratore si', per poterlo riaccendere.
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (101, 'Margherita', 'pomodoro San Marzano, fiordilatte, basilico', 7.50, true, 4);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (102, 'Marinara', 'pomodoro, aglio, origano', 6.00, true, 4);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (103, 'Diavola', 'pomodoro, fiordilatte, salame piccante', 9.50, true, 4);
@@ -1905,7 +1808,6 @@ INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) V
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (138, 'Insalatona del Caffe', 'insalata, noci, grana, mele', 10.00, true, 9);
 INSERT INTO piatto (id, nome, ingredienti, prezzo, disponibile, ristorante_id) VALUES (139, 'Torta della casa', 'farina, uova, mele, cannella', 5.50, true, 9);
 
--- ---------- i tavoli dei nuovi locali ----------
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (101, 1, 2, 'LIBERO', 4);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (102, 2, 4, 'LIBERO', 4);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (103, 3, 4, 'LIBERO', 4);
@@ -1931,9 +1833,6 @@ INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALU
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (123, 1, 2, 'LIBERO', 9);
 INSERT INTO tavolo (id, numero_tavolo, numero_posti, status, ristorante_id) VALUES (124, 2, 4, 'LIBERO', 9);
 
--- ---------- recensioni dei nuovi locali ----------
--- Voti sparsi e non tutti alti: la media di un locale deve poter essere
--- mediocre, e la pagina delle recensioni deve avere qualcosa da ordinare.
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (101, 'La migliore del quartiere', 5, 'Cornicione alto e leggero, si digerisce benissimo. Coda fuori ma scorre veloce.', CURRENT_DATE - 6, 4, 25);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (102, 'Impasto da applausi', 5, 'Ventiquattr ore di lievitazione si sentono tutte. Prezzi onesti.', CURRENT_DATE - 21, 4, 26);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (103, 'Ottima pizza, locale caotico', 4, 'Si mangia benissimo ma il chiasso e tanto: non e il posto per parlare.', CURRENT_DATE - 34, 4, 12);
@@ -1962,11 +1861,6 @@ INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) V
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (126, 'Bel posto per leggere', 4, 'Tagliere generoso e silenzio. Peccato abbia chiuso.', CURRENT_DATE - 120, 9, 27);
 INSERT INTO recensione (id, titolo, voto, testo, data, ristorante_id, user_id) VALUES (127, 'Simpatico ma essenziale', 3, 'Buon caffe, cucina limitata. Andava bene per un pranzo veloce.', CURRENT_DATE - 156, 9, 12);
 
--- ---------- prenotazioni dei nuovi locali ----------
--- Quasi tutte future, qualcuna gia' passata (l'agenda del ristoratore si
--- sfoglia anche all'indietro) e due annullate. Le due del Caffe Letterario
--- sono annullate perche' e' cosi' che finiscono le prenotazioni di un
--- locale che chiude: disattivarlo annulla quelle ancora da venire.
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (101, 4, CURRENT_DATE + 1, TIME '20:00', 120, 'SCHEDULED', 4, 102, 25);
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (102, 2, CURRENT_DATE + 1, TIME '21:30', 120, 'SCHEDULED', 4, 101, 26);
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (103, 6, CURRENT_DATE + 3, TIME '20:30', 120, 'SCHEDULED', 4, 104, 12);
@@ -1988,11 +1882,6 @@ INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotaz
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (119, 4, CURRENT_DATE - 60, TIME '20:00', 120, 'CANCELLED', 9, 124, 27);
 INSERT INTO prenotazione (id, numero_persone, data_prenotazione, orario_prenotazione, durata_minuti, status, ristorante_id, tavolo_id, user_id) VALUES (120, 2, CURRENT_DATE - 58, TIME '13:00', 90, 'CANCELLED', 9, 123, 12);
 
--- ---------- conti aperti nei nuovi locali ----------
--- Quattro tavoli occupati in questo momento: e' quello che il ristoratore
--- trova aprendo "Conti aperti". Il tavolo resta 'LIBERO' in tabella
--- perche' l'occupazione si deduce dall'esistenza dell'ordinazione, non da
--- una colonna da tenere allineata a mano.
 INSERT INTO ordinazione (id, totale, apertura, tavolo_id) VALUES (101, 29.50, now() - interval '25 minutes', 103);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (101, 2, 7.50, 101, 101);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (102, 1, 9.50, 101, 103);
@@ -2008,13 +1897,6 @@ INSERT INTO ordinazione (id, totale, apertura, tavolo_id) VALUES (104, 35.00, no
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (109, 2, 15.00, 104, 131);
 INSERT INTO riga_ordinazione (id, quantita, prezzo_unitario, ordinazione_id, piatto_id) VALUES (110, 1, 5.00, 104, 134);
 
--- ---------- storico di cassa dei nuovi locali ----------
--- Dieci mesi di conti chiusi per ognuno, con la stessa forma dello storico
--- dei primi tre locali: pranzo e cena come due gobbe, fine settimana
--- pieno, agosto in ferie. Senza, la dashboard di questi ristoratori
--- sarebbe una pagina di grafici vuoti.
--- Il Caffe Letterario si ferma a due mesi fa: da li' in poi e' chiuso.
--- Pizzeria Santa Croce
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2001, (CURRENT_DATE - 7) + TIME '23:50', (CURRENT_DATE - 7) + TIME '22:45', 6, 42.00, 4);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3001, 2, 'Bufala e datterini', 11.50, 105, 2001);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3002, 2, 'Diavola', 9.50, 103, 2001);
@@ -2479,7 +2361,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2143, (CURRENT_DATE - 297) + TIME '14:37', (CURRENT_DATE - 297) + TIME '13:00', 4, 48.00, 4);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3320, 3, 'Capricciosa', 11.00, 104, 2143);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3321, 2, 'Margherita', 7.50, 101, 2143);
--- Trattoria Il Cortile
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2144, (CURRENT_DATE - 1) + TIME '23:50', (CURRENT_DATE - 1) + TIME '22:45', 4, 50.00, 5);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3322, 3, 'Pici all aglione', 12.00, 112, 2144);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3323, 2, 'Crostini toscani', 7.00, 109, 2144);
@@ -2770,7 +2651,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3520, 1, 'Crostini toscani', 7.00, 109, 2232);
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2233, (CURRENT_DATE - 276) + TIME '14:37', (CURRENT_DATE - 276) + TIME '13:30', 3, 25.50, 5);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3521, 3, 'Pappa al pomodoro', 8.50, 111, 2233);
--- Sakura Sushi Bar
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2234, (CURRENT_DATE - 29) + TIME '15:18', (CURRENT_DATE - 29) + TIME '13:00', 4, 6.00, 6);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3522, 1, 'Nigiri di salmone', 6.00, 118, 2234);
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2235, (CURRENT_DATE - 14) + TIME '22:13', (CURRENT_DATE - 14) + TIME '20:45', 4, 19.00, 6);
@@ -3019,7 +2899,6 @@ INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3687, 1, 'Sashimi misto', 18.00, 116, 2313);
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2314, (CURRENT_DATE - 280) + TIME '21:02', (CURRENT_DATE - 280) + TIME '19:00', 1, 28.50, 6);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3688, 3, 'Uramaki California', 9.50, 117, 2314);
--- La Bottega Vegana
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2315, (CURRENT_DATE - 12) + TIME '20:30', (CURRENT_DATE - 12) + TIME '19:30', 2, 51.00, 7);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3689, 2, 'Curry di lenticchie', 12.50, 125, 2315);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3690, 2, 'Burger di ceci', 13.00, 124, 2315);
@@ -3201,7 +3080,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3806, 1, 'Insalata di farro', 10.00, 126, 2375);
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2376, (CURRENT_DATE - 299) + TIME '14:16', (CURRENT_DATE - 299) + TIME '12:45', 2, 12.50, 7);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3807, 1, 'Curry di lenticchie', 12.50, 125, 2376);
--- Braceria da Rossi
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2377, (CURRENT_DATE - 15) + TIME '20:12', (CURRENT_DATE - 15) + TIME '19:15', 1, 30.00, 8);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (3808, 2, 'Hamburger di chianina', 15.00, 131, 2377);
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2378, (CURRENT_DATE - 2) + TIME '22:14', (CURRENT_DATE - 2) + TIME '19:45', 5, 45.00, 8);
@@ -3486,7 +3364,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (4000, 1, 'Grigliata mista', 24.00, 132, 2465);
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2466, (CURRENT_DATE - 295) + TIME '23:45', (CURRENT_DATE - 295) + TIME '21:15', 2, 48.00, 8);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (4001, 2, 'Grigliata mista', 24.00, 132, 2466);
--- Caffe Letterario
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2467, (CURRENT_DATE - 77) + TIME '23:50', (CURRENT_DATE - 77) + TIME '22:45', 2, 48.50, 9);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (4002, 1, 'Insalatona del Caffe', 10.00, 138, 2467);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (4003, 1, 'Club sandwich', 9.00, 136, 2467);
@@ -3619,13 +3496,6 @@ INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_i
 INSERT INTO scontrino (id, data_ora, apertura, numero_tavolo, totale, ristorante_id) VALUES (2509, (CURRENT_DATE - 294) + TIME '22:14', (CURRENT_DATE - 294) + TIME '20:30', 2, 27.00, 9);
 INSERT INTO riga_scontrino (id, quantita, nome_piatto, prezzo_unitario, piatto_id, scontrino_id) VALUES (4089, 3, 'Club sandwich', 9.00, 136, 2509);
 
--- ---------- sequenze ----------
--- Gli id qui sopra sono scritti a mano, ma le sequenze partirebbero comunque
--- da 1: senza questo blocco il primo inserimento dall'applicazione andrebbe in
--- collisione con i dati di prova. Si spostano oltre.
--- Scontrini e loro righe ripartono da 5000 e non da 1000 come gli altri: i due
--- storici di cassa qui sopra, quello dei primi tre locali e quello dei nuovi,
--- arrivano insieme oltre le quattromila righe.
 ALTER SEQUENCE ristorante_seq RESTART WITH 1000;
 ALTER SEQUENCE piatto_seq RESTART WITH 1000;
 ALTER SEQUENCE tavolo_seq RESTART WITH 1000;

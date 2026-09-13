@@ -5,38 +5,20 @@
 <header th:replace="~{fragments/layout :: intestazione(${gestore} ? ${ristorante.id} : null)}"></header>
 
 <main class="contenuto">
-    <!-- Per il ristoratore questa pagina e' la propria casa e non una tappa:
-         il ritorno alla vetrina non ha piu' senso qui, sta nella barra in
-         alto insieme al resto della gestione. -->
     <a class="ritorno" th:unless="${gestore}" th:href="@{/ristoranti}">&larr; Tutti i ristoranti</a>
 
     <h1 th:text="${ristorante.nome}">Nome del ristorante</h1>
     <p class="sottotitolo" th:text="${ristorante.indirizzo}">Indirizzo</p>
 
-    <!-- I flash attribute sopravvivono a un solo redirect: dopo
-         l'eliminazione arrivano qui e poi spariscono. -->
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
-    <!-- Le fotografie del locale: le carica il ristoratore, le guardano tutti.
-         Nel database ci sono solo i nomi dei file, i byte stanno nella
-         cartella servita su /uploads.
-         Per il ristoratore la galleria compare sempre, anche vuota, perche'
-         l'ultimo riquadro e' il suo: quello con il piu' per aggiungerne. -->
     <ul class="galleria" th:if="${gestore or !#lists.isEmpty(immagini)}">
         <li th:each="immagine : ${immagini}">
-            <!-- Il nome del file e' un UUID e non descrive niente: il testo
-                 alternativo lo ricava dal nome del locale.
-                 loading="lazy": le foto oltre il bordo dello schermo si
-                 scaricano solo quando servono. -->
             <img th:src="@{/uploads/{file}(file=${immagine})}"
                  th:alt="'Fotografia di ' + ${ristorante.nome}" loading="lazy">
         </li>
 
-        <!-- Il riquadro del piu': sta in fila con le foto, della stessa misura,
-             e porta alla pagina dove si aggiunge e si toglie. Il segno e'
-             aria-hidden perche' a un lettore di schermo "+" non dice niente:
-             il nome del collegamento e' il testo accanto. -->
         <li class="galleria-aggiungi" th:if="${gestore}">
             <a th:href="@{/ristoranti/{id}/immagini(id=${ristorante.id})}">
                 <span class="segno-piu" aria-hidden="true">+</span>
@@ -45,23 +27,12 @@
         </li>
     </ul>
 
-    <!-- I gesti di tutti i giorni, e solo quelli: aggiungere un piatto,
-         gestire i tavoli, leggere le recensioni. Conti aperti, scontrini,
-         agenda e statistiche sono passati nella barra in alto, dove si
-         raggiungono da qualunque pagina invece che solo da qui.
-         "gestore" arriva gia' deciso dal controller: e' vero solo per il
-         ristoratore di QUESTO locale, non per un ristoratore qualsiasi.
-         Nascondere i pulsanti e' comunque cortesia verso l'utente, non
-         sicurezza: a proteggere gli indirizzi e' RistoranteService.
-         ristoranteGestito, richiamato prima di ogni metodo di gestione. -->
     <p class="azioni-locale">
         <a th:if="${gestore}" class="bottone"
            th:href="@{/ristoranti/{id}/piatti/new(id=${ristorante.id})}">Aggiungi un piatto</a>
         <a th:if="${gestore}" class="bottone bottone-tenue"
            th:href="@{/ristoranti/{id}/tavoli(id=${ristorante.id})}">Gestisci i tavoli</a>
 
-        <!-- Le recensioni le legge chiunque, anche senza aver fatto il login:
-             niente th:if attorno a questo collegamento. -->
         <a class="bottone bottone-tenue"
            th:href="@{/ristoranti/{id}/recensioni(id=${ristorante.id})}">Leggi le recensioni</a>
 
@@ -77,17 +48,11 @@
                 <span class="piatto-nome" th:text="${piatto.nome}">Nome del piatto</span>
                 <span class="etichetta" th:unless="${piatto.disponibile}">non disponibile</span>
                 <span class="puntini"></span>
-                <!-- formatDecimal(numero, cifre intere minime, separatore
-                     migliaia, decimali, separatore decimale): due decimali e
-                     la virgola come si usa in italiano -->
                 <span class="prezzo"
                       th:text="${#numbers.formatDecimal(piatto.prezzo, 1, 'POINT', 2, 'COMMA')} + ' &euro;'">0,00 &euro;</span>
             </div>
             <p class="ingredienti" th:text="${piatto.ingredienti}">Ingredienti</p>
 
-            <!-- Le azioni sono POST e non collegamenti: una GET non deve
-                 modificare niente, e con th:action Thymeleaf aggiunge da se' il
-                 token CSRF. Fa eccezione "Modifica", che apre solo un modulo. -->
             <div class="azioni-piatto" th:if="${gestore}">
                 <a class="bottone bottone-tenue"
                    th:href="@{/ristoranti/{r}/piatti/{p}/edit(r=${ristorante.id},p=${piatto.id})}">Modifica</a>
@@ -104,10 +69,6 @@
                     <button type="submit" class="bottone bottone-tenue">Riattiva</button>
                 </form>
 
-                <!-- Il nome passa da un attributo data- e non dentro th:onsubmit:
-                     negli attributi th:on* Thymeleaf accetta solo numeri e
-                     booleani, per non far finire testo arbitrario dentro il
-                     JavaScript della pagina. -->
                 <form th:action="@{/ristoranti/{r}/piatti/{p}/delete(r=${ristorante.id},p=${piatto.id})}"
                       method="post"
                       th:data-nome="${piatto.nome}"

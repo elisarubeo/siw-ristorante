@@ -8,13 +8,6 @@ import {
     CURSORE, MARGINE, SPESSORE_BARRA,
 } from './comune'
 
-/* In che giorni si lavora. L'incasso e non il numero di conti, perche' la
-   domanda vera ("quando conviene tenere aperto, dove mettere il personale")
-   si risponde con i soldi; il numero di conti resta nel tooltip.
-
-   L'asse parte da lunedi come DayOfWeek in Java, non da domenica: e' anche il
-   modo in cui si legge un calendario italiano. */
-
 const TooltipGiorno = tooltipDa<IncassoGiorno>((riga) => ({
     titolo: GIORNI[riga.giorno - 1],
     voci: [

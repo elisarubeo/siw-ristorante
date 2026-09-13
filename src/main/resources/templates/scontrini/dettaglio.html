@@ -10,8 +10,6 @@
     <p class="avviso avviso-esito" th:if="${successMessage}" th:text="${successMessage}">esito</p>
     <p class="avviso avviso-errore" th:if="${errorMessage}" th:text="${errorMessage}">errore</p>
 
-    <!-- Il numero del tavolo e' una copia, non un collegamento: quel tavolo
-         puo' anche non esistere piu', lo scontrino resta vero lo stesso. -->
     <h1 th:text="'Tavolo ' + ${scontrino.numeroTavolo}">Tavolo 1</h1>
 
     <p class="sottotitolo">
@@ -20,8 +18,6 @@
         alle
         <span th:text="${#temporals.format(scontrino.dataOra, 'HH:mm')}">13:30</span>
 
-        <!-- L'apertura e' ammessa nulla: gli scontrini emessi prima che il
-             campo esistesse non ce l'hanno, e la pagina non deve rompersi. -->
         <span th:if="${scontrino.apertura != null}"
               th:with="minuti=${T(java.time.Duration).between(scontrino.apertura, scontrino.dataOra).toMinutes()}">
             &middot; a tavola dalle
@@ -41,9 +37,6 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Nome e prezzo sono quelli del momento della vendita, copiati
-                     nella riga: non si va a rileggere il piatto, che nel
-                     frattempo puo' essere cambiato o sparito. -->
                 <tr th:each="riga : ${scontrino.righe}">
                     <td th:text="${riga.nomePiatto}">Nome del piatto</td>
                     <td class="numerica" th:text="${riga.quantita}">1</td>

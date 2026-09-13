@@ -65,7 +65,6 @@
                    placeholder="Nome o indirizzo"
                    th:value="${q}">
             <button type="submit" class="bottone">Cerca</button>
-            <!-- Compare solo a ricerca attiva: riporta all'elenco completo -->
             <a th:if="${ricerca}" th:href="@{/ristoranti}"
                class="bottone bottone-tenue">Azzera</a>
         </form>
