@@ -28,13 +28,13 @@
         <li class="scheda" th:each="s : ${scontrini}">
             <h2 th:text="'Tavolo ' + ${s.numeroTavolo}">Tavolo 1</h2>
 
-            <p class="indirizzo">
+            <p class="indirizzo" th:with="quante=${voci.get(s.id)} ?: 0">
                 <span th:text="${#temporals.format(s.dataOra, 'dd/MM/yyyy')}">01/01/2026</span>
                 alle
                 <span th:text="${#temporals.format(s.dataOra, 'HH:mm')}">13:30</span>
                 &middot;
-                <span th:text="${#lists.size(s.righe)}">0</span>
-                <span th:text="${#lists.size(s.righe) == 1} ? 'voce' : 'voci'">voci</span>
+                <span th:text="${quante}">0</span>
+                <span th:text="${quante == 1} ? 'voce' : 'voci'">voci</span>
             </p>
 
             <p class="indirizzo prezzo"

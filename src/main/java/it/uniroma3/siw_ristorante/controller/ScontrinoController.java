@@ -42,6 +42,7 @@ public class ScontrinoController {
         List<Scontrino> scontrini = this.scontrinoService.scontriniDelRistorante(ristoranteId);
         model.addAttribute("scontrini", scontrini);
         model.addAttribute("incasso", this.scontrinoService.incasso(scontrini));
+        model.addAttribute("voci", this.scontrinoService.vociPerScontrino(ristoranteId));
         return "scontrini/list";
     }
 

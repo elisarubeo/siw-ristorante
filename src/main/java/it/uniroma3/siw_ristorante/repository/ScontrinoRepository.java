@@ -13,14 +13,28 @@ import it.uniroma3.siw_ristorante.model.Scontrino;
 
 public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
 
-    /* Ordinati per data del pagamento, dal piu' recente: e' l'ordine in cui si
-       guarda un registro di cassa. Non per apertura, che e' ammessa nulla e
-       manderebbe in fondo proprio gli scontrini piu' vecchi. */
+    /* Ordinati per data del pagamento, dal piu' recente */
     List<Scontrino> findByRistoranteIdOrderByDataOraDesc(Long ristoranteId);
 
-    /* Filtrato dal ristorante, mai findById nudo: cambiando il numero
+    /* Filtrato dal ristorante: cambiando il numero
        nell'indirizzo non si legge la cassa di un altro locale. */
     Optional<Scontrino> findByIdAndRistoranteId(Long id, Long ristoranteId);
+
+    /* Quante voci ha ogni scontrino, contate dal database. Senza, l'elenco
+       chiede la collezione righe uno scontrino per volta */
+    @Query("""
+            select r.scontrino.id as scontrinoId, count(r) as voci
+            from RigaScontrino r
+            where r.scontrino.ristorante.id = ?1
+            group by r.scontrino.id
+            """)
+    List<ConteggioVoci> vociPerScontrino(Long ristoranteId);
+
+    interface ConteggioVoci {
+        Long getScontrinoId();
+
+        Long getVoci();
+    }
 
     /* ================= statistiche =================
        Tutte aggregazioni: contano e sommano nel database e riportano poche
@@ -31,9 +45,6 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
        Object[]: l'alias della select diventa il nome del getter, e chi legge il
        service trova getIncasso() invece di riga[2] con un cast. */
 
-    /* Gli anni in cui c'e' almeno uno scontrino, dal piu' recente: e' quello
-       che riempie il menu a tendina della pagina. Offrire anni vuoti vorrebbe
-       dire offrire grafici vuoti. */
     @Query("""
             select distinct year(s.dataOra)
             from Scontrino s
@@ -45,14 +56,9 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
     @Query("select count(s) from Scontrino s where s.ristorante.id = ?1 and year(s.dataOra) = ?2")
     long contaPerAnno(Long ristoranteId, int anno);
 
-    /* BigDecimal e non un primitivo perche' su un anno senza scontrini la
-       somma non fa zero: non esiste, e il database risponde null. A decidere
-       che cosa mostrare al posto del nulla e' il service. */
     @Query("select sum(s.totale) from Scontrino s where s.ristorante.id = ?1 and year(s.dataOra) = ?2")
     BigDecimal incassoPerAnno(Long ristoranteId, int anno);
 
-    /* Quante porzioni sono uscite dalla cucina: si somma la quantita' delle
-       righe, non si contano le righe (una riga sola puo' valere tre porzioni). */
     @Query("""
             select sum(r.quantita)
             from RigaScontrino r
@@ -60,13 +66,6 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
             """)
     Long pietanzeVendutePerAnno(Long ristoranteId, int anno);
 
-    /* Quanto dura in media un turno a tavola.
-
-       "and s.apertura is not null" non e' ridondante: apertura e' ammessa
-       nulla (gli scontrini piu' vecchi della funzionalita' non ce l'hanno) e
-       senza il filtro quelle righe entrerebbero nella media come zeri,
-       abbassandola. Escludere una riga e' diverso da contarla come zero.
-       Double e non double: senza nessuna riga utile, la media e' null. */
     @Query("""
             select avg(timestampdiff(minute, s.apertura, s.dataOra))
             from Scontrino s
@@ -74,10 +73,6 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
             """)
     Double durataMediaMinuti(Long ristoranteId, int anno);
 
-    /* Conti chiusi e incasso, mese per mese. Tornano SOLO i mesi che hanno
-       almeno uno scontrino: a riempire gli altri con degli zeri pensa il
-       service, perche' un grafico a cui manca agosto non mostra agosto vuoto,
-       salda luglio a settembre e racconta una cosa falsa. */
     @Query("""
             select month(s.dataOra) as mese, count(s) as numero, sum(s.totale) as incasso
             from Scontrino s
@@ -87,13 +82,6 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
             """)
     List<AggregatoMese> perMese(Long ristoranteId, int anno);
 
-    /* A che ora i clienti si siedono.
-
-       coalesce(apertura, dataOra): quando l'orario di apertura manca si
-       ripiega su quello del pagamento, cosi' gli scontrini vecchi
-       contribuiscono con un'ora approssimata invece di sparire dal grafico.
-       Qui, a differenza della durata media, un dato impreciso e' meglio di un
-       dato assente: sposta una barra di un'ora, non falsa una media. */
     @Query("""
             select hour(coalesce(s.apertura, s.dataOra)) as ora, count(s) as numero
             from Scontrino s
@@ -102,19 +90,7 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
             order by hour(coalesce(s.apertura, s.dataOra))
             """)
     List<AggregatoOra> perOra(Long ristoranteId, int anno);
-
-    /* La classifica dei piatti.
-
-       Si legge da RigaScontrino e non da RigaOrdinazione: le ordinazioni
-       spariscono alla chiusura del conto, le righe dello scontrino restano.
-
-       group by r.piattoId con max(r.nomePiatto) come etichetta: il nome e' una
-       copia salvata al momento della vendita, e se il piatto e' stato
-       rinominato nel tempo, raggruppare anche per nome lo spezzerebbe in due
-       voci che sono lo stesso piatto.
-
-       Il limite arriva come Pageable: LIMIT non esiste in JPQL, e questo e' il
-       modo con cui Spring Data lo esprime senza scendere a SQL nativo. */
+    
     @Query("""
             select r.piattoId as piattoId, max(r.nomePiatto) as nome,
                    sum(r.quantita) as quantita,
@@ -126,27 +102,13 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
             """)
     List<AggregatoPiatto> piattiPiuVenduti(Long ristoranteId, int anno, Pageable limite);
 
-    /* Data e totale di ogni scontrino dell'anno, senza aggregare.
-
-       E' l'unica statistica che NON si calcola nel database, ed e' una scelta:
-       il giorno della settimana e' l'unico pezzo di calendario su cui i
-       database non vanno d'accordo. In PostgreSQL extract(dow) conta
-       0 = domenica, altrove 1 = domenica, e la convenzione che serve qui e'
-       quella ISO (1 = lunedi). Raggruppare in Java con DayOfWeek.getValue()
-       toglie l'ambiguita', e il prezzo e' portarsi in memoria qualche
-       centinaio di righe di due colonne - un locale, un anno alla volta.
-       L'errore che si evita sarebbe un grafico ruotato di un giorno: il genere
-       di sbaglio che nessuno nota. */
+    /* Data e totale di ogni scontrino dell'anno, senza aggregare. */
     @Query("""
             select s.dataOra as dataOra, s.totale as totale
             from Scontrino s
             where s.ristorante.id = ?1 and year(s.dataOra) = ?2
             """)
     List<RigaCassa> cassaDellAnno(Long ristoranteId, int anno);
-
-    /* ---------- proiezioni ----------
-       Interfacce e non classi: Spring Data ne costruisce l'implementazione da
-       solo, abbinando ogni alias della select al getter con lo stesso nome. */
 
     interface AggregatoMese {
         Integer getMese();
