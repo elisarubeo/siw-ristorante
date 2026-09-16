@@ -18,29 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import it.uniroma3.siw_ristorante.exception.InvalidImageException;
 
-/* Salvataggio dei file immagine su disco.
-
-   E' l'unico punto dell'applicazione che tocca il filesystem: gli altri
-   service gli chiedono di scrivere o cancellare un file e maneggiano soltanto
-   un nome. Nel database non finiscono i byte delle immagini ma solo quel nome,
-   nella collezione Ristorante.immagini.
-
-   LA COSA DA SAPERE DI QUESTA CLASSE: scrivere un file NON e' un'operazione
-   transazionale. Se la transazione che ha chiesto il salvataggio viene
-   annullata, il file resta sul disco lo stesso. Per questo chi lo usa
-   (RistoranteService) lega la cancellazione all'esito della transazione,
-   invece di cancellare subito. */
 @Service
 public class ImageStorageService {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageStorageService.class);
 
-    /* Formati ammessi, con l'estensione da usare per ciascuno.
-
-       L'estensione la decide questa mappa e non il nome del file caricato:
-       quel nome arriva dal browser e non merita fiducia - puo' contenere un
-       percorso ("../../application.properties") oppure un'estensione che non
-       corrisponde al contenuto. */
     private static final Map<String, String> ESTENSIONI = Map.of(
             "image/jpeg", "jpg",
             "image/png", "png",
@@ -74,12 +56,6 @@ public class ImageStorageService {
         return file != null && !file.isEmpty() && ESTENSIONI.containsKey(file.getContentType());
     }
 
-    /* Salva il file e restituisce il nome con cui e' stato scritto: e' quello
-       che va memorizzato nel database.
-
-       Il nome e' un UUID generato qui, non quello scelto da chi carica: due
-       ristoratori che caricano "sala.jpg" non si sovrascrivono a vicenda, e
-       nessun nome proveniente dall'esterno finisce mai in un percorso. */
     public String store(MultipartFile file) {
         /* Ricontrollato anche qui e non solo nel controller: questo metodo e'
            pubblico e non puo' fidarsi di chi lo chiama. */
@@ -120,14 +96,6 @@ public class ImageStorageService {
         return this.directory;
     }
 
-    /* Costruisce il percorso di un file dentro la cartella delle immagini,
-       verificando che ci resti davvero dentro.
-
-       E' la difesa dal path traversal: un nome come "../../segreto" sarebbe
-       risolto fuori dalla cartella, e qui viene respinto. I nomi li generiamo
-       noi, ma il controllo costa nulla e vale anche per quelli che arrivano
-       dalla form di eliminazione, dove il nome del file viaggia nella
-       richiesta e quindi puo' essere manomesso. */
     private Path risolvi(String nomeFile) {
         Path percorso = this.directory.resolve(nomeFile).normalize();
         if (!percorso.startsWith(this.directory)) {

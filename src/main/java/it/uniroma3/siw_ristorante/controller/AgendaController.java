@@ -18,15 +18,6 @@ import it.uniroma3.siw_ristorante.service.PrenotazioneService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 import it.uniroma3.siw_ristorante.service.TavoloService;
 
-/* Le prenotazioni viste dalla sala, non dal cliente: chi ha prenotato, per
-   quando e a quale tavolo.
-
-   ATTENZIONE ALL'INDIRIZZO: la pagina NON sta sotto
-   /ristoranti/{id}/prenotazioni. Quel ramo e' riservato al ruolo DEFAULT dalla
-   SecurityConfiguration (prenotare e' cosa da clienti), quindi una pagina per
-   il ristoratore messa li' dentro riceverebbe 403. Restando su /agenda e su
-   /tavoli/.../prenotazioni si ricade nella regola generica /ristoranti/**, che
-   e' gia' riservata al ristoratore. */
 @Controller
 @RequestMapping("/ristoranti/{ristoranteId}")
 public class AgendaController {

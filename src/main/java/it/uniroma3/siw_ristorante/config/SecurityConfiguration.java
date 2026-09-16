@@ -50,12 +50,6 @@ public class SecurityConfiguration {
     @Bean
     public UserDetailsService userDetailsService() {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-        /* La colonna "enabled" non e' memorizzata: si calcola. Un account vale
-           finche' il ristorante che gestisce e' attivo, e per tutti gli altri
-           (amministratore e clienti, che non gestiscono niente) il LEFT JOIN
-           non trova righe e COALESCE lascia true. Cosi' il gestore di un
-           locale disattivato non riesce nemmeno a entrare, e non serve
-           ricordarsi di controllarlo in ogni pagina. */
         manager.setUsersByUsernameQuery(
                 "SELECT c.username, c.password, COALESCE(r.attivo, true) AS enabled"
                         + " FROM credentials c LEFT JOIN ristorante r ON r.gestore_id = c.user_id"
@@ -83,19 +77,6 @@ public class SecurityConfiguration {
         return new ProviderManager(provider);
     }
 
-    /* Da dove si accetta che il browser chiami l'API.
-
-       In sviluppo la pagina arriva da Vite (:5173) e i dati da Spring (:8080):
-       due origini diverse, e senza CORS il browser scarta la risposta. Il
-       proxy di Vite di solito evita il problema, ma configurarlo permette di
-       chiamare il backend anche direttamente.
-
-       ATTENZIONE a due punti. Primo: CORS va dichiarato come bean e agganciato
-       alla catena con .cors(...), non come WebMvcConfigurer - Spring Security
-       gira PRIMA di Spring MVC, e il preflight OPTIONS si prenderebbe un 401
-       senza mai arrivare a MVC. Secondo: fra le intestazioni ammesse ci deve
-       essere Authorization, altrimenti il browser non spedisce il token e
-       ogni richiesta risulta anonima. */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configurazione = new CorsConfiguration();
@@ -108,18 +89,6 @@ public class SecurityConfiguration {
         return sorgente;
     }
 
-    /* LA CATENA DELLA PARTE REST.
-
-       @Order(1) e securityMatcher("/api/**") insieme vogliono dire: le
-       richieste che cominciano per /api passano di qui e non toccano mai la
-       catena web. Sono due mondi separati nella stessa applicazione - stesso
-       database di credenziali, stesso BCrypt, due modi diversi di riconoscere
-       chi chiama.
-
-       Le tre righe di configurazione che seguono sono conseguenze l'una
-       dell'altra: niente sessione, quindi niente cookie; niente cookie,
-       quindi CSRF non e' attaccabile e si puo' disattivare. Sulla catena
-       Thymeleaf, che i cookie li usa, disattivarlo sarebbe un buco. */
     @Bean
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity,
@@ -149,18 +118,6 @@ public class SecurityConfiguration {
            arriva li', il token e' gia' stato letto e l'utente riconosciuto. */
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        /* SENZA QUESTO BLOCCO, UNA RICHIESTA SENZA TOKEN RICEVE 403, NON 401.
-           Spring Security, non trovando su questa catena nessun modo di
-           chiedere le credenziali (niente form, niente Basic), ripiega sul
-           403. Ma la differenza conta per il frontend: sul 401 React svuota il
-           deposito e manda al login, il 403 vuol dire "sei riconosciuto, ma
-           questo non ti spetta".
-
-           Si scrive a mano sulla risposta perche' qui siamo dentro i filtri:
-           ApiExceptionHandler entra in gioco piu' avanti, sui controller, e
-           queste due situazioni ai controller non ci arrivano nemmeno. La
-           forma JSON pero' e' la stessa, cosi' il frontend ha sempre un solo
-           campo da leggere. */
         httpSecurity.exceptionHandling(eccezioni -> {
             eccezioni.authenticationEntryPoint((richiesta, risposta, e) -> scriviErrore(risposta, objectMapper,
                     HttpStatus.UNAUTHORIZED, "Devi accedere per vedere le statistiche."));
@@ -185,15 +142,6 @@ public class SecurityConfiguration {
     @Order(2)
     public SecurityFilterChain webFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        /* La catena di tutto il resto del sito: form login, sessione, cookie.
-           Le richieste a /api non arrivano mai qui, se le prende la catena
-           @Order(1) con il suo securityMatcher.
-
-           ATTENZIONE ALL'ORDINE: vince la prima regola che corrisponde alla
-           richiesta, quindi le regole piu' specifiche vanno prima di quelle
-           generiche. Le poche rotte pubbliche vanno elencate una per una PRIMA
-           delle regole generiche di amministrazione, altrimenti
-           "/ristoranti/**" si prende anche "/ristoranti" e il menu. */
         httpSecurity.authorizeHttpRequests(authorize -> {
 
             // risorse statiche: sempre accessibili
@@ -211,14 +159,6 @@ public class SecurityConfiguration {
                protetta, ogni errore diventerebbe un redirect al login. */
             authorize.requestMatchers("/error").permitAll();
 
-            /* La SPA delle statistiche: HTML, JavaScript e CSS, cioe' codice
-               che gira nel browser di chi guarda. Pubblico come il foglio di
-               stile del sito, per lo stesso motivo. I DATI stanno dietro
-               /api/statistiche/**, sull'altra catena, e senza un token con il
-               ruolo giusto non escono.
-               Senza questo permitAll, anyRequest().authenticated() manderebbe
-               la SPA al form login di Thymeleaf, che non e' il suo: lei il
-               login ce l'ha per conto proprio, ed e' a token. */
             authorize.requestMatchers("/statistiche", "/statistiche/**").permitAll();
 
             /* Swagger. Tre percorsi e non uno: la pagina, i file che la
@@ -255,15 +195,6 @@ public class SecurityConfiguration {
                e lo disattiva. Non entra nella gestione dei locali. */
             authorize.requestMatchers("/admin/**").hasAuthority(Credentials.ADMIN_ROLE);
 
-            /* Tutto il resto sotto /ristoranti/** e' la gestione del locale:
-               menu, tavoli, conti, scontrini, agenda. E' mestiere del
-               ristoratore.
-
-               ATTENZIONE: questa regola dice "un ristoratore", non "IL
-               ristoratore di quel locale". Il secondo controllo non e'
-               esprimibile in un indirizzo e vive in
-               RistoranteService.ristoranteGestito, richiamato dal
-               @ModelAttribute di ogni controller di gestione. */
             authorize.requestMatchers("/mio-ristorante").hasAuthority(Credentials.RISTORATORE_ROLE);
             authorize.requestMatchers("/ristoranti/**").hasAuthority(Credentials.RISTORATORE_ROLE);
 

@@ -19,13 +19,6 @@ import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.service.ImageStorageService;
 import it.uniroma3.siw_ristorante.service.RistoranteService;
 
-/* Le fotografie di un locale, viste da chi lo gestisce.
-
-   La galleria la guardano tutti, dalla pagina del menu; qui invece si
-   aggiunge e si toglie, ed e' roba del solo ristoratore di QUESTO ristorante.
-   Il controllo non sta nell'indirizzo - "/ristoranti/2/immagini" e' lecito per
-   un gestore e vietato per un altro, e la differenza sta nei dati - ma nel
-   @ModelAttribute qui sotto, come negli altri controller di gestione. */
 @Controller
 @RequestMapping("/ristoranti/{ristoranteId}/immagini")
 public class ImmagineRistoranteController {
@@ -62,12 +55,6 @@ public class ImmagineRistoranteController {
             @RequestParam(name = "file", required = false) MultipartFile[] file,
             RedirectAttributes redirectAttributes) {
 
-        /* I formati si controllano PRIMA di salvare qualunque cosa: se una
-           sola delle immagini scelte non va bene, non se ne carica nessuna e
-           il ristoratore rifa' la selezione per intero, invece di ritrovarsi
-           una galleria caricata a meta' senza sapere quale foto manca.
-           Il giudizio su cosa sia un'immagine valida non e' scritto qui: lo
-           da' ImageStorageService, che e' il posto in cui vivono i formati. */
         for (MultipartFile singolo : daCaricare(file)) {
             if (!this.imageStorageService.isSupported(singolo)) {
                 redirectAttributes.addFlashAttribute("errorMessage",

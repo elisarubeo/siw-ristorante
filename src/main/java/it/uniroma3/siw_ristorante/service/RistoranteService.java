@@ -83,13 +83,6 @@ public class RistoranteService {
         return ristorante;
     }
 
-    /* IL CONTROLLO CHE FA DA CARDINE A TUTTA LA GESTIONE.
-       Le regole della SecurityConfiguration sanno dire "solo un ristoratore
-       puo' entrare qui", ma non "solo il ristoratore DI QUESTO locale":
-       l'indirizzo /ristoranti/2/piatti/new e' lecito per un gestore e vietato
-       per un altro, e la differenza sta nei dati, non nell'indirizzo. Percio'
-       il controllo vive qui, e i controller lo richiamano nel loro
-       @ModelAttribute, cioe' prima di qualunque loro metodo. */
     @Transactional(readOnly = true)
     public Ristorante ristoranteGestito(Long ristoranteId, Authentication authentication) {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
@@ -191,12 +184,6 @@ public class RistoranteService {
 
     /* ---------- immagini ---------- */
 
-    /* Le foto di un locale, nell'ordine in cui sono state caricate.
-
-       Il metodo esiste perche' la collezione e' LAZY: letta da un template,
-       cioe' fuori da ogni transazione, darebbe LazyInitializationException.
-       Qui viene letta dentro la transazione e copiata, cosi' quello che esce
-       e' una lista normale, staccata da Hibernate. */
     @Transactional(readOnly = true)
     public List<String> immaginiDi(Long ristoranteId) {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)
@@ -204,17 +191,6 @@ public class RistoranteService {
         return List.copyOf(ristorante.getImmagini());
     }
 
-    /* Aggiunge alla galleria i file caricati, e restituisce quanti ne sono
-       entrati davvero.
-
-       I file vuoti si saltano: il campo di caricamento, se non si sceglie
-       niente, viene spedito comunque dal browser, e senza questo controllo si
-       finirebbe per rifiutare una richiesta che l'utente considera legittima.
-
-       QUI STA IL PUNTO DELICATO: i byte vanno su disco subito, la riga nel
-       database solo al commit. Il filesystem non partecipa alla transazione,
-       quindi se questa viene annullata i file appena scritti restano li' senza
-       che nessuno li nomini piu': si cancellano in caso di rollback. */
     @Transactional
     public int aggiungiImmagini(Long ristoranteId, MultipartFile[] file) {
         Ristorante ristorante = ristoranteRepository.findById(ristoranteId)

@@ -36,14 +36,7 @@ public interface ScontrinoRepository extends JpaRepository<Scontrino, Long>{
         Long getVoci();
     }
 
-    /* ================= statistiche =================
-       Tutte aggregazioni: contano e sommano nel database e riportano poche
-       righe, invece di portare in memoria centinaia di scontrini per fare la
-       somma qui. La differenza si vede quando il locale lavora da qualche anno.
-
-       I risultati arrivano come PROIEZIONI (le interfacce in fondo) e non come
-       Object[]: l'alias della select diventa il nome del getter, e chi legge il
-       service trova getIncasso() invece di riga[2] con un cast. */
+    /* ================= statistiche ================= */
 
     @Query("""
             select distinct year(s.dataOra)

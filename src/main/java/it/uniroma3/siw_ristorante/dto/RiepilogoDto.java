@@ -2,13 +2,6 @@ package it.uniroma3.siw_ristorante.dto;
 
 import java.math.BigDecimal;
 
-/* I numeri in cima alla pagina.
-
-   ATTENZIONE AI TIPI AVVOLTI. Dove c'e' Integer e non int, Double e non
-   double, il null e' un valore possibile e significa "non c'e' niente da
-   dire": una media su un insieme vuoto non fa zero, non esiste. Un primitivo
-   trasformerebbe quel null in uno 0, cioe' in un'informazione falsa, e il
-   frontend disegnerebbe "0,0" dove deve disegnare un trattino. */
 public record RiepilogoDto(
         int anno,
         long numeroScontrini,

@@ -18,12 +18,6 @@ import it.uniroma3.siw_ristorante.service.CredentialsService;
 import it.uniroma3.siw_ristorante.service.JwtService;
 import jakarta.validation.Valid;
 
-/* L'unico indirizzo pubblico dell'API: quello da cui si ottiene il token.
-
-   Perche' esiste, visto che nel sito il login c'e' gia': sono due meccanismi
-   diversi. Il sito riconosce l'utente da un cookie di sessione, l'API da un
-   token che il browser allega a ogni richiesta, e un cookie non si trasforma
-   in un token da solo. Chi passa dal sito alla SPA rifa' l'accesso. */
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Autenticazione", description = "Come ottenere il token per le altre chiamate")
@@ -52,15 +46,6 @@ public class AuthRestController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest richiesta) {
 
-        /* La verifica la fa l'AuthenticationManager, NON questo metodo.
-           Confrontare gli hash a mano vorrebbe dire riscrivere - e prima o poi
-           sbagliare - regole che esistono gia': il BCrypt, e soprattutto la
-           colonna "enabled" calcolata nella UserDetailsService, che tiene
-           fuori il gestore di un ristorante disattivato. Cosi' l'API e il form
-           login del sito accettano e rifiutano esattamente le stesse persone.
-
-           Se le credenziali non vanno, di qui esce un'AuthenticationException
-           che ApiExceptionHandler trasforma nel 401. */
         this.authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(richiesta.username(), richiesta.password()));
 

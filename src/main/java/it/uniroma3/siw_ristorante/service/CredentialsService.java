@@ -63,19 +63,7 @@ public class CredentialsService {
         credentials.setUser(user);
         return credentialsRepository.save(credentials);
     }
-
-    /* Sostituisce la password di un account con un'altra, cifrandola come
-       tutte le altre.
-
-       Non chiede la password attuale, e non e' una dimenticanza: chi la usa e'
-       l'amministratore, che la password del ristoratore non la conosce - nel
-       database c'e' solo l'impronta BCrypt, e non e' reversibile. E' un
-       "reimposta", non un "cambia". Il diritto di farlo non si controlla qui:
-       lo garantisce la regola su /admin/** della SecurityConfiguration.
-
-       La password in chiaro non viene mai memorizzata: entra, viene cifrata, e
-       l'unica copia leggibile e' quella che il chiamante ha in mano e mostra
-       una volta sola. */
+    
     @Transactional
     public Credentials reimpostaPassword(Long userId, String nuovaPassword) {
         Credentials credenziali = credentialsRepository.findByUserId(userId)

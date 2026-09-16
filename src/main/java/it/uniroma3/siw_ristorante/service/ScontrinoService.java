@@ -34,13 +34,6 @@ public class ScontrinoService {
                         "Nessuno scontrino con id " + scontrinoId + " nel ristorante " + ristoranteId));
     }
 
-    /* Da id di scontrino a numero di voci, per l'elenco: una query sola per
-       tutta la pagina, invece di una collezione lazy risolta scontrino per
-       scontrino durante il rendering. E' lo stesso modo in cui l'agenda si
-       procura i nomi dei clienti.
-
-       Gli scontrini che dal database non tornano non hanno righe: la mappa non
-       li contiene e il template li legge come zero. */
     @Transactional(readOnly = true)
     public Map<Long, Long> vociPerScontrino(Long ristoranteId) {
         return scontrinoRepository.vociPerScontrino(ristoranteId).stream()

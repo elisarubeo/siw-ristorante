@@ -25,25 +25,6 @@ import it.uniroma3.siw_ristorante.model.Ristorante;
 import it.uniroma3.siw_ristorante.repository.RecensioneRepository;
 import it.uniroma3.siw_ristorante.repository.ScontrinoRepository;
 
-/* Tutte le statistiche del ristoratore.
-
-   DUE PRINCIPI, e sono quelli che spiegano quasi ogni riga qui sotto.
-
-   1. IL RISTORANTE NON ARRIVA MAI DA FUORI. Ogni metodo pubblico riceve
-      l'Authentication e ricava il locale da li'. Non esiste un parametro
-      ristoranteId che il frontend possa mandare, quindi non esiste un numero
-      da cambiare per leggere la cassa di qualcun altro: il problema non viene
-      risolto con un controllo, viene proprio tolto di mezzo.
-
-   2. I BUCHI LI RIEMPIE IL SERVER. Un "group by" restituisce righe solo per i
-      gruppi che esistono: se ad agosto il locale ha chiuso per ferie, agosto
-      non c'e'. Consegnare undici mesi a un grafico significa fargli disegnare
-      una linea che salda luglio a settembre, cioe' un'estate senza pausa che
-      non c'e' mai stata. Percio' da qui escono sempre dodici mesi, sette
-      giorni, ventiquattro ore e cinque voti, anche quando valgono zero.
-      Potrebbe farlo React, ma allora la stessa regola andrebbe riscritta in
-      ogni pagina che usa quei dati - e sarebbe una regola sul significato dei
-      dati messa nel posto che si occupa di disegnarli. */
 @Service
 public class StatisticheService {
 
@@ -63,9 +44,7 @@ public class StatisticheService {
         this.recensioneRepository = recensioneRepository;
     }
 
-    /* Di che locale stiamo parlando e quali anni ha senso guardare.
-       E' la prima chiamata che fa il frontend: senza, non saprebbe nemmeno che
-       cosa scrivere nel menu a tendina degli anni. */
+    /* Di che locale stiamo parlando e quali anni guardare. */
     @Transactional(readOnly = true)
     public ContestoDto contesto(Authentication autenticazione) {
         Ristorante ristorante = locale(autenticazione);
@@ -85,28 +64,16 @@ public class StatisticheService {
            diversa da "non si sa". Sull'incasso il nulla non esiste. */
         BigDecimal incasso = valoreOZero(this.scontrinoRepository.incassoPerAnno(id, anno));
 
-        /* Lo scontrino medio si calcola qui e non nel database: dividere per
-           il numero di scontrini vuol dire dividere per zero quando l'anno e'
-           vuoto, e il controllo si scrive meglio in Java che in una query.
-           HALF_UP perche' sono soldi da leggere, non da sommare ancora. */
+        /* Lo scontrino medio si calcola qui e non nel database */
         BigDecimal medio = numeroScontrini == 0
                 ? BigDecimal.ZERO
                 : incasso.divide(BigDecimal.valueOf(numeroScontrini), 2, RoundingMode.HALF_UP);
 
         Long pietanze = this.scontrinoRepository.pietanzeVendutePerAnno(id, anno);
 
-        /* La media della durata arriva come Double perche' puo' non esserci
-           (nessuno scontrino con l'orario di apertura). Si arrotonda ai minuti
-           interi solo se c'e' qualcosa da arrotondare: Math.round su null
-           sarebbe un NullPointerException, e un valore predefinito a zero
-           sarebbe una bugia ("i clienti restano zero minuti"). */
         Double durata = this.scontrinoRepository.durataMediaMinuti(id, anno);
         Integer durataMinuti = durata == null ? null : (int) Math.round(durata);
 
-        /* Il confronto con l'anno prima. Resta null se l'anno precedente non
-           ha incassi: la variazione rispetto a zero non e' "+100%", e' una
-           divisione per zero, cioe' una domanda senza risposta. Meglio non
-           mostrare niente che mostrare un numero inventato. */
         BigDecimal precedente = this.scontrinoRepository.incassoPerAnno(id, anno - 1);
         Double variazione = null;
         if (precedente != null && precedente.signum() != 0) {
@@ -174,11 +141,6 @@ public class StatisticheService {
                 .toList();
     }
 
-    /* Sette voci, da 1 = lunedi a 7 = domenica.
-
-       E' l'unico calcolo fatto in Java invece che nel database: vedi il
-       commento su cassaDellAnno in ScontrinoRepository, il motivo e' che i
-       database non concordano su quale giorno sia il numero 1. */
     @Transactional(readOnly = true)
     public List<IncassoGiornoDto> incassoPerGiorno(Authentication autenticazione, int anno) {
         Long id = locale(autenticazione).getId();

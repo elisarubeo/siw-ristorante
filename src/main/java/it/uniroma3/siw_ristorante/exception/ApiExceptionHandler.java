@@ -16,21 +16,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import it.uniroma3.siw_ristorante.dto.ApiError;
 
-/* Trasforma le eccezioni dei @RestController in risposte JSON.
-
-   PERCHE' NON BASTA IL GlobalExceptionHandler CHE C'E' GIA'. Quello
-   restituisce nomi di viste Thymeleaf: "error/404", "error/500". Su una
-   chiamata a /api, axios riceverebbe l'HTML di una pagina d'errore al posto
-   del JSON che si aspetta, e fallirebbe leggendolo - con un messaggio che
-   parla di sintassi e non dice niente di quello che e' successo davvero.
-
-   I due advice non si pestano i piedi perche' si selezionano per package:
-   quello vecchio dichiara basePackages = "...controller", questo
-   "...api". E' il motivo per cui i @RestController stanno in un package
-   loro, e non e' ordine fine a se stesso.
-
-   HIGHEST_PRECEDENCE: fra due advice che potrebbero rispondere, vince questo.
-   Meglio un JSON di troppo che una pagina HTML in una risposta d'API. */
 @RestControllerAdvice(basePackages = "it.uniroma3.siw_ristorante.api")
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiExceptionHandler {

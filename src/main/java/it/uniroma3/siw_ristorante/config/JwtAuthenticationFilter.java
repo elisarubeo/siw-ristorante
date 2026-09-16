@@ -17,18 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /* Legge il token dall'intestazione Authorization e dice a Spring Security chi
-   sta chiamando.
-
-   QUESTO FILTRO NON BLOCCA NIENTE, e non e' una svista. Se il token manca, e'
-   scaduto o e' falso, la richiesta prosegue come anonima: a decidere se quella
-   richiesta anonima puo' proseguire e' la catena di filtri, con le sue
-   requestMatchers. Separare le due cose significa che i permessi si leggono
-   tutti in un posto solo (SecurityConfiguration) invece che meta' li' e meta'
-   qui dentro.
-
-   OncePerRequestFilter e non Filter: garantisce una sola esecuzione per
-   richiesta. Senza, un inoltro interno - per esempio verso /error - lo
-   rifarebbe passare una seconda volta sulla stessa richiesta. */
+   sta chiamando.*/
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -55,11 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String ruolo = this.jwtService.estraiRuolo(token);
 
             /* I permessi si ricostruiscono dal token, SENZA interrogare il
-               database: e' esattamente il senso dello stateless, e il motivo
-               per cui questa catena regge tante richieste senza una query di
-               contorno. Il prezzo e' che un ruolo cambiato nel database non
-               ha effetto finche' il vecchio token non scade.
-
+               database.
                Niente prefisso ROLE_: le authorities sono le stesse stringhe
                che Credentials mette nella colonna role, cosi' le regole si
                scrivono con hasAuthority come nel resto dell'applicazione. */

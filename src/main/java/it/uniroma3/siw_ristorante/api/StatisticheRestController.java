@@ -20,24 +20,6 @@ import it.uniroma3.siw_ristorante.dto.ScontriniMeseDto;
 import it.uniroma3.siw_ristorante.dto.VotiRecensioniDto;
 import it.uniroma3.siw_ristorante.service.StatisticheService;
 
-/* I sei endpoint che alimentano la SPA.
-
-   NESSUNO PORTA L'ID DEL RISTORANTE. Non c'e' un
-   /api/statistiche/{ristoranteId}/riepilogo: il locale e' quello del gestore
-   che ha fatto il login, e il metodo riceve l'Authentication per saperlo. Non
-   e' una scorciatoia, e' la difesa: un id nell'indirizzo sarebbe un numero da
-   cambiare per leggere la cassa di un altro, e andrebbe protetto con un
-   controllo che qualcuno, prima o poi, dimentica su un endpoint. Cosi' non
-   c'e' niente da dimenticare.
-
-   Chi puo' entrare qui lo decide la catena @Order(1) in SecurityConfiguration
-   con una regola sola su /api/statistiche/**: ruolo RISTORATORE. Per questo i
-   metodi non contengono controlli di permessi - sarebbero la stessa regola
-   scritta sei volte.
-
-   I controller non calcolano niente: chiamano il service e restituiscono quel
-   che torna. Le somme, i buchi da riempire e gli arrotondamenti stanno in
-   StatisticheService. */
 @RestController
 @RequestMapping("/api/statistiche")
 @Tag(name = "Statistiche", description = "L'andamento del locale del ristoratore collegato")

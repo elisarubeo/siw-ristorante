@@ -9,25 +9,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
-/* Serve la SPA buildata, e soprattutto fa in modo che ricaricare la pagina su
-   una rotta React non dia 404.
-
-   IL PROBLEMA. Dentro l'applicazione React il cambio di pagina non passa dal
-   server: e' JavaScript che riscrive l'indirizzo nella barra e ridisegna.
-   Ma se a quel punto si preme F5, il browser chiede DAVVERO
-   /statistiche/login al server - un indirizzo a cui non corrisponde nessun
-   file, perche' l'unico file che esiste e' index.html.
-
-   LA SOLUZIONE SBAGLIATA, quella che viene in mente per prima: un controller
-   che inoltra tutto /statistiche/** a index.html. Cosi' pero' si intercetta
-   anche /statistiche/assets/index-a1b2c3.js, e il browser riceve una pagina
-   HTML dove si aspetta del JavaScript. L'errore che ne esce parla di sintassi
-   e manda a cercare il bug nella parte sbagliata del progetto.
-
-   LA SOLUZIONE. Un resolver che prima va a vedere se il file esiste davvero.
-   Se esiste, lo serve (e i .js restano .js). Se non esiste, allora e' una
-   rotta React e si consegna index.html, che ricostruisce la pagina da se'
-   leggendo l'indirizzo. */
 @Configuration
 public class ReactAppConfig implements WebMvcConfigurer {
 

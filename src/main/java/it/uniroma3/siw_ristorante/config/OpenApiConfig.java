@@ -8,15 +8,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
-/* La documentazione dell'API, generata da springdoc leggendo le annotazioni
-   dei controller e pubblicata su /swagger-ui.html.
-
-   Non serve solo a chi legge: e' il posto da cui si provano gli endpoint uno
-   per uno mentre li si scrive, senza React di mezzo. Quando un grafico e'
-   vuoto, la prima domanda e' "l'API risponde?", e la si risponde qui.
-
-   Il SecurityScheme e' quello che fa comparire il pulsante "Authorize":
-   senza, ogni chiamata partirebbe senza token e risponderebbe 401. */
 @Configuration
 public class OpenApiConfig {
 
