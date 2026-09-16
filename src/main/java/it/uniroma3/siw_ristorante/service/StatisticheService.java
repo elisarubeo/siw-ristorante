@@ -57,6 +57,7 @@ public class StatisticheService {
 
     @Transactional(readOnly = true)
     public RiepilogoDto riepilogo(Authentication autenticazione, int anno) {
+        // Traduce l'utente ristorante nel ristorante
         Long id = locale(autenticazione).getId();
 
         long numeroScontrini = this.scontrinoRepository.contaPerAnno(id, anno);
