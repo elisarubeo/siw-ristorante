@@ -21,10 +21,25 @@ interface ValoreAuth {
 
 const AuthContext = createContext<ValoreAuth | undefined>(undefined)
 
+/* Presenza del token in localStorage e sua validita' sono due cose diverse:
+   senza guardare exp resteremmo "collegati" anche con un token gia' scaduto,
+   fino al primo 401. Un token illeggibile vale quanto nessun token. */
+function tokenScaduto(token: string): boolean {
+    try {
+        const parteCentrale = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+        const { exp } = JSON.parse(atob(parteCentrale))
+        return exp * 1000 <= Date.now()
+    } catch {
+        return true
+    }
+}
+
 function utenteSalvato(): Utente | null {
     const token = localStorage.getItem(CHIAVE_TOKEN)
     const salvato = localStorage.getItem(CHIAVE_UTENTE)
-    if (!token || !salvato) {
+    if (!token || !salvato || tokenScaduto(token)) {
+        localStorage.removeItem(CHIAVE_TOKEN)
+        localStorage.removeItem(CHIAVE_UTENTE)
         return null
     }
     try {
