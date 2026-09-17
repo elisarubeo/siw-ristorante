@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,16 +66,28 @@ public class PrenotazioneService {
         return prenotazioneRepository.save(prenotazione);
     }
 
-    /* escludiId serve alla modifica: senza, spostare una prenotazione dalle
+    /* Gli id dei tavoli gia' impegnati nella fascia, chiesti per tutti i
+       candidati in una volta sola. Prima la stessa domanda si faceva un tavolo
+       per volta, e prenotare in un locale con venti tavoli buoni voleva dire
+       venti query.
+
+       escludiId serve alla modifica: senza, spostare una prenotazione dalle
        20:00 alle 20:30 sullo stesso tavolo troverebbe come ostacolo sé stessa. */
-    private boolean isLibero(Tavolo tavolo, LocalDateTime inizio, LocalDateTime fine, Long escludiId) {
-        List<Prenotazione> esistenti = prenotazioneRepository
-                .findByTavoloIdAndStatusNotAndDataPrenotazioneBetween(
-                        tavolo.getId(), StatoPrenotazione.CANCELLED,
-                        inizio.toLocalDate().minusDays(1), fine.toLocalDate().plusDays(1));
-        return esistenti.stream()
+    private Set<Long> tavoliOccupati(List<Tavolo> candidati, LocalDateTime inizio,
+            LocalDateTime fine, Long escludiId) {
+        List<Long> idCandidati = candidati.stream().map(Tavolo::getId).toList();
+
+        return prenotazioneRepository
+                .findByTavoloIdInAndStatusNotAndDataPrenotazioneBetween(
+                        idCandidati, StatoPrenotazione.CANCELLED,
+                        inizio.toLocalDate().minusDays(1), fine.toLocalDate().plusDays(1))
+                .stream()
                 .filter(p -> escludiId == null || !escludiId.equals(p.getId()))
-                .noneMatch(p -> p.sovrappone(inizio, fine));
+                .filter(p -> p.sovrappone(inizio, fine))
+                /* getId() su un'associazione LAZY non fa scattare nessuna
+                   query: l'identificativo lo conosce gia' il proxy. */
+                .map(p -> p.getTavolo().getId())
+                .collect(Collectors.toSet());
     }
 
     private Tavolo assegnaTavolo(Long ristoranteId, Integer numeroPersone,
@@ -85,11 +99,14 @@ public class PrenotazioneService {
             throw new PrenotazioneNonValidaException(
                     "Nessun tavolo di questo ristorante può ospitare " + numeroPersone + " persone");
         }
+
+        Set<Long> occupati = tavoliOccupati(candidati, inizio, fine, escludiId);
+
         /* Candidati ordinati per posti crescenti: si prende il piu' piccolo che
            basta. In modifica il tavolo attuale e' fra questi, quindi se va
            ancora bene viene riscelto senza doverlo trattare come caso a parte. */
         return candidati.stream()
-                .filter(t -> isLibero(t, inizio, fine, escludiId))
+                .filter(t -> !occupati.contains(t.getId()))
                 .findFirst()
                 .orElseThrow(() -> new PrenotazioneNonValidaException(
                         "Nessun tavolo libero per " + numeroPersone + " persone in questa fascia oraria"));

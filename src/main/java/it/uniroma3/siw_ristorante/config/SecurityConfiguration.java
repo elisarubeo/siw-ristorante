@@ -27,11 +27,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/* tools.jackson e non com.fasterxml.jackson: Spring Boot 4 e' passato a
-   Jackson 3, che ha cambiato package. Sul classpath c'e' anche la 2.x, tirata
-   dentro da jjwt e da springdoc, e importare quella darebbe un errore poco
-   chiaro - "nessun bean di tipo ObjectMapper" - perche' il bean di Spring e'
-   dell'altro tipo. */
+
 import tools.jackson.databind.ObjectMapper;
 
 import it.uniroma3.siw_ristorante.dto.ApiError;
